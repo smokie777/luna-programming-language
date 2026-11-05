@@ -19,4 +19,5 @@ class Env:
       throw(f'varname must be str. Got: {varname}')
     self.values[varname] = value
     return self.values[varname]
-  
+
+default_env = Env()

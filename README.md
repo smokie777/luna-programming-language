@@ -1,10 +1,9 @@
 # INTRODUCTION
 
-Luna is designed to be a fun, expressive, and Turing-complete programming language. Here are a few design philosophies that Luna follows:
+Luna is designed to be a fun, expressive, and Turing-complete programming language. Here are a few design philosophies that it follows:
 1. Operations between different types are generally allowed, and should produce intuitive results.
-- However, nonsensical operations like "List divide List" should still be disallowed.
 2. Other than primitive values, Lists are the core implementation structure, and are the building blocks for more advanced functionality such as Functions, Switches, Loops, Dictionaries.
-- As a result, Functions, Switches, etc. should be able to be broken down into variables and composed together, in the same way that a List can be sliced and concatenated.
+3. As a result of #2, Functions, Switches, etc. should be able to be broken down into variables and composed together, in the same way that a List can be sliced and concatenated.
 
 # HIERARCHICAL TYPES
 
@@ -14,13 +13,13 @@ Luna supports these data types:
 3. Number
 4. Boolean
 
-String, Number, and Boolean are primitive Value types. They are referred to in the code using the letter "v" or "V".
+String, Number, and Boolean are primitive Value types, referred to in the code using "v" or "V".
 
-List is a list of primitives, or nested lists. They are referred to in the code using the letter "l" or "L".
+List is a list of primitives, or nested lists, referred to in the code using "l" or "L".
 
-Types in Luna are hierarchical, with List at the top and Boolean at the bottom. This means that when performing operations or type coercion between two different types, the lower-priority type will be converted into the higher-priority type.
+Types in Luna are hierarchical, with List at the top and Boolean at the bottom. In operations between incompatible types, lower types will generally be converted into higher types.
 
-However, any type can still be converted into any other type using explicit type-conversion functions.
+Luna does support converting higher types down to lower types, but this should be used sparingly, as it goes against the idea of hierarchical types.
 
 # SCOPING
 
@@ -28,8 +27,10 @@ Luna implements one scope per function call. The main purpose of a scope is to h
 
 # INTERPRETER
 
-Luna's interpreter uses a recursive evaluation function that evaluates Expressions into Runtime Values.
+Luna's interpreter uses a recursive evaluation function evl() that evaluates Expressions into Runtime Values.
 
 An Expression can be a Value (String/Number/Boolean), a List, or some other operation that takes Expressions as arguments.
 
 A Runtime Value is simply the output of the Python code that the interpreter is written in. For example, a Runtime Value may be a Python string "foo".
+
+All Luna operations are implemented using Runtime Values. Expressions are only to be used in evl().

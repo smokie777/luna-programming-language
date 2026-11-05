@@ -1,11 +1,10 @@
 # evl.py
 
 from expressions import *
-from runtime import *
+from typeutils import *
+from arithmetic import plus, minus
 from utils import throw
-from Env import Env
-
-default_env = Env()
+from Env import default_env
 
 def evl(expr, env = default_env):
   match expr:
@@ -24,12 +23,12 @@ def evl(expr, env = default_env):
       return to_number(evl(e, env))
     case ToString(e):
       return to_string(evl(e, env))
-    case ToList(e):
-      return to_list(evl(e, env))
     case Inverse(e):
       return inverse(e, env)
     case Plus(e1, e2, env):
-      return plus(e1, e2)
+      return plus(evl(e1, env), evl(e2, env))
+    case Minus(e1, e2, env):
+      return minus(evl(e1, env), evl(e2, env))
     case _:
       throw(f'can\'t evalute a non-expression: {expr}')
 
@@ -47,55 +46,3 @@ def inverse(e, env = default_env):
       return v[::-1]
     case _:
       throw(f'can\'t call inverse on: {e}')
-
-# Returns the result of adding expression e2 to expression e1.
-def plus(e1, e2, env = default_env):
-  v1 = evl(e1, env)
-  v2 = evl(e2, env)
-  match v1:
-    case str():
-      match v2:
-        case str():
-          return v1 + v2
-        case bool() | int() | float():
-          return v1 + to_string(v2)
-        case list():
-          return [v1] + v2
-        case _:
-          throw(f'can\'t add {e2} to {e1}.')
-    case bool():
-      match v2:
-        case str():
-          return to_string(v1) + v2
-        case bool():
-          # adding two booleans is nonsensical.
-          # they will be converted the next-higher hierchical type
-          return to_number(v1) + to_number(v2)
-        case int() | float():
-          return to_number(v1) + v2
-        case list():
-          return [v1] + v2
-        case _:
-          throw(f'can\'t add {e2} to {e1}.')
-    case int() | float():
-      match v2:
-        case str():
-          return to_string(v1) + v2
-        case bool():
-          return v1 + to_number(v2)
-        case int() | float():
-          return v1 + v2
-        case list():
-          return [v1] + v2
-        case _:
-          throw(f'can\'t add {e2} to {e1}.')
-    case list():
-      match v2:
-        case str() | bool() | int() | float():
-          return v1 + [v2]
-        case list():
-          return v1 + v2
-        case _:
-          throw(f'can\'t add {e2} to {e1}.')
-    case _:
-      throw(f'can\'t add {e2} to {e1}.')
