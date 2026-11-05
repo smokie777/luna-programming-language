@@ -1,6 +1,6 @@
 # Env.py
 
-from utils import throw
+from utils import luna_throw
 
 class Env:
   def __init__(self, parent=None):
@@ -9,14 +9,14 @@ class Env:
 
   def get(self, varname):
     if type(varname) != str:
-      throw(f'varname must be str. Got: {varname}')
+      luna_throw(f'varname must be str. Got: {varname}')
     if varname in self.values:
       return self.values[varname]
-    throw(f'could not find variable: {varname}')
+    luna_throw(f'could not find variable: {varname}')
 
   def set(self, varname, value):
     if type(varname) != str:
-      throw(f'varname must be str. Got: {varname}')
+      luna_throw(f'varname must be str. Got: {varname}')
     self.values[varname] = value
     return self.values[varname]
 

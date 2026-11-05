@@ -1,10 +1,15 @@
 # typeutils.py
 
-from utils import throw
+from luna_types import Lv
+from utils import luna_throw
 import re
 
+# In Luna, all values can be freely converted across types.
+# Additionally, all falsey values can be freely converted between one another.
+# Falsey values are: False, 0, "", [].
+
 # Converts a runtime value into a boolean runtime value.
-def to_boolean(v):
+def luna_to_boolean(v: Lv) -> bool:
   match v:
     case str():
       return v != ""
@@ -13,12 +18,14 @@ def to_boolean(v):
     case int() | float():
       return v != 0
     case list():
-      return to_boolean(v[0]) if len(v) else False
+      # ideally, the user would specify a reduction like "and" or "or" instead.
+      # but, this case is needed so "and" and "or" don't throw or recurse for nested arrays. 
+      return len(v) != 0 
     case _:
-      throw(f'can\'t call to_boolean on: {v}')
+      luna_throw(f'can\'t call luna_to_boolean on: {v}')
 
 # Converts a runtime value into a number (float or int) runtime value.
-def to_number(v):
+def luna_to_number(v: Lv) -> int | float:
   match v:
     case str():
       # rules:
@@ -32,67 +39,69 @@ def to_number(v):
     case int() | float():
       return v
     case list():
-      return to_number(v[0]) if len(v) else 0
+      luna_throw(f'can\'t call luna_to_number on list {v}. use a reduction like "sum" instead.')
     case _:
-      throw(f'can\'t call to_number on: {v}')
+      luna_throw(f'can\'t call luna_to_number on: {v}')
 
 # Converts a runtime value into a string runtime value.
-def to_string(v):
+def luna_to_string(v: Lv) -> str:
   match v:
     case str():
       return v
     case bool():
-      return "true" if v else "false"
+      return "true" if v else ""
     case int() | float():
       # NOTE: this inherits python's behavior for edge cases. may rewrite later
       return str(v)
     case list():
-      return to_string(v[0]) if len(v) else ""
+      luna_throw(f'can\'t call luna_to_string on list {v}. use a reduction like "join" instead.')
     case _:
-      throw(f'can\'t call to_string on: {v}')
+      luna_throw(f'can\'t call luna_to_string on: {v}')
 
 # Converts a runtime value into a list.
-def to_list(v):
+def luna_to_list(v: Lv) -> list[Lv]:
   match v:
     case str():
       return list(v)
-    case bool() | int() | float():
+    case bool():
+      return [v] if v else []
+    case int() | float():
       return [v]
     case list():
       return v
     case _:
-      throw(f'can\'t call to_list on: {v}')
+      luna_throw(f'can\'t call luna_to_list on: {v}')
 
 # Returns a tuple of runtime values (a, b)
 # where type of b is coerced to that of a.
-def _coerce_left(a, b):
+def _luna_coerce_left(a: Lv, b: Lv) -> Lv:
    match a:
     case str():
-      return (a, to_string(b))
+      return (a, luna_to_string(b))
     case bool():
-      return (a, to_boolean(b))
+      return (a, luna_to_boolean(b))
     case int() | float():
-      return (a, to_number(b))
+      return (a, luna_to_number(b))
     case list():
-      return (a, b) if isinstance(b, list) else (a, to_list(b))
+      return (a, b) if isinstance(b, list) else (a, luna_to_list(b))
     case _:
-      throw(f'can\'t call coerce_left on: {a}, {b}')
+      luna_throw(f'can\'t call coerce_left on: {a}, {b}')
 
   
 # Returns a tuple of runtime values (a, b)
 # where type of a is coerced to that of b.
-def _coerce_right(a, b):
+def _luna_coerce_right(a: Lv, b: Lv) -> Lv:
   match b:
     case str():
-      return (to_string(a), b)
+      return (luna_to_string(a), b)
     case bool():
-      return (to_boolean(a), b)
+      return (luna_to_boolean(a), b)
     case int() | float():
-      return (to_number(a), b)
+      return (luna_to_number(a), b)
     case list():
-      return (a, b) if isinstance(a, list) else (to_list(a), b)
+      return (a, b) if isinstance(a, list) else (luna_to_list(a), b)
     case _:
-      throw(f'can\'t call coerce_right on: {a}, {b}')
+      luna_throw(f'can\'t call coerce_right on: {a}, {b}')
 
 # Returns a tuple (a, b) where both runtime values are
 # converted to the same type.
@@ -102,27 +111,27 @@ def _coerce_right(a, b):
 # 3. Number
 # 4. Boolean
 # Lower types will be converted to higher types.
-def coerce(a, b): 
+def luna_coerce(a: Lv, b: Lv) -> Lv: 
   match a:
     case str():
       match b:
         case str() | bool() | int() | float():
-          return _coerce_left(a, b)
+          return _luna_coerce_left(a, b)
         case list():
-          return _coerce_right(a, b)
+          return _luna_coerce_right(a, b)
         case _:
-          throw(f'can\'t coerce types of: {a} and {b}.')
+          luna_throw(f'can\'t coerce types of: {a} and {b}.')
     case bool():
-      return _coerce_right(a, b)
+      return _luna_coerce_right(a, b)
     case int() | float():
       match b:
         case str() | list():
-          return _coerce_right(a, b)
+          return _luna_coerce_right(a, b)
         case bool() | int() | float():
-          return _coerce_left(a, b)
+          return _luna_coerce_left(a, b)
         case _:
-          throw(f'can\'t coerce types of: {a} and {b}.')
+          luna_throw(f'can\'t coerce types of: {a} and {b}.')
     case list():
-      return _coerce_left(a, b)
+      return _luna_coerce_left(a, b)
     case _:
-      throw(f'can\'t coerce types of: {a}, {b}')
+      luna_throw(f'can\'t coerce types of: {a}, {b}')
