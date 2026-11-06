@@ -3,8 +3,9 @@
 from luna_types import LvList, Lv
 from typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
 from equals import luna_equals
-from arithmetic import luna_plus, luna_minus
+from arithmetic import luna_plus, luna_minus, luna_times, luna_divide
 from collections.abc import Callable
+from utils import luna_throw
 
 # Reduces a list into a single item by calling fn on each sequential
 # pair of items in the list, accumulating the result each time.
@@ -31,9 +32,9 @@ def luna_or(l: LvList) -> bool:
       return True
   return False
 
-# Luna reductions respect type hierarchy based coercion.
-# So, the accumulator is chosen as the first item converted to the highest type in the list.
-def gen_luna_reduce_acc(l: LvList) -> Lv:
+# For sum and difference, the accumulator is
+# the first item converted to the highest type in the list.
+def gen_luna_sum_difference_acc(l: LvList) -> Lv:
   if len(l) == 0:
     return False
   is_acc_string = False
@@ -57,14 +58,24 @@ def luna_sum(l: LvList) -> Lv:
     return False
   elif len(l) == 1:
     return l[0]
-  return luna_reduce(gen_luna_reduce_acc(l), l[1:], luna_plus)
+  return luna_reduce(gen_luna_sum_difference_acc(l), l[1:], luna_plus)
 
 # Returns the difference of all values in a list.
-# In subtraction, the first item is the most important, so
-# the accumulator is chosen to be the first item in the list.
 def luna_difference(l: LvList) -> Lv:
   if len(l) == 0:
     return False
   elif len(l) == 1:
     return l[0]
-  return luna_reduce(gen_luna_reduce_acc(l), l[1:], luna_minus)
+  return luna_reduce(gen_luna_sum_difference_acc(l), l[1:], luna_minus)
+
+# Returns the product of all values in a list.
+def luna_product(l: LvList) -> Lv:
+  if len(l) < 2:
+    return 0
+  return luna_reduce(l[0], l[1:], luna_times)
+
+# Returns the quotient of all values in a list.
+def luna_quotient(l: LvList) -> Lv:
+  if len(l) < 2:
+    luna_throw(f'void divisor is not allowed.')
+  return luna_reduce(l[0], l[1:], luna_divide)

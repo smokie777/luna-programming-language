@@ -65,6 +65,14 @@ class Difference:
   l: list
 
 @dataclass
+class Product:
+  l: list
+
+@dataclass
+class Quotient:
+  l: list
+
+@dataclass
 class And:
   l: object
 

@@ -66,3 +66,9 @@ def test_eval_sum():
 
 def test_eval_difference():
   assert luna_eval(Difference([V(1),V(2),V(3)])) == -4
+
+def test_eval_product():
+  assert luna_eval(Product([V(1),V(2),V(3),V(4)])) == 24
+
+def test_eval_quotient():
+  assert luna_eval(Quotient([V(24),V(2),V(3)])) == 4

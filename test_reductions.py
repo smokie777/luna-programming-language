@@ -16,12 +16,12 @@ def test_or():
   assert luna_or([1,0]) == True
   assert luna_or([0,0]) == False
 
-def test_gen_luna_reduce_acc():
-  assert gen_luna_reduce_acc([False, 1, "2", [3]]) == []
-  assert gen_luna_reduce_acc([False, 1, "2"]) == ""
-  assert gen_luna_reduce_acc([False, 1]) == 0
-  assert gen_luna_reduce_acc([False]) == False
-  assert gen_luna_reduce_acc([]) == False
+def test_gen_luna_sum_difference_acc():
+  assert gen_luna_sum_difference_acc([False, 1, "2", [3]]) == []
+  assert gen_luna_sum_difference_acc([False, 1, "2"]) == ""
+  assert gen_luna_sum_difference_acc([False, 1]) == 0
+  assert gen_luna_sum_difference_acc([False]) == False
+  assert gen_luna_sum_difference_acc([]) == False
 
 def test_sum():
   # same type

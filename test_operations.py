@@ -144,10 +144,83 @@ def test_minus():
       assert luna_minus(x, y) == expected[i]
       i = i + 1
 
-def test_plus_inverse_concatenate_round_trip():
+def test_plus_minus_round_trip():
   a = [1,2,3]
   b = [2,3,4]
   c = luna_plus(a, b)
   assert c == [1,2,3,2,3,4]
   c = luna_minus(c, b)
   assert c == a
+
+def test_times():
+  assert luna_times(True, True) == 1
+  assert luna_times(False, False) == 0
+  assert luna_times(True, False) == 0
+  assert luna_times(False, True) == 0
+  assert luna_times(2, 3) == 6
+  assert luna_times(3, 2) == 6
+  assert luna_times(-2, 3) == -6
+  assert luna_times(3, -2) == -6
+  assert luna_times(-2, -3) == 6
+  assert luna_times("ab", 2) == "abab"
+  assert luna_times(2, "ab") == "abab"
+  assert luna_times([1, 2], 2) == [1,2,1,2]
+  assert luna_times(2, [1, 2]) == [1,2,1,2]
+  assert luna_times("ab", -2) == "baba"
+  assert luna_times(-2, "ab") == "baba"
+  assert luna_times([1, 2], -2) == [2,1,2,1]
+  assert luna_times(-2, [1, 2]) == [2,1,2,1]
+  with pytest.raises(Exception):
+    luna_times("a", "b")
+  with pytest.raises(Exception):
+    luna_times("a", [3])
+  with pytest.raises(Exception):
+    luna_times([3], "a")
+  with pytest.raises(Exception):
+    luna_times([3], [3])
+
+def test_times_one():
+  cases = [True, 2, "3", [4], False, 1, 0, "", []]
+  for i in cases:
+    assert luna_times(i, 1) == i
+    assert luna_times(1, i) == i
+
+def test_times_zero():
+  cases = [True, 2, "3", [4], False, 1, 0, "", []]
+  for i in cases:
+    assert luna_times(i, 0) == luna_void(i)
+    assert luna_times(0, i) == luna_void(i)
+
+def test_divide():
+  assert luna_divide(6, 3) == 2
+  assert luna_divide(3, 6) == 0.5
+  assert luna_divide(-6, 3) == -2
+  assert luna_divide(3, -6) == -0.5
+  assert luna_divide(-3, -6) == 0.5
+  assert luna_divide("abab", "ab") == 2
+  assert luna_divide("abab", 2) == "ab"
+  assert luna_divide("abab", -2) == "ba"
+  assert luna_divide([1,2,1,2],[1,2]) == 2
+  assert luna_divide([1,2,1,2],2) == [1,2]
+  assert luna_divide([1,2,1,2],-2) == [2,1]
+
+def test_divide_one():
+  cases = [2, "3", [4], 1, 0, "", []]
+  for i in cases:
+    assert luna_divide(i, 1) == i
+
+def test_invalid_division():
+  cases = [2, "3", [4], 1, 0, "", []]
+  for i in cases:
+    with pytest.raises(Exception):
+      luna_divide(True, i)
+    with pytest.raises(Exception):
+      luna_divide(False, i)
+    with pytest.raises(Exception):
+      luna_divide(i, 0)
+    with pytest.raises(Exception):
+      luna_divide(i, [])
+    with pytest.raises(Exception):
+      luna_divide(i, "")
+    with pytest.raises(Exception):
+      luna_divide(i, False)

@@ -27,8 +27,20 @@ def luna_eval(expr, env = default_env):
     case Inverse(e):
       return luna_inverse(luna_eval(e, env))
     case Sum(es):
-      return luna_sum([luna_eval(e, env) for e in es])
+      return luna_sum(
+        [luna_eval(e, env) for e in es]
+      )
     case Difference(es):
-      return luna_difference([luna_eval(e, env) for e in es])
+      return luna_difference(
+        [luna_eval(e, env) for e in es]
+      )
+    case Product(es):
+      return luna_product(
+        [luna_eval(e, env) for e in es]
+      )
+    case Quotient(es):
+      return luna_quotient(
+        [luna_eval(e, env) for e in es]
+      )
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')
