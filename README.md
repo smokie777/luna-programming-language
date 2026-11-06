@@ -1,10 +1,10 @@
 # INTRODUCTION
 
-Luna is designed to be a fun, expressive, and Turing-complete programming language. Here are a few design philosophies that it follows:
+Luna is designed to be a fun, expressive, and Turing-complete programming language. Here are a few design philosophies:
 1. Types are hierarchical.
 2. Operations between different types are generally allowed.
 3. Outside of Primitive Values, Lists are the core implementation structure, and are the building blocks for everything else: Functions, Switches, etc.
-4. Since most things are ultimately Lists, they are allowed to be broken down into parts and composed together, just like lists can be sliced and concatenated.
+4. Since most things are ultimately Lists, they can be broken down into parts and composed together, just like lists can be sliced and concatenated.
 
 # 1. HIERARCHICAL TYPES
 
@@ -22,20 +22,34 @@ Types in Luna are hierarchical, with List at the top and Boolean at the bottom. 
 
 Luna does support converting higher types down to lower types, but this should be used sparingly, as it goes against the idea of hierarchical types.
 
-Additionally, Luna does not feature a "null" type. Instead, Luna uses "false", as that is the lowest-most type in the hierarchy.
+Luna does not feature a `null` type. Instead, Luna uses `false`, as that is the lowest-most type in the hierarchy. Additionally, Luna supports one Falsey Value for each type: `[]`, `""`, `0`, `false.`
 
 # 2. CROSS TYPE OPERATIONS
 
-Cross-type operations, such as summing a list of items of different types, is generally allowed, and will respect the type hierarchy. 
+Cross-type operations, such as summing a list of items of different types, is generally allowed, and will respect the type hierarchy. However, each operation gets to define which operations are strictly not allowed. 
 
-Arithmetic operations will operate from left-to-right, and the output type will be the highest type in the List. Specifically, arithmetic operations such as "minus" are implemented using reduction, and the accumulator will be set to the first item converted to the highest type in the List.   
+Most operations operate from left-to-right. When possible, short-circuiting is implemented.
 
-Example: true - 1 - 1 - 1 = -2
-Explanation: the highest type in the items is number, so the output will be a number. True converted to a number is 1, so we have 1 - 1 - 1 - 1 = -2.
+Luna operations are also designed with reversability in mind. For example, plus can be reversed with minus, and times can be reversed with divide.
 
-Example - what if in the above, we subtracted "ue"?: true - 1 - 1 - 1 - "ue" = "tr"
-Explanation: the highest type is now a string. The accumulator in the reduction is boolean true converted into a string: "true". "true" does not end with "1", so the "minus ones" do nothing. But, "true" does end with "ue", so subtracting "ue" from "true" yields "tr". 
-(note that subtraction between lists or strings is implemented as "inverse contatenation", that is, removing a matching sequence from the end of the item.)
+Luna allows to add and subtract strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end).
+
+Luna allows to multiply and divide strings and lists via sequence repetition.
+
+Examples:
+`true + 1 + 1 + 1 + "ue" = "true111ue"`
+`true - 1 - 1 - 1 - "ue" = "tr"`
+Explanation: in addition and subtraction, the return type is the highest type in the list (string). so, each item is coerced into a string, then concatenation is performed.
+
+`"ab" * 2 = "abab"`
+`"abab" / 2 = "ab"`
+`"abab" / "ab = 2`
+`"abab" / 2 = "ab"`
+
+Luna also supports multiplying and dividing strings and lists by negative counts!
+`"abab" * -2 = "baba"`
+`"baba" / -2 = "ab"`
+`"baba" / "ab" = -2`
 
 # 3. LISTS AS THE CORE STRURCTURE
 
@@ -71,4 +85,3 @@ TODO
 
 To run tests: `pytest`
 - This command runs all test files starting with "test_". All methods in test files starting with "test_" will be run.
-
