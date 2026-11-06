@@ -1,10 +1,14 @@
 # INTRODUCTION
 
-Luna is designed to be a fun, expressive, and Turing-complete programming language. Here are a few design philosophies:
+The Luna Programming Language Philosophy:
 1. Types are hierarchical.
 2. Operations between different types are generally allowed.
 3. Outside of Primitive Values, Lists are the core implementation structure, and are the building blocks for everything else: Functions, Switches, etc.
-4. Since most things are ultimately Lists, they can be broken down into parts and composed together, just like lists can be sliced and concatenated.
+4. Since most things are ultimately Lists, they can be broken down into parts and composed together, just like how lists can be sliced and concatenated.
+
+- Luna is a tokenizer + parser + interpreter system implemented in Python.
+- This is a hobby project with the ultimate goal of building a programming language that can be used to write real code!
+- I am just beginning to study Programming Languages and Compilers as part of my MSCS, so please forgive any scuff!
 
 # 1. HIERARCHICAL TYPES
 
@@ -14,23 +18,23 @@ Luna supports these data types:
 3. Number
 4. Boolean
 
-String, Number, and Boolean are primitive Value types.
+String, Number, and Boolean are Primitive Value types.
 
-List is a list of primitives, or nested lists.
+List is a List of Primitives, or nested Lists.
 
 Types in Luna are hierarchical, with List at the top and Boolean at the bottom. In operations between incompatible types, lower types will generally be coerced into higher types.
 
 Luna does support converting higher types down to lower types, but this should be used sparingly, as it goes against the idea of hierarchical types.
 
-Luna does not feature a `null` type. Instead, Luna uses `false`, as that is the lowest-most type in the hierarchy. Additionally, Luna supports one Falsey Value for each type: `[]`, `""`, `0`, `false.`
+Luna does not feature a `null` type. Instead, Luna uses `false`, as that is the lowest-most falsey type in the hierarchy. Additionally, Luna supports one falsey value for each type: `[]`, `""`, `0`, `false.`
 
 # 2. CROSS TYPE OPERATIONS
 
-Cross-type operations, such as summing a list of items of different types, is generally allowed, and will respect the type hierarchy. However, each operation gets to define which operations are strictly not allowed. 
+Cross-type operations, such as summing a list of items of different types, is generally allowed, and will respect the type hierarchy. However, each operation gets to define which operations are allowed, and when type coercion is appropriate. 
 
-Most operations operate from left-to-right. When possible, short-circuiting is implemented.
+Operations evaluate from left-to-right, and short-circuit when possible.
 
-Luna operations are also designed with reversability in mind. For example, plus can be reversed with minus, and times can be reversed with divide.
+Luna operations are designed with reversability in mind. For example, plus can be reversed with minus, and times can be reversed with divide.
 
 Luna allows to add and subtract strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end).
 
@@ -53,11 +57,11 @@ Luna also supports multiplying and dividing strings and lists by negative counts
 
 # 3. LISTS AS THE CORE STRURCTURE
 
-Luna sees all advanced functionality as a List. For example, a Function is seen as a List of Expressions.
+Advanced functionality is implemented using Lists when possible (TBD how exactly this will work)
 
 # 4. EXTREME COMPOSITION!!!
 
-If everything is a List, then everything should be able to be broken apart and composed together.
+If many things are Lists, then many things should be able to be broken apart and composed together. (TBD how exactly this will work)
 
 # SCOPING
 
@@ -67,7 +71,7 @@ Luna implements one scope per function call. The main purpose of a scope is to h
 
 Luna's interpreter uses a recursive evaluation function that evaluates Expressions into Runtime Values.
 
-An Expression can be a Value (String/Number/Boolean), a List, or an Operation that takes Expressions as arguments. Variables are implemented as Operations - both Variable getting and setting. 
+An Expression can be a Value (String/Number/Boolean), a List, or an Operation that takes Expressions as arguments. Variables are implemented as Operations - both getting and setting. 
 
 A Runtime Value is simply the output of the Python code that the interpreter is written in. For example, a Runtime Value may be a Python string "foo".
 
@@ -79,7 +83,10 @@ TODO
 
 # TOKENIZER
 
-TODO
+Luna's tokenizer is implemented as a small finite state machine. It iterates through all the charaters in a .luna file, and breaks them down into a 1D array of Tokens, which can then be fed to the parser.
+
+Examples of Tokens include:
+- String, Number, True, False, Identifier, Equals, Minus
 
 # BOOTSTRAPPING
 
