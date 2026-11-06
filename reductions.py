@@ -4,7 +4,7 @@ from luna_types import LvList, Lv
 from typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
 from equals import luna_equals
 from arithmetic import luna_plus, luna_minus, luna_times, luna_divide
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from utils import luna_throw
 
 # Reduces a list into a single item by calling fn on each sequential
@@ -19,14 +19,14 @@ def luna_reduce(
   return acc
 
 # Returns whether all values in a list are truthy.
-def luna_and(l: LvList) -> bool:
+def luna_and(l: Iterable[Lv]) -> bool:
   for i in l:
     if luna_equals(luna_to_boolean(i), False):
       return False
   return True
 
 # Returns whether at least one value in a list is truthy.
-def luna_or(l: LvList) -> bool:
+def luna_or(l: Iterable[Lv]) -> bool:
   for i in l:
     if luna_equals(luna_to_boolean(i), True):
       return True

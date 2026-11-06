@@ -26,6 +26,14 @@ def luna_eval(expr, env = default_env):
       return luna_to_string(luna_eval(e, env))
     case Inverse(e):
       return luna_inverse(luna_eval(e, env))
+    case And(es):
+      return luna_and(
+        (luna_eval(e, env) for e in es)
+      )
+    case Or(es):
+      return luna_or(
+        (luna_eval(e, env) for e in es)
+      )
     case Sum(es):
       return luna_sum(
         [luna_eval(e, env) for e in es]

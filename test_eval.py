@@ -61,6 +61,12 @@ def test_eval_type_conversions():
 def test_eval_inverse():
   assert luna_eval(Inverse(V(3))) == -3
 
+def test_eval_and():
+  assert luna_eval(And([V(True), V(False)])) == False
+
+def test_eval_or():
+  assert luna_eval(Or([V(True), V(False)])) == True
+
 def test_eval_sum():
   assert luna_eval(Sum([V(1),V(2),V(3)])) == 6
 
