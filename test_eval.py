@@ -63,3 +63,6 @@ def test_eval_inverse():
 
 def test_eval_sum():
   assert luna_eval(Sum([V(1),V(2),V(3)])) == 6
+
+def test_eval_difference():
+  assert luna_eval(Difference([V(1),V(2),V(3)])) == -4

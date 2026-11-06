@@ -61,6 +61,10 @@ class Sum:
   l: list
 
 @dataclass
+class Difference:
+  l: list
+
+@dataclass
 class And:
   l: object
 
