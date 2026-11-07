@@ -1,3 +1,12 @@
-type LvPrimitive = str | bool | int | float
-type LvList = list[LvPrimitive]
-type Lv = LvPrimitive | LvList
+# luna_types.py
+
+from pydantic.dataclasses import dataclass
+
+@dataclass
+class Expression:
+  pass
+
+LvPrimitive = str | bool | int | float
+LvList = list[LvPrimitive]
+Lv = LvPrimitive | LvList
+EvalExpr = LvPrimitive | list | Expression

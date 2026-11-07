@@ -18,14 +18,14 @@ def test_can_set_and_get_function():
 def test_function_execution():
   program = Block([
     VarSet("add_two", fn),
-    FunctionCall(fn, L([V(1), V(2)]))
+    FunctionCall(fn, [1, 2])
   ])
   assert luna_eval(program) == 3
 
 def test_function_execution_with_var_lookup():
   program = Block([
     VarSet("add_two", fn),
-    FunctionCall(VarGet("add_two"), L([V(1), V(2)]))
+    FunctionCall(VarGet("add_two"), [1, 2])
   ])
   assert luna_eval(program) == 3
 
@@ -34,10 +34,10 @@ def test_function_execution_dynamic_args():
     VarSet("add_two", fn),
     FunctionCall(
       VarGet("add_two"),
-      L([
-        FunctionCall(VarGet("add_two"), L([V(1), V(2)])),
-        FunctionCall(VarGet("add_two"), L([V(3), V(4)]))
-      ]),
+      [
+        FunctionCall(VarGet("add_two"), [1, 2]),
+        FunctionCall(VarGet("add_two"), [3, 4])
+      ],
     )
   ])
   assert luna_eval(program) == 10
@@ -45,14 +45,14 @@ def test_function_execution_dynamic_args():
 def test_function_call_invalid_args_or_fn():
   p1 = Block([
     VarSet("add_two", fn),
-    FunctionCall(VarGet("add_two"), L([V(1)]))
+    FunctionCall(VarGet("add_two"), [1])
   ])
   p2 = Block([
     VarSet("add_two", fn),
-    FunctionCall(VarGet("add_two"), V(1))
+    FunctionCall(VarGet("add_two"), 1)
   ])
   p3 = Block([
-    FunctionCall(V(1), L([V(1)]))
+    FunctionCall(1, [1])
   ])
   with pytest.raises(Exception):
     assert luna_eval(p1)
@@ -64,11 +64,11 @@ def test_function_call_invalid_args_or_fn():
 def test_scopes():
   p1 = Block([
     VarSet("add_two", fn),
-    VarSet("a", V(1)),
-    VarSet("b", V(2)),
+    VarSet("a", 1),
+    VarSet("b", 2),
     FunctionCall(
       VarGet("add_two"),
-      L([VarGet("a"), VarGet("b")]),
+      [VarGet("a"), VarGet("b")],
     )
   ])
   assert luna_eval(p1) == 3
@@ -79,10 +79,10 @@ def test_scopes():
   )
   p2 = Block([
     VarSet("set_inner", set_inner),
-    VarSet("a", V(1)),
+    VarSet("a", 1),
     FunctionCall(
       VarGet("set_inner"),
-      L([V(9)]),
+      [9],
     ),
     VarGet("a")
   ])
@@ -92,16 +92,16 @@ def test_function_return():
   return_two = Function(
     [],
     Block([
-      VarSet("a", V(2)),
+      VarSet("a", 2),
       Return(VarGet("a")),
-      VarSet("a", V(4)),
+      VarSet("a", 4),
     ])
   )
   program = Block([
     VarSet("return_two", return_two),
     FunctionCall(
       VarGet("return_two"),
-      L([]),
+      [],
     )
   ])
   assert luna_eval(program) == 2
@@ -111,6 +111,6 @@ def test_recursion_using_factorial():
   factorial = Function(
     ["n"],
     Block([
-      All([Equals([V(2),VarGet("n")])])
+      All([Equals([2, VarGet("n")])])
     ])
   )

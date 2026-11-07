@@ -61,7 +61,22 @@ Advanced functionality is implemented using Lists when possible (TBD how exactly
 
 # 4. EXTREME COMPOSITION!!!
 
-If many things are Lists, then many things should be able to be broken apart and composed together. (TBD how exactly this will work)
+If many things are Lists, then many things should be able to be broken apart and composed together.
+
+For example, in Luna, a Switch can be composed using four parts: condition, cases, branches, default_branch (optional). Then, the Switch can be stored in a Variable (it won't evaluate yet!). Then, later, you can SwitchCall the Switch to activate the Switch. Any variables referenced in the SwitchCall will be searched for in the scope in which the SwitchCall was invoked.
+
+In code:
+```
+-> my_switch {my_var} (
+  1 <> "one",
+  2 <> "two",
+  99 <> "ninetynine"
+)
+-> my_var (99)
+-> result (my_switch())
+print(result) # yields "ninetynine"!
+```
+ 
 
 # SCOPING
 

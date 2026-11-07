@@ -1,27 +1,13 @@
 # expressions.py
 
 from pydantic.dataclasses import dataclass
+from luna_types import Expression, EvalExpr
 
 # Note: pydantic dataclasses automatically handles type checking.
 
 @dataclass
-class Expression:
-  pass
-
-# a primitive value
-@dataclass
-class V(Expression):
-  value: str | int | float | bool
-  
-# a list of primitive values, or a list of expressions.
-@dataclass
-class L(Expression):
-  value: list[Expression]
-
-# similar to L, but will evaluate to the last item in the list
-@dataclass
 class Block(Expression):
-  value: list[Expression]
+  value: EvalExpr
 
 @dataclass
 class VarGet(Expression):
@@ -30,7 +16,7 @@ class VarGet(Expression):
 @dataclass
 class VarSet(Expression):
   varname: str
-  value: Expression
+  value: EvalExpr
 
 @dataclass
 class Function(Expression):
@@ -43,62 +29,72 @@ class Function(Expression):
 
 @dataclass
 class FunctionCall(Expression):
-  fn: Expression
-  args: Expression
+  fn: EvalExpr
+  args: EvalExpr
 
 @dataclass
-class Return(Expression):
-  e: Expression
-
-@dataclass
-class ToBoolean(Expression):
-  e: Expression
-
-@dataclass
-class ToNumber(Expression):
-  e: Expression
-
-@dataclass
-class ToString(Expression):
-  e: Expression
-
-@dataclass
-class ToList(Expression):
-  e: Expression
-
-@dataclass
-class Inverse(Expression):
-  e: Expression
-  
-@dataclass
-class Sum(Expression):
-  l: list[Expression]
-
-@dataclass
-class Difference(Expression):
-  l: list[Expression]
-
-@dataclass
-class Product(Expression):
-  l: list[Expression]
-
-@dataclass
-class Quotient(Expression):
-  l: list[Expression]
-
-@dataclass
-class All(Expression):
-  l: list[Expression]
-
-@dataclass
-class Some(Expression):
-  l: list[Expression]
-
-@dataclass
-class Equals(Expression):
-  l: list[Expression]
+class SwitchBranches(Expression):
+  branches: EvalExpr
 
 @dataclass
 class Switch(Expression):
-  condition: object
-  branches: object
+  condition: EvalExpr
+  cases: EvalExpr
+  branches: EvalExpr
+  default_branch: EvalExpr = False
+
+@dataclass
+class SwitchCall(Expression):
+  switch: EvalExpr
+
+@dataclass
+class Return(Expression):
+  e: EvalExpr
+
+@dataclass
+class ToBoolean(Expression):
+  e: EvalExpr
+
+@dataclass
+class ToNumber(Expression):
+  e: EvalExpr
+
+@dataclass
+class ToString(Expression):
+  e: EvalExpr
+
+@dataclass
+class ToList(Expression):
+  e: EvalExpr
+
+@dataclass
+class Inverse(Expression):
+  e: EvalExpr
+  
+@dataclass
+class Sum(Expression):
+  e: EvalExpr
+
+@dataclass
+class Difference(Expression):
+  e: EvalExpr
+
+@dataclass
+class Product(Expression):
+  e: EvalExpr
+
+@dataclass
+class Quotient(Expression):
+  e: EvalExpr
+
+@dataclass
+class All(Expression):
+  e: EvalExpr
+
+@dataclass
+class Some(Expression):
+  e: EvalExpr
+
+@dataclass
+class Equals(Expression):
+  e: EvalExpr
