@@ -13,6 +13,19 @@ def lunaify(x):
     case _:
       return x
 
+def test_eval_non_expression():
+  with pytest.raises(Exception):
+    assert luna_eval("nonexpression")
+    
+def test_eval_non_env():
+  with pytest.raises(Exception):
+    assert luna_eval(V(3), "nonenv")
+
+def test_eval_env_isolation():
+  luna_eval(VarSet('my_var', V(3)))
+  with pytest.raises(Exception):
+    assert luna_eval(VarGet('my_var'))
+
 def test_expression_v():
   assert V("foo").value == "foo"
   assert V(True).value == True
@@ -41,9 +54,29 @@ def test_eval_lists():
   with pytest.raises(Exception):
     luna_eval(L([1,2]))
 
+def test_eval_block():
+  assert luna_eval(Block([])) == False
+  assert luna_eval(Block([
+    Product([V(2),V(3)]),
+    Product([V(3),V(3)]),
+    Product([V(4),V(3)]),
+  ])) == 12
+
+def test_block_return():
+  assert luna_eval(Block([
+    V(1),
+    Return(V(2)),
+    V(3),
+  ])) == 2
+
 def test_eval_variables():
-  assert luna_eval(VarSet('my_var', V(3))) == 3
-  assert luna_eval(VarGet('my_var')) == 3
+  assert luna_eval(Block([
+    VarSet('my_var', V(3)),
+  ])) == 3
+  assert luna_eval(Block([
+    VarSet('my_var', V(3)),
+    VarGet('my_var')
+  ])) == 3
   with pytest.raises(Exception):
     luna_eval(VarSet("my_var", 3))
   with pytest.raises(Exception):
@@ -61,11 +94,14 @@ def test_eval_type_conversions():
 def test_eval_inverse():
   assert luna_eval(Inverse(V(3))) == -3
 
-def test_eval_and():
-  assert luna_eval(And([V(True), V(False)])) == False
+def test_eval_all():
+  assert luna_eval(All([V(True), V(False)])) == False
 
-def test_eval_or():
-  assert luna_eval(Or([V(True), V(False)])) == True
+def test_eval_some():
+  assert luna_eval(Some([V(True), V(False)])) == True
+
+def test_eval_equals():
+  assert luna_eval(Equals([V(3), V(3)])) == True
 
 def test_eval_sum():
   assert luna_eval(Sum([V(1),V(2),V(3)])) == 6

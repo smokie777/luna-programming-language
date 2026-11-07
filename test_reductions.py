@@ -7,14 +7,26 @@ def test_reduce():
   assert luna_reduce(0, [1,2,3], lambda a, b: a + b) == 6
 
 def test_and():
+  assert luna_and([]) == False
+  assert luna_and([1]) == True
   assert luna_and([1,2]) == True
   assert luna_and([1,0]) == False
   assert luna_and([0,0]) == False
 
 def test_or():
+  assert luna_and([]) == False
+  assert luna_and([1]) == True
   assert luna_or([1,2]) == True
   assert luna_or([1,0]) == True
   assert luna_or([0,0]) == False
+
+def test_equals_all():
+  assert luna_equals_all([]) == False
+  assert luna_equals_all([1]) == True
+  assert luna_equals_all([1, 2]) == False
+  assert luna_equals_all([1, 1]) == True
+  assert luna_equals_all([1,1,1]) == True
+  assert luna_equals_all([1,2,1]) == False
 
 def test_gen_luna_sum_difference_acc():
   assert gen_luna_sum_difference_acc([False, 1, "2", [3]]) == []

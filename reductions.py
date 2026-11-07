@@ -20,10 +20,12 @@ def luna_reduce(
 
 # Returns whether all values in a list are truthy.
 def luna_and(l: Iterable[Lv]) -> bool:
+  count = 0
   for i in l:
+    count += 1
     if luna_equals(luna_to_boolean(i), False):
       return False
-  return True
+  return count != 0
 
 # Returns whether at least one value in a list is truthy.
 def luna_or(l: Iterable[Lv]) -> bool:
@@ -31,6 +33,17 @@ def luna_or(l: Iterable[Lv]) -> bool:
     if luna_equals(luna_to_boolean(i), True):
       return True
   return False
+
+# Returns whether all values in a list are equal.
+def luna_equals_all(l: LvList) -> Lv:
+  prev = None
+  for i in l:
+    if prev is None:
+      prev = i
+    else:
+      if not luna_equals(i, prev):
+        return False
+  return prev is not None
 
 # For sum and difference, the accumulator is
 # the first item converted to the highest type in the list.

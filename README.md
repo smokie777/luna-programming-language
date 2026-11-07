@@ -65,7 +65,9 @@ If many things are Lists, then many things should be able to be broken apart and
 
 # SCOPING
 
-Luna implements one scope per function call. The main purpose of a scope is to hold variable defintions. If code execution cannot find a Variable defined in the current scope, it will attempt to find it in the next parent scope. Scoping is implemented at the interpreter level using Environents.
+Luna implements one nested scope per function call. A scope holds variable definitions.
+- Getting a variable will first try to find it in the current scope, and if not present, will try to find it in subsequent parent scopes.
+- Setting a variable will only set the value in the current scope. An inner function scope cannot modify variables in outer scopes - otherwise, data in an outer function call could change mid-execution, which should be avoided.
 
 # INTERPRETER
 

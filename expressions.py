@@ -1,90 +1,104 @@
 # expressions.py
 
-from utils import luna_throw
+from pydantic.dataclasses import dataclass
 
-from dataclasses import dataclass
+# Note: pydantic dataclasses automatically handles type checking.
 
 @dataclass
-class V:
+class Expression:
+  pass
+
+# a primitive value
+@dataclass
+class V(Expression):
   value: str | int | float | bool
-  def __post_init__(self):
-    if type(self.value) not in (str, int, float, bool):
-      luna_throw(f'V may only be constructed using a primitive: str, int, float, bool. Got: {self.value}')
+  
+# a list of primitive values, or a list of expressions.
+@dataclass
+class L(Expression):
+  value: list[Expression]
+
+# similar to L, but will evaluate to the last item in the list
+@dataclass
+class Block(Expression):
+  value: list[Expression]
 
 @dataclass
-class L:
-  value: list
-  def __post_init__(self):
-    if (
-      type(self.value) != list
-      or any([not isinstance(v, V) for v in self.value]) 
-    ):
-      luna_throw(f'L may only be constructed as a List of V. Got: {self.value}')
-
-@dataclass
-class VarGet:
+class VarGet(Expression):
   varname: str
-  def __post_init__(self):
-    if type(self.varname) != str:
-      luna_throw(f'varname for VarGet may only be a string. Got: {self.varname}')
-
-@dataclass
-class VarSet:
-  varname: str
-  value: object
-  def __post_init__(self):
-    if type(self.varname) != str:
-      luna_throw(f'varname for VarSet may only be a string. Got: {self.varname}')
-
-@dataclass
-class ToBoolean:
-  e: object
-
-@dataclass
-class ToNumber:
-  e: object
-
-@dataclass
-class ToString:
-  e: object
-
-@dataclass
-class ToList:
-  e: object
-
-@dataclass
-class Inverse:
-  e: object
   
 @dataclass
-class Sum:
-  l: list
+class VarSet(Expression):
+  varname: str
+  value: Expression
 
 @dataclass
-class Difference:
-  l: list
+class Function(Expression):
+  args_varnames: list[str]
+  block: Block
+  closure: None = None  # this will be set during evaluation
+  def __post_init__(self):
+    if len(self.args_varnames) != len(set(self.args_varnames)):
+      raise ValueError("Function argument names must be unique.")
 
 @dataclass
-class Product:
-  l: list
+class FunctionCall(Expression):
+  fn: Expression
+  args: Expression
 
 @dataclass
-class Quotient:
-  l: list
+class Return(Expression):
+  e: Expression
 
 @dataclass
-class And:
-  l: object
+class ToBoolean(Expression):
+  e: Expression
 
 @dataclass
-class Or:
-  l: object
+class ToNumber(Expression):
+  e: Expression
 
 @dataclass
-class Equals:
-  l: object
+class ToString(Expression):
+  e: Expression
 
 @dataclass
-class Switch:
+class ToList(Expression):
+  e: Expression
+
+@dataclass
+class Inverse(Expression):
+  e: Expression
+  
+@dataclass
+class Sum(Expression):
+  l: list[Expression]
+
+@dataclass
+class Difference(Expression):
+  l: list[Expression]
+
+@dataclass
+class Product(Expression):
+  l: list[Expression]
+
+@dataclass
+class Quotient(Expression):
+  l: list[Expression]
+
+@dataclass
+class All(Expression):
+  l: list[Expression]
+
+@dataclass
+class Some(Expression):
+  l: list[Expression]
+
+@dataclass
+class Equals(Expression):
+  l: list[Expression]
+
+@dataclass
+class Switch(Expression):
   condition: object
   branches: object
