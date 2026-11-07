@@ -98,3 +98,19 @@ class Some(Expression):
 @dataclass
 class Equals(Expression):
   e: EvalExpr
+
+@dataclass
+class Lt(Expression):
+  e: EvalExpr
+
+@dataclass
+class Lte(Expression):
+  e: EvalExpr
+
+@dataclass
+class Gt(Expression):
+  e: EvalExpr
+
+@dataclass
+class Gte(Expression):
+  e: EvalExpr

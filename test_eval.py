@@ -75,6 +75,18 @@ def test_eval_some():
 def test_eval_equals():
   assert luna_eval(Equals([3, 3])) == True
 
+def test_eval_lt():
+  assert luna_eval(Lt([1,2])) == True
+
+def test_eval_lte():
+  assert luna_eval(Lte([1,1,2])) == True
+
+def test_eval_gt():
+  assert luna_eval(Gt([2,1])) == True
+
+def test_eval_gte():
+  assert luna_eval(Gte([2,1,1])) == True
+
 def test_eval_sum():
   assert luna_eval(Sum([1,2,3])) == 6
 

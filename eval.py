@@ -90,23 +90,40 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
     case Inverse(e):
       return luna_inverse(luna_eval(e, env))
     case All(e):
-      if isinstance(e, list):
-        # short circuit
+      if isinstance(e, list): # short circuit
         return luna_and((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "All")
       return luna_and([luna_eval(i, env) for i in l])
     case Some(e):
-      if isinstance(e, list):
-        # short circuit
+      if isinstance(e, list): # short circuit
         return luna_or((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Some")
       return luna_or([luna_eval(i, env) for i in l])
     case Equals(e):
-      if isinstance(e, list):
-        # short circuit
+      if isinstance(e, list): # short circuit
         return luna_equals_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
       return luna_equals_all([luna_eval(i, env) for i in l])
+    case Lt(e):
+      if isinstance(e, list): # short circuit
+        return luna_lt_all((luna_eval(i, env) for i in e))
+      l = eval_to_list_or_throw(e, env, "Equals")
+      return luna_lt_all([luna_eval(i, env) for i in l])
+    case Lte(e):
+      if isinstance(e, list): # short circuit
+        return luna_lte_all((luna_eval(i, env) for i in e))
+      l = eval_to_list_or_throw(e, env, "Equals")
+      return luna_lte_all([luna_eval(i, env) for i in l])
+    case Gt(e):
+      if isinstance(e, list): # short circuit
+        return luna_gt_all((luna_eval(i, env) for i in e))
+      l = eval_to_list_or_throw(e, env, "Equals")
+      return luna_gt_all([luna_eval(i, env) for i in l])
+    case Gte(e):
+      if isinstance(e, list): # short circuit
+        return luna_gte_all((luna_eval(i, env) for i in e))
+      l = eval_to_list_or_throw(e, env, "Equals")
+      return luna_gte_all([luna_eval(i, env) for i in l])
     case Sum(e):
       l = eval_to_list_or_throw(e, env, "Sum")
       return luna_sum([luna_eval(i, env) for i in l])

@@ -3,6 +3,7 @@
 from luna_types import LvList, Lv
 from typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
 from equals import luna_equals
+from inequality import luna_lt, luna_lte, luna_gt, luna_gte
 from arithmetic import luna_plus, luna_minus, luna_times, luna_divide
 from collections.abc import Callable, Iterable
 from utils import luna_throw
@@ -36,14 +37,14 @@ def luna_or(l: Iterable[Lv]) -> bool:
 
 # Returns whether all values in a list are equal.
 def luna_equals_all(l: LvList) -> Lv:
-  prev = None
+  first = None
   for i in l:
-    if prev is None:
-      prev = i
+    if first is None:
+      first = i
     else:
-      if not luna_equals(i, prev):
+      if not luna_equals(i, first):
         return False
-  return prev is not None
+  return first is not None
 
 # For sum and difference, the accumulator is
 # the first item converted to the highest type in the list.
@@ -92,3 +93,51 @@ def luna_quotient(l: LvList) -> Lv:
   if len(l) < 2:
     luna_throw(f'void divisor is not allowed.')
   return luna_reduce(l[0], l[1:], luna_divide)
+
+# Returns whether a list satisfies the named equality chain
+def luna_lt_all(l: LvList) -> Lv:
+  count = 0
+  curr = None
+  for i in l:
+    count += 1
+    if curr is None:
+      curr = i
+    elif luna_gte(curr, i):
+      return False
+  return count != 0
+
+# Returns whether a list satisfies the named equality chain
+def luna_gt_all(l: LvList) -> Lv:
+  count = 0
+  curr = None
+  for i in l:
+    count += 1
+    if curr is None:
+      curr = i
+    elif luna_lte(curr, i):
+      return False
+  return count != 0
+
+# Returns whether a list satisfies the named equality chain
+def luna_lte_all(l: LvList) -> Lv:
+  count = 0
+  curr = None
+  for i in l:
+    count += 1
+    if curr is None:
+      curr = i
+    elif luna_gt(curr, i):
+      return False
+  return count != 0
+
+# Returns whether a list satisfies the named equality chain
+def luna_gte_all(l: LvList) -> Lv:
+  count = 0
+  curr = None
+  for i in l:
+    count += 1
+    if curr is None:
+      curr = i
+    elif luna_lt(curr, i):
+      return False
+  return count != 0
