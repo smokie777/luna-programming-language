@@ -1,6 +1,6 @@
 # test_reductions.py
 
-from reductions import *
+from .reductions import *
 import pytest
 
 def test_reduce():

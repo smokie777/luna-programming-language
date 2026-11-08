@@ -1,6 +1,6 @@
 # Env.py
 
-from utils import luna_throw
+from .utils import luna_throw
 
 # Variables can be get from parent scope if not in current scope.
 # Variables will only be set in current scope.

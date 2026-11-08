@@ -1,8 +1,8 @@
 # test_inequality.py
 
 import pytest
-from inequality import *
-from reductions import *
+from .inequality import *
+from .reductions import *
 
 def test_lt():
   assert luna_lt("a", "aa") == True

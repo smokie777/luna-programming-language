@@ -2,7 +2,7 @@
 
 from pydantic.dataclasses import dataclass
 from pydantic import Field
-from luna_types import Expression, EvalExpr
+from .luna_types import Expression, EvalExpr
 
 # Note: pydantic dataclasses automatically handles type checking.
 

@@ -1,8 +1,8 @@
 # test_tokenizer.py
 
 import pytest
-from tokenizer.luna_tokenize import luna_tokenize
-from tokenizer.Token import *
+from .luna_tokenize import luna_tokenize
+from .Token import *
 
 def test_tokenize_empty_file():
   assert luna_tokenize("") == []

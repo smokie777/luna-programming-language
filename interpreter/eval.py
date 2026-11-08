@@ -1,12 +1,12 @@
 # eval.py
 
-from expressions import *
-from typeutils import *
-from arithmetic import *
-from reductions import *
-from utils import *
-from Env import Env
-from luna_types import EvalExpr
+from .expressions import *
+from .typeutils import *
+from .arithmetic import *
+from .reductions import *
+from .utils import *
+from .Env import Env
+from .luna_types import EvalExpr
 
 # Evaluates an expression recursively.
 # Each function call creates a new scope.

@@ -1,8 +1,8 @@
 # inequality.py
 
-from equals import luna_equals
-from luna_types import Lv
-from utils import luna_throw
+from .equals import luna_equals
+from .luna_types import Lv
+from .utils import luna_throw
 
 # Rules for Luna inequality:
 # Returns false if different types are encountered.

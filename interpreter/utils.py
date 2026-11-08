@@ -1,6 +1,7 @@
 # utils.py
 
-from luna_types import Lv
+from .luna_types import Lv
+
 def luna_throw(message: str):
   raise Exception(f'[LUNA ERROR] {message}')
 

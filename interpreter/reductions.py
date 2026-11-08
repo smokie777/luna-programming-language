@@ -1,12 +1,12 @@
 # reductions.py
 
-from luna_types import LvList, Lv
-from typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
-from equals import luna_equals
-from inequality import luna_lt, luna_lte, luna_gt, luna_gte
-from arithmetic import luna_plus, luna_minus, luna_times, luna_divide
+from .luna_types import LvList, Lv
+from .typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
+from .equals import luna_equals
+from .inequality import luna_lt, luna_lte, luna_gt, luna_gte
+from .arithmetic import luna_plus, luna_minus, luna_times, luna_divide
 from collections.abc import Callable, Iterable
-from utils import luna_throw
+from .utils import luna_throw
 
 # Reduces a list into a single item by calling fn on each sequential
 # pair of items in the list, accumulating the result each time.

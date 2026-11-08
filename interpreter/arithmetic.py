@@ -1,9 +1,9 @@
 # arithmetic.py
 
-from luna_types import Lv
-from typeutils import *
-from equals import luna_equals
-from utils import luna_throw, luna_inverse, luna_void
+from .luna_types import Lv
+from .typeutils import *
+from .equals import luna_equals
+from .utils import luna_throw, luna_inverse, luna_void
 
 # Returns a new list or string which is the result of
 # removing the sequence b from the end of a.

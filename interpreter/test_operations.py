@@ -1,9 +1,9 @@
 # test_operations.py
 
-from typeutils import *
-from arithmetic import *
-from equals import luna_equals
-from utils import *
+from .typeutils import *
+from .arithmetic import *
+from .equals import luna_equals
+from .utils import *
 import pytest
 
 def test_coerce():

@@ -1,7 +1,7 @@
 # typeutils.py
 
-from luna_types import Lv
-from utils import luna_throw
+from .luna_types import Lv
+from .utils import luna_throw
 import re
 
 # In Luna, all values can be freely converted across types.

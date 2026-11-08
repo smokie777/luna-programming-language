@@ -1,6 +1,6 @@
 # equals.py
 
-from luna_types import Lv
+from .luna_types import Lv
 
 # Returns whether two values are equal.
 # Different types are never equal.
