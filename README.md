@@ -18,123 +18,151 @@ Types in Luna are hierarchical, with List at the top and Boolean at the bottom. 
 
 Luna does support converting higher types down to lower types, but this should be used sparingly, as it goes against the idea of hierarchical types.
 
-Luna does not feature a `null` type. Instead, Luna uses `false`, as that is the lowest-most falsey type in the hierarchy. Additionally, Luna supports one falsey value for each type: `[]`, `""`, `0`, `false.`
+Luna does not feature a `null` type; instead it uses `false`, as that is the falsey value of the lowest type in the hierarchy. Additionally, there is one falsey value for each type: `[]`, `""`, `0`, `false.`
 
 # CROSS TYPE OPERATIONS
 
-Cross-type operations, such as summing a list of items of different types, is generally allowed, and will respect the type hierarchy. However, each operation gets to define which operations are allowed, and when type coercion is appropriate. 
+Cross-type operations across Values are generally allowed, and will respect the type hierarchy. However, each operation gets to define which operations are allowed, and when type coercion is appropriate. 
 
 Operations evaluate from left-to-right, and short-circuit when possible.
 
-Luna operations are designed with reversability in mind. For example, plus can be reversed with minus, and times can be reversed with divide.
+Luna operations are designed with reversability in mind. For example, Plus can be reversed with Minus, and Times can be reversed with Divide.
 
-Luna allows to add and subtract strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end).
-
-Luna allows to multiply and divide strings and lists via sequence repetition.
+While interesting cross-type operations is not the main focus of the language, some unconventional ones are allowed:
+- Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
+- Multiplication/Division of strings and lists via sequence repetition
 
 Examples:
 `true + 1 + 1 + 1 + "ue" = "true111ue"`
 `true - 1 - 1 - 1 - "ue" = "tr"`
-Explanation: in addition and subtraction, the return type is the highest type in the list (string). so, each item is coerced into a string, then concatenation is performed.
+Explanation: the highest type in the list is string, so each item is coerced into a string, then concatenation is performed.
 
 `"ab" * 2 = "abab"`
 `"abab" / 2 = "ab"`
 `"abab" / "ab = 2`
 `"abab" / 2 = "ab"`
+Explanation: sequence repetition, then reversal of sequence repetition.
 
-Luna also supports multiplying and dividing strings and lists by negative counts!
 `"abab" * -2 = "baba"`
 `"baba" / -2 = "ab"`
 `"baba" / "ab" = -2`
-
-Note that cross-type operations are generally only permitted across Value types, as opposed to across all keywords. After all, multiplying a function by a list makes no sense. However, Blocks are able to be added together, and multiplied by numbers to repeat them (more on this later).
+Explanation: multiplying and dividing strings and lists by negative numbers creates their "inverse": a reversed sequence!
  
-# COMPOSABLE BLOCKS
+# COMPOSABLE PROGRAMS
 
-The fundamental representation of a sequence of Expressions in Luna is called a Block, represented by `()`. By default, a Block will be evaluated to its last Expression.
+The fundamental representation of a sequence of Expressions in Luna is a Program, represented by a sequence of Expressions separated by newlines. A Program will evaluate to the last expression in the sequence.
 
-A .luna program in its entirety is considered to be a Block!
 ```
 print(1)
 print(2)
 print(3)
 ```
+Explanation: a .luna file in its entirety is a Program!
 
-Other common examples of Blocks are Function bodies
+```
+=>()(
+  1
+  2
+  3
+)
+```
+Explanation: a Function body is also a Program! This function will return `3`
+
+One eventual goal of Luna is to implement composable Programs - for example, combining two Programs by concatenating their lists of Expressions.
 
 # FROZEN EXPRESSIONS
 
-In Luna, you can write `<>` before an Expression to Freeze it. A Frozen Expression will not be evaluated the next time it is evaluated. This is especially useful for defining Expressions like Functions, as Functions should be evaluated when Invoked, not when defined. In fact, Functions in Luna will be automatically Frozen by the parser, so that you do not need to write `<>`.
+In Luna, you can write `<>` before an Expression to Freeze it. A Frozen Expression will not be evaluated the next time it is evaluated. Then, you can freely re-assign the expression to other Variables, or delay its evaluation until later.
 
-Say we write `<>(print(3))`. The Block containing the Print Expression is Frozen, and the next time this is Evaluated, the Freeze will be consumed, and `(print(3))` will be returned. Note that this does not actually Print anything. 
+Every Expression in Luna can be frozen, including Switches! This should hopefully allow for some creative program designs.
 
-Any Frozen expression can be forced to Evaluate if it is Invoked (see below).
+Any Frozen expression can be forced to Evaluate if it is Invoked using `()` (see below).
 
-At the AST level, Freezing an Expression means wrapping it in a Frozen class, which will then be handled by the Interpreter.
+At the AST level, Freezing an Expression means wrapping it in a Frozen class, which will then be handled by the Interpreter. Function definitions will automatically be frozen without the user needing to write `<>`.
 
-Example: Freezing a block and then Invoking it later (see next section)
 ```
--> a 1
--> my_block = <>(
-  -> a 2
-)
-print(a) # 1
-my_block()
-print(a) # 2
-<>(
-  -> a 2
-)()
-print(a) # 3
+-> a print(1)
+-> b <>Print(2)
+-> c print(3)
 ```
+Explanation: `1, 3` is printed. The `b` variable contains a Frozen Print statement! It is not evaluated until it is invoked.
 
 # INVOCATIONS
 
 In Luna, Invocations, indicated with `()` serve two purposes:
-1. Invoke, Functions, Switches, and Loops, causing them to Evaluate, with or without Arguments
-2. Evaluate a Frozen expression, such as a Frozen Block.
+1. Invoke Functions and other Invokables, causing them to Evaluate, with or without Arguments (currently, Function is the only supported Invokable.)
+2. Evaluate any Frozen expression, such as a Frozen Print or Switch Expression.
 
-Invoking this Frozen Block will Print "3": `<>(print(3))()`
+```
+-> a print(1)
+-> b <>Print(2)
+-> c print(3)
+b()
+```
+Explanation: in the same example as before, now we can print `1, 3, 2` by Invoking the `Print(2)`.
 
 # FUNCTIONS AND SCOPING
 
 Luna supports dynamically scoped Functions with Arguments.
 
-Each Function evaluation creates a new Scope, which holds Variable definitions. If a Scope does not contain a Variable, the interpreter will try to find that Variable in the next parent Scope. However, Variables can only be set and modified in the current Scope.
+Each Function evaluation creates a new Scope, which holds Variable definitions and other scope-related information. If a Scope does not contain a Variable (for getting and setting), the interpreter will try to find that Variable in the next parent Scope.
 
 Example of Function definition and Invocation:
 ```
-=> my_func (a, b)(
+-> my_func(a, b)(
   a + b
 )
 my_func(1, 2)
 ```
 
-The `return` keyword can be used to early exit a function that is currently being invoked.
+The `<<` keyword can be used to return from a function call, with or without a return expression after it.
 
-Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to become Un-Frozen. Then, Invoke will run directly on the Un-Frozen Function.
+Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to evaluate and become Un-Frozen. So, the environment will store the function as Un-Frozen. But, the Function body will only be evaluated when Invoked.
 
 # SWITCHES
 
-Luna handles logical branching using Switches. There are no "if statements" - only Switches. A Switch can be Evaluated immediately, or composed using a Condition, Cases, Branches, and Default Branch, and Evaluated later.
+Luna handles logical branching using Switches. There are no "if statements" - only Switches.
+- The Switch condition can be composed.
+- Switch cases will be eagerly evaluated when a Switch is evaluated.
+- Switch branches will NOT be evaluated until the matching branch was found during runtime.
 
 Switch Evaluated immediately:
 ```
--> x {4}(
-  3 >> "three"
-  4 >> "four
+{4}(
+  3 >> print("three")
+  4 >> print("four")
+  _ >> print("fallback")
 )
-print(x) # "four"
+# prints "four"
 ```
 
-Frozen Switch Evaluated at Invocation: 
+Frozen Switch with Composed Condition Evaluated at Invocation: 
 ```
--> x <>{4}(
+-> my_frozen_switch <>{my_condition}(
   3 >> "three"
   4 >> "four
 )
--> y x()
-print(y) # "four"
+-> my_condition 3
+-> my_switch_result my_frozen_switch()
+print(my_switch_result) # prints "three"
 ```
+Note: The switch was composed using a variable reference that did not exist at the time! This is allowed, as that variable got defined before the switch was invoked.
+
+Switch shorthand to implement an "if statement":
+```
+{4=4}(print("I will be printed!"))
+{3=4}(print("I will not be printed!"))
+```
+Explanation: if the switch body is exactly one Expression instead of a sequence of cases and branches, it is treated as a `true` branch.
+
+Switch shorthand to implement "if-then-else" ternary:
+```
+{4=4}(
+  print("I will be printed!")
+  print("I will not be printed!")
+)
+```
+Explanation: if the switch body is exactly two Expressions instead of a sequence of cases and branches, it is treated as a `true`/`false` ternary.
 
 # INTERPRETER
 
@@ -143,6 +171,41 @@ Luna's Interpreter uses a recursive evaluation function that evaluates Expressio
 An Expression can be a Python int/bool/str/list, or an Expression class.
 
 A Runtime Value is simply the output of the Python code that the interpreter is written in. For example, a Runtime Value may be a Python string "foo".
+
+Example of (Python) Interpreter code which produces and executes a recursive Factorial function with `n=4` that will print `24`:
+```
+fact = Function(
+  ["n"],
+  Program([
+    Switch(
+      Lte([VarGet("n"), 2]),
+      [True, False],
+      [
+        Return(VarGet("n")),
+        Return(Product([
+          VarGet("n"),
+          Invoke(VarGet("fact"), [Difference([VarGet("n"), 1])])
+        ]))
+      ],
+    )
+  ])
+)
+p = Program([
+  VarSet("fact", fact),
+  Print(Invoke(VarGet("fact"), [4]))
+])
+```
+
+The actual Luna code to generate this interpreter code would be:
+```
+-> fact (n)(
+  {n<=2}(
+    << n
+    << n * fact(n - 1)
+  )
+)
+print(fact(4))
+```
 
 # PARSER
 

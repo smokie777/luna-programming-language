@@ -2,6 +2,7 @@
 
 from equals import luna_equals
 from luna_types import Lv
+from utils import luna_throw
 
 # Rules for Luna inequality:
 # Returns false if different types are encountered.
@@ -38,7 +39,7 @@ def luna_lt(a: Lv, b: Lv) -> bool:
         case _:
           return False
     case _:
-      return False
+      luna_throw(f'can\'t perform inequality check between: {b},{a}')
 
 
 # Returns whether a is greater than b

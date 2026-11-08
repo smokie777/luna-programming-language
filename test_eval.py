@@ -4,6 +4,11 @@ from expressions import *
 from eval import luna_eval
 import pytest
 
+fn = Function(
+  ["a", "b"],
+  Program([Sum([VarGet("a"), VarGet("b")])])
+)
+
 def test_eval_non_expression():
   with pytest.raises(Exception):
     assert luna_eval({})
@@ -17,6 +22,17 @@ def test_eval_env_isolation():
   with pytest.raises(Exception):
     assert luna_eval(VarGet('my_var'))
 
+def test_get_and_set_variables():
+  luna_eval(Program([
+    VarSet("a", 1),
+    VarGet("a")
+  ])) == 1
+  with pytest.raises(Exception):
+    luna_eval(Program([
+      VarSet("a", 1),
+      VarGet("b")
+    ]))
+
 def test_eval_values():
   assert luna_eval(3) == 3
   assert luna_eval(0) == 0
@@ -28,40 +44,46 @@ def test_eval_values():
 def test_eval_lists():
   assert luna_eval([1,2]) == [1,2]
 
-def test_eval_block():
-  assert luna_eval(Block([])) == False
-  assert luna_eval(Block([
+def test_eval_list_exprs():
+  assert luna_eval([]) == []
+  assert luna_eval([
     Product([2,3]),
     Product([3,3]),
     Product([4,3]),
-  ])) == 12
+  ]) == [6,9,12]
+
+def test_eval_program_returns_last_expr_only():
+  assert luna_eval(Program([
+    1,
+    2
+  ])) == 2
 
 def test_block_return_outside_fn_throws():
   with pytest.raises(Exception):
-    assert luna_eval(Block([
+    assert luna_eval(Program([
       1,
       Return(2),
       3,
     ]))
 
 def test_eval_frozen_block():
-  assert luna_eval(Block([
+  assert luna_eval(Program([
     VarSet("a", 1),
-    VarSet("foo", Frozen(Block([VarSet("a", 2)]))),
+    VarSet("foo", Frozen([VarSet("a", 2)])),
     VarGet("a")
   ])) == 1
-  assert luna_eval(Block([
+  assert luna_eval(Program([
     VarSet("a", 1),
-    VarSet("foo", Frozen(Block([VarSet("a", 2)]))),
-    Invoke(VarGet("foo"), []),
+    VarSet("foo", Frozen([VarSet("a", 2)])),
+    Invoke(VarGet("foo")),
     VarGet("a")
   ])) == 2
 
 def test_eval_variables():
-  assert luna_eval(Block([
+  assert luna_eval(Program([
     VarSet('my_var', 3),
   ])) == 3
-  assert luna_eval(Block([
+  assert luna_eval(Program([
     VarSet('my_var', 3),
     VarGet('my_var')
   ])) == 3
@@ -76,7 +98,7 @@ def test_eval_type_conversions():
   assert luna_eval(ToBoolean(3)) == True
   assert luna_eval(ToNumber("3")) == 3
   assert luna_eval(ToString(3)) == "3"
-
+  
 def test_eval_inverse():
   assert luna_eval(Inverse(3)) == -3
 
@@ -112,3 +134,6 @@ def test_eval_product():
 
 def test_eval_quotient():
   assert luna_eval(Quotient([24,2,3])) == 4
+
+def test_eval_invoke_random_stuff():
+  assert luna_eval(Invoke(Sum([1,2,3]))) == 6

@@ -10,6 +10,7 @@ class Env:
     self.parent = parent
     self.is_function_scope = is_function_scope
     self.is_function_returning = False
+    self.depth = 0
 
   def get(self, varname):
     if type(varname) != str:
@@ -25,13 +26,3 @@ class Env:
       luna_throw(f'varname must be str. Got: {varname}')
     self.values[varname] = value
     return self.values[varname]
-
-  def get_is_function_scope(self):
-    return self.is_function_scope
-  
-  def set_is_function_returning(self):
-    self.is_function_returning = True
-    return self.is_function_returning
-  
-  def get_is_function_returning(self):
-    return self.is_function_returning

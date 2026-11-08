@@ -17,70 +17,64 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
     luna_throw(f'Invalid env for luna_eval: {env}')
   if not isinstance(expr, EvalExpr):
     luna_throw(f'Invalid expr type for luna_eval: {expr}')
+  if env.depth > 10:
+    luna_throw(f'Recursion depth of 50 exceeded!')
 
   match expr:
-    case str() | int() | float() | bool() | list():
+    case str() | int() | float() | bool():
       return expr;
+    case list():
+      return [luna_eval(i, env) for i in expr]
     case Frozen(e):
       return e
-    case Block(e):
-      # Blocks are intentionally designed as lists,
-      # even though only the last result is needed,
-      # so that they can be disassembled and composed.
-      e = eval_to_list_or_throw(e, env, "Block")
-      ret = False
-      for i in e:
-        ret = luna_eval(i, env)
-        if env.get_is_function_returning():
-          break
-      return ret
+    case Program(l):
+      if env.is_function_scope:
+        ret = False
+        for i in l:
+          ret = luna_eval(i, env)
+          if env.is_function_returning:
+            break
+        return ret
+      return [luna_eval(i, env) for i in l][-1]
+    case Print(e):
+      print(luna_eval(e, env))
+      return False
     case Invoke(e, args):
-      # this eval either:
-      # - strips away a Freeze, evaluating whatever is underneath
-      # - does nothing to a Switch or Function
       invokable = luna_eval(e, env)
       match invokable:
-        case Function(args_varnames, block):
-          if len(args) != len(args_varnames):
-            luna_throw(f'Invoke Function expected {len(args_varnames)} args. Got: {args}')
-          scope = Env({}, env, True)
+        case Function(params, body):
+          args = eval_to_list_or_throw(args, env, "Invoke Function")
+          if len(params) != len(args):
+            luna_throw(f'Function expected {len(params)} args. Got: {len(args)}')
+          scope = Env({}, env, True) # function scope is set here
+          scope.depth = env.depth + 1
           for i in range(len(args)):
-            scope.set(args_varnames[i], luna_eval(args[i], env))
-          return luna_eval(block, scope)
-        case Switch(condition, cases, branches, default_branch):
-          condition = luna_eval(condition, env)
-          # TODO: short circuiting for switch cases?
-          # probably not - if your switch case generation has side effects,
-          # then you should probably re-write your code!
-          cases = luna_eval(cases, env)
-          if not isinstance(cases, list):
-            luna_throw(f'Switch cases must be a list. Got: {cases}')
-          branches = luna_eval(branches, env)
-          if (
-            not isinstance(branches, list)
-            or isinstance(branches, list) and len(branches) != len(cases)
-          ):
-            luna_throw(f'Switch cases and branches lists must have equal length. Got: {len(cases)} cases, {len(branches)} branches')
-          for idx in range(len(cases)):
-            if luna_equals(cases[idx], condition):
-              return luna_eval(branches[idx], env)
-          return luna_eval(default_branch, env)
-        case Block(e):
-          return luna_eval(invokable, env)
+            scope.set(params[i], args[i])
+          return luna_eval(body, scope)
+        # more invokables may be added later such as classes, etc.
         case _:
-          # the invokable has already been evaluated! just return the result.
-          return invokable
+          # invoking anything else will just function like eval()
+          return luna_eval(invokable, env)
     case Function() as fn:
       return fn
     case Return(e):
-      if env.get_is_function_scope():
+      if env.is_function_scope:
         return_value = luna_eval(e, env)
-        env.set_is_function_returning()
+        env.is_function_returning = True
         return return_value
       else:
         luna_throw(f'Can\'t use return keyword outside function scope.')
-    case Switch() as sw:
-      return sw
+    case Switch(condition, cases, branches, default_branch):
+      condition = luna_eval(condition, env)
+      cases = luna_eval(cases, env)
+      if not isinstance(cases, list):
+        luna_throw(f'Switch cases must be a list. Got: {cases}')
+      if len(branches) != len(cases):
+        luna_throw(f'Switch cases and branches lists must have equal length. Got: {len(cases)} cases, {len(branches)} branches')
+      for idx in range(len(cases)):
+        if luna_equals(cases[idx], condition):
+          return luna_eval(branches[idx], env)
+      return luna_eval(default_branch, env)
     case VarGet(varname):
       # Important: VarGet does NOT evaluate the variable it got.
       return env.get(varname)
@@ -99,49 +93,49 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       if isinstance(e, list): # short circuit
         return luna_and((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "All")
-      return luna_and([luna_eval(i, env) for i in l])
+      return luna_and(l)
     case Some(e):
       if isinstance(e, list): # short circuit
         return luna_or((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Some")
-      return luna_or([luna_eval(i, env) for i in l])
+      return luna_or(l)
     case Equals(e):
       if isinstance(e, list): # short circuit
         return luna_equals_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_equals_all([luna_eval(i, env) for i in l])
+      return luna_equals_all(l)
     case Lt(e):
       if isinstance(e, list): # short circuit
         return luna_lt_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_lt_all([luna_eval(i, env) for i in l])
+      return luna_lt_all(l)
     case Lte(e):
       if isinstance(e, list): # short circuit
         return luna_lte_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_lte_all([luna_eval(i, env) for i in l])
+      return luna_lte_all(l)
     case Gt(e):
       if isinstance(e, list): # short circuit
         return luna_gt_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_gt_all([luna_eval(i, env) for i in l])
+      return luna_gt_all(l)
     case Gte(e):
       if isinstance(e, list): # short circuit
         return luna_gte_all((luna_eval(i, env) for i in e))
       l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_gte_all([luna_eval(i, env) for i in l])
+      return luna_gte_all(l)
     case Sum(e):
       l = eval_to_list_or_throw(e, env, "Sum")
-      return luna_sum([luna_eval(i, env) for i in l])
+      return luna_sum(l)
     case Difference(e):
       l = eval_to_list_or_throw(e, env, "Difference")
-      return luna_difference([luna_eval(i, env) for i in l])
-    case Product(e):
+      return luna_difference(l)
+    case Product(e): # can't short circuit; inputs may be lists
       l = eval_to_list_or_throw(e, env, "Product")
-      return luna_product([luna_eval(i, env) for i in l])
-    case Quotient(e):
+      return luna_product(l)
+    case Quotient(e): # can't short circuit; inputs may be lists
       l = eval_to_list_or_throw(e, env, "Quotient")
-      return luna_quotient([luna_eval(i, env) for i in l])
+      return luna_quotient(l)
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')
 

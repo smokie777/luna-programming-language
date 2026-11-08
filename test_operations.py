@@ -224,3 +224,10 @@ def test_invalid_division():
       luna_divide(i, "")
     with pytest.raises(Exception):
       luna_divide(i, False)
+
+def test_luna_void():
+  assert luna_void("asdf") == ""
+  assert luna_void(True) == False
+  assert luna_void(3) == 0
+  assert luna_void(3.5) == 0
+  assert luna_void([1,2,3]) == []

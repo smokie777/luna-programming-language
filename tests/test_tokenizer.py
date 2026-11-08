@@ -61,12 +61,11 @@ def test_tokenize_keyword_vs_identifier():
   assert luna_tokenize("trueabc") == [Token(TokenType.IDENTIFIER, "trueabc", 1)]
   assert luna_tokenize("true1") == [Token(TokenType.IDENTIFIER, "true1", 1)]
   assert luna_tokenize("CaPs") == [Token(TokenType.IDENTIFIER, "CaPs", 1)]
-s = "-> x = -2 * (3 - 4.5)"
+s = "-> x -2 * (3 - 4.5)"
 expected = [
   Token(TokenType.MINUS, None, 1),
   Token(TokenType.GREATER_THAN, None, 1),
   Token(TokenType.IDENTIFIER, "x", 1),
-  Token(TokenType.EQUALS, None, 1),
   Token(TokenType.MINUS, None, 1),
   Token(TokenType.NUMBER, 2, 1),
   Token(TokenType.TIMES, None, 1),

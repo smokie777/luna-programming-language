@@ -21,6 +21,8 @@ def test_lt():
   assert luna_lt(True, True) == False
   assert luna_lt(False, False) == False
   assert luna_lt(True, False) == False  
+  with pytest.raises(Exception):
+    assert luna_lt({}, {})
 
 def test_gt():
   assert luna_gt("a", "aa") == False
@@ -39,6 +41,8 @@ def test_gt():
   assert luna_gt(True, True) == False
   assert luna_gt(False, False) == False
   assert luna_gt(True, False) == True  
+  with pytest.raises(Exception):
+    assert luna_gt({}, {})
 
 def test_lte():
   assert luna_lte("a", "aa") == True
@@ -57,6 +61,8 @@ def test_lte():
   assert luna_lte(True, True) == True
   assert luna_lte(False, False) == True
   assert luna_lte(True, False) == False  
+  with pytest.raises(Exception):
+    assert luna_lte({}, {})
 
 def test_gte():
   assert luna_gte("a", "aa") == False
@@ -75,6 +81,8 @@ def test_gte():
   assert luna_gte(True, True) == True
   assert luna_gte(False, False) == True
   assert luna_gte(True, False) == True
+  with pytest.raises(Exception):
+    assert luna_gte({}, {})
 
 def test_lt_all():
   assert luna_lt_all([]) == False 
@@ -95,7 +103,9 @@ def test_lt_all():
   assert luna_lt_all([True, True]) == False
   assert luna_lt_all([False, False]) == False
   assert luna_lt_all([True, False]) == False 
-  
+  with pytest.raises(Exception):
+    assert luna_lt_all([{}, {}])
+
 def test_gt_all():
   assert luna_gt_all([]) == False 
   assert luna_gt_all([1]) == True
@@ -115,6 +125,8 @@ def test_gt_all():
   assert luna_gt_all([True, True]) == False
   assert luna_gt_all([False, False]) == False
   assert luna_gt_all([True, False]) == True
+  with pytest.raises(Exception):
+    assert luna_gt_all([{}, {}])
 
 def test_lte_all():
   assert luna_lte_all([]) == False 
@@ -135,6 +147,8 @@ def test_lte_all():
   assert luna_lte_all([True, True]) == True
   assert luna_lte_all([False, False]) == True
   assert luna_lte_all([True, False]) == False
+  with pytest.raises(Exception):
+    assert luna_lte_all([{}, {}])
 
 def test_gte_all():
   assert luna_gte_all([]) == False 
@@ -155,3 +169,5 @@ def test_gte_all():
   assert luna_gte_all([True, True]) == True
   assert luna_gte_all([False, False]) == True
   assert luna_gte_all([True, False]) == True 
+  with pytest.raises(Exception):
+    assert luna_gte_all([{}, {}])
