@@ -6,8 +6,17 @@ from luna_types import Expression, EvalExpr
 # Note: pydantic dataclasses automatically handles type checking.
 
 @dataclass
+class Frozen(Expression):
+  e: EvalExpr
+
+@dataclass
+class Invoke(Expression):
+  e: EvalExpr
+  args: EvalExpr
+
+@dataclass
 class Block(Expression):
-  value: EvalExpr
+  e: EvalExpr
 
 @dataclass
 class VarGet(Expression):
@@ -28,24 +37,11 @@ class Function(Expression):
       raise ValueError("Function argument names must be unique.")
 
 @dataclass
-class FunctionCall(Expression):
-  fn: EvalExpr
-  args: EvalExpr
-
-@dataclass
-class SwitchBranches(Expression):
-  branches: EvalExpr
-
-@dataclass
 class Switch(Expression):
   condition: EvalExpr
   cases: EvalExpr
   branches: EvalExpr
   default_branch: EvalExpr = False
-
-@dataclass
-class SwitchCall(Expression):
-  switch: EvalExpr
 
 @dataclass
 class Return(Expression):

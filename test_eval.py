@@ -43,6 +43,20 @@ def test_block_return():
     3,
   ])) == 2
 
+  
+def test_eval_frozen_block():
+  assert luna_eval(Block([
+    VarSet("a", 1),
+    VarSet("foo", Frozen(Block([VarSet("a", 2)]))),
+    VarGet("a")
+  ])) == 1
+  assert luna_eval(Block([
+    VarSet("a", 1),
+    VarSet("foo", Frozen(Block([VarSet("a", 2)]))),
+    Invoke(VarGet("foo"), []),
+    VarGet("a")
+  ])) == 2
+
 def test_eval_variables():
   assert luna_eval(Block([
     VarSet('my_var', 3),

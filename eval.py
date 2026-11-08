@@ -13,69 +13,71 @@ from luna_types import EvalExpr
 def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
   env = Env() if env is None else env
 
-  if env.return_value is not None:
-    return env.return_value
-  
-  if not isinstance(expr, EvalExpr):
-    luna_throw(f'Invalid expr type for luna_eval: {expr}')
   if not isinstance(env, Env):
     luna_throw(f'Invalid env for luna_eval: {env}')
+  if not isinstance(expr, EvalExpr):
+    luna_throw(f'Invalid expr type for luna_eval: {expr}')
+
+  if env.return_value is not None:
+    return env.return_value  
 
   match expr:
     case str() | int() | float() | bool():
       return expr;
     case list():
       return [luna_eval(i, env) for i in expr]
+    case Frozen(e):
+      return e
     case Block(e):
       # Blocks are intentionally designed as lists,
       # even though only the last result is needed,
       # so that they can be disassembled and composed.
       l = eval_to_list_or_throw(e, env, "Block")
       return False if len(l) == 0 else [luna_eval(e, env) for e in l][-1]
+    case Invoke(e, args):
+      # this eval either:
+      # - strips away a Freeze, evaluating whatever is underneath
+      # - attaches a closure to a Function
+      # - does nothing to a Switch
+      invokable = luna_eval(e, env)
+      match invokable:
+        case Function(args_varnames, block, closure):
+          if len(args) != len(args_varnames):
+            luna_throw(f'Invoke Function expected {len(args_varnames)} args. Got: {args}')
+          scope = Env({}, closure)
+          for i in range(len(args)):
+            scope.set(args_varnames[i], luna_eval(args[i], env))
+          return luna_eval(block, scope)
+        case Switch(condition, cases, branches, default_branch):
+          condition = luna_eval(condition, env)
+          # TODO: short circuiting for switch cases?
+          # probably not - if your switch case generation has side effects,
+          # then you should probably re-write your code!
+          cases = luna_eval(cases, env)
+          if not isinstance(cases, list):
+            luna_throw(f'Switch cases must be a list. Got: {cases}')
+          branches = luna_eval(branches, env)
+          if (
+            not isinstance(branches, list)
+            or isinstance(branches, list) and len(branches) != len(cases)
+          ):
+            luna_throw(f'Switch cases and branches lists must have equal length. Got: {len(cases)} cases, {len(branches)} branches')
+          for idx in range(len(cases)):
+            if luna_equals(cases[idx], condition):
+              return luna_eval(branches[idx], env)
+          return luna_eval(default_branch, env)
+        case Block(e):
+          return luna_eval(e, env)
+        case _:
+          # the invokable has already been evaluated! just return the result.
+          return invokable
     case Function() as fn:
       fn.closure = env
       return expr
-    case FunctionCall(fn, args):
-      fn = luna_eval(fn, env)
-      if not isinstance(fn, Function):
-        luna_throw(f'Tried to FunctionCall a non-function: {fn}')
-      args = luna_eval(args, env)
-      if not isinstance(args, list) or len(args) != len(fn.args_varnames):
-        luna_throw(f'FunctionCall expected {len(fn.args_varnames)} args in a list. Got: {args}')
-      scope = Env({}, fn.closure)
-      for i in range(len(args)):
-        scope.set(fn.args_varnames[i], args[i])
-      return luna_eval(fn.block, scope)
     case Return(e):
       return env.set_return_value(luna_eval(e, env))
     case Switch() as sw:
       return sw
-    case SwitchBranches() as swb:
-      return swb
-    case SwitchCall(e):
-      sw = luna_eval(e, env)
-      if not isinstance(sw, Switch):
-        luna_throw(f'Tried to SwitchCall a non-switch: {sw}')
-      condition = luna_eval(sw.condition, env)
-      # TODO: short circuiting for switch cases?
-      # probably not - if your switch case generation has side effects,
-      # then you should probably re-write your code!
-      cases = luna_eval(sw.cases, env)
-      if not isinstance(cases, list):
-        luna_throw(f'Switch cases must be a list. Got: {cases}')
-      switch_branches = luna_eval(sw.branches, env)
-      if not isinstance(switch_branches, SwitchBranches):
-        luna_throw(f'Switch branches must be SwitchBranches. Got: {switch_branches}')
-      branches = switch_branches.branches
-      if (
-        not isinstance(branches, list)
-        or isinstance(branches, list) and len(branches) != len(cases)
-      ):
-        luna_throw(f'Switch cases and branches lists must have equal length. Got: {len(cases)} cases, {len(branches)} branches')
-      for idx in range(len(cases)):
-        if luna_equals(cases[idx], condition):
-          return luna_eval(branches[idx], env)
-      return luna_eval(sw.default_branch, env)
     case VarGet(varname):
       return env.get(varname)
     case VarSet(varname, e):
