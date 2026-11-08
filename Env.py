@@ -5,10 +5,11 @@ from utils import luna_throw
 # Variables can be get from parent scope if not in current scope.
 # Variables will only be set in current scope.
 class Env:
-  def __init__(self, values=None, parent=None):
+  def __init__(self, values=None, parent=None, is_function_scope=False):
     self.values = {} if values is None else values
     self.parent = parent
-    self.return_value = None
+    self.is_function_scope = is_function_scope
+    self.is_function_returning = False
 
   def get(self, varname):
     if type(varname) != str:
@@ -25,6 +26,12 @@ class Env:
     self.values[varname] = value
     return self.values[varname]
 
-  def set_return_value(self, value):
-    self.return_value = value
-    return self.return_value
+  def get_is_function_scope(self):
+    return self.is_function_scope
+  
+  def set_is_function_returning(self):
+    self.is_function_returning = True
+    return self.is_function_returning
+  
+  def get_is_function_returning(self):
+    return self.is_function_returning

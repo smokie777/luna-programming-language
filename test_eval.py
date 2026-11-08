@@ -36,14 +36,14 @@ def test_eval_block():
     Product([4,3]),
   ])) == 12
 
-def test_block_return():
-  assert luna_eval(Block([
-    1,
-    Return(2),
-    3,
-  ])) == 2
+def test_block_return_outside_fn_throws():
+  with pytest.raises(Exception):
+    assert luna_eval(Block([
+      1,
+      Return(2),
+      3,
+    ]))
 
-  
 def test_eval_frozen_block():
   assert luna_eval(Block([
     VarSet("a", 1),

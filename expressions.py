@@ -31,7 +31,6 @@ class VarSet(Expression):
 class Function(Expression):
   args_varnames: list[str]
   block: Block
-  closure: None = None  # this will be set during evaluation
   def __post_init__(self):
     if len(self.args_varnames) != len(set(self.args_varnames)):
       raise ValueError("Function argument names must be unique.")

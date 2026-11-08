@@ -102,6 +102,34 @@ def test_function_return():
   ])
   assert luna_eval(program) == 2
 
+
+def test_function_nested_return():
+  inner_fn = Frozen(Function(
+    [],
+    Block([Return(2)])
+  ))
+  outer_fn = Frozen(Function(
+    [],
+    Block([
+      Invoke(
+        VarGet("inner_fn"),
+        [],
+      ),
+      Return(3)
+    ])
+  ))
+  program = Block([
+    VarSet("inner_fn", inner_fn),
+    VarSet("outer_fn", outer_fn),
+    VarSet("three", 0),
+    VarSet("three", Invoke(
+      VarGet("outer_fn"),
+      [],
+    )),
+    VarGet("three")
+  ])
+  assert luna_eval(program) == 3
+
 # # I need a Switch to finish this function
 # def test_recursion_using_factorial():
 #   factorial = Function(

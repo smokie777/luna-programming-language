@@ -2,9 +2,7 @@
 
 Luna is an experiment into building a small programming language.
 
-- Luna is a tokenizer + parser + interpreter system implemented in Python
-- This is a hobby project with the goal of building a programming language that can be used to write and run real code in .luna files!
-- I am just beginning to study Programming Languages and Compilers as part of my MSCS, so please forgive any scuff!
+It is a tokenizer + parser + interpreter system implemented in Python. 
 
 # HIERARCHICAL TYPES
 
@@ -51,24 +49,18 @@ Luna also supports multiplying and dividing strings and lists by negative counts
 
 Note that cross-type operations are generally only permitted across Value types, as opposed to across all keywords. After all, multiplying a function by a list makes no sense. However, Blocks are able to be added together, and multiplied by numbers to repeat them (more on this later).
  
-# BLOCKS
+# COMPOSABLE BLOCKS
 
 The fundamental representation of a sequence of Expressions in Luna is called a Block, represented by `()`. By default, a Block will be evaluated to its last Expression.
 
-A Block as part of another Expression:
-```
-print(
-  (3, 4, 5)
-) # 5
-```
-
 A .luna program in its entirety is considered to be a Block!
+```
+print(1)
+print(2)
+print(3)
+```
 
-```
-3
-4
-5
-```
+Other common examples of Blocks are Function bodies
 
 # FROZEN EXPRESSIONS
 
@@ -105,7 +97,7 @@ Invoking this Frozen Block will Print "3": `<>(print(3))()`
 
 # FUNCTIONS AND SCOPING
 
-Luna supports Functions with Arguments.
+Luna supports dynamically scoped Functions with Arguments.
 
 Each Function evaluation creates a new Scope, which holds Variable definitions. If a Scope does not contain a Variable, the interpreter will try to find that Variable in the next parent Scope. However, Variables can only be set and modified in the current Scope.
 
@@ -116,6 +108,8 @@ Example of Function definition and Invocation:
 )
 my_func(1, 2)
 ```
+
+The `return` keyword can be used to early exit a function that is currently being invoked.
 
 Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to become Un-Frozen. Then, Invoke will run directly on the Un-Frozen Function.
 

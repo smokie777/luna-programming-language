@@ -18,33 +18,32 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
   if not isinstance(expr, EvalExpr):
     luna_throw(f'Invalid expr type for luna_eval: {expr}')
 
-  if env.return_value is not None:
-    return env.return_value  
-
   match expr:
-    case str() | int() | float() | bool():
+    case str() | int() | float() | bool() | list():
       return expr;
-    case list():
-      return [luna_eval(i, env) for i in expr]
     case Frozen(e):
       return e
     case Block(e):
       # Blocks are intentionally designed as lists,
       # even though only the last result is needed,
       # so that they can be disassembled and composed.
-      l = eval_to_list_or_throw(e, env, "Block")
-      return False if len(l) == 0 else [luna_eval(e, env) for e in l][-1]
+      e = eval_to_list_or_throw(e, env, "Block")
+      ret = False
+      for i in e:
+        ret = luna_eval(i, env)
+        if env.get_is_function_returning():
+          break
+      return ret
     case Invoke(e, args):
       # this eval either:
       # - strips away a Freeze, evaluating whatever is underneath
-      # - attaches a closure to a Function
-      # - does nothing to a Switch
+      # - does nothing to a Switch or Function
       invokable = luna_eval(e, env)
       match invokable:
-        case Function(args_varnames, block, closure):
+        case Function(args_varnames, block):
           if len(args) != len(args_varnames):
             luna_throw(f'Invoke Function expected {len(args_varnames)} args. Got: {args}')
-          scope = Env({}, closure)
+          scope = Env({}, env, True)
           for i in range(len(args)):
             scope.set(args_varnames[i], luna_eval(args[i], env))
           return luna_eval(block, scope)
@@ -67,18 +66,23 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
               return luna_eval(branches[idx], env)
           return luna_eval(default_branch, env)
         case Block(e):
-          return luna_eval(e, env)
+          return luna_eval(invokable, env)
         case _:
           # the invokable has already been evaluated! just return the result.
           return invokable
     case Function() as fn:
-      fn.closure = env
-      return expr
+      return fn
     case Return(e):
-      return env.set_return_value(luna_eval(e, env))
+      if env.get_is_function_scope():
+        return_value = luna_eval(e, env)
+        env.set_is_function_returning()
+        return return_value
+      else:
+        luna_throw(f'Can\'t use return keyword outside function scope.')
     case Switch() as sw:
       return sw
     case VarGet(varname):
+      # Important: VarGet does NOT evaluate the variable it got.
       return env.get(varname)
     case VarSet(varname, e):
       env.set(varname, luna_eval(e, env))
