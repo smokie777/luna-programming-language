@@ -1,8 +1,10 @@
 # INTRODUCTION
 
-Luna is an experiment into building a small programming language.
+Luna is an experiment into building a small programming language!
 
 It is a tokenizer + parser + interpreter system implemented in Python. 
+
+I had some great goals when first starting this project out such as composable blocks of code, call stack manipulation, and flexible operations between different data types. But, the more I worked on this, the more I realized that creatively re-designing common programming patterns often results in unforseen difficulties and implementation problems of the highest orda...
 
 # HIERARCHICAL TYPES
 
@@ -32,33 +34,30 @@ While interesting cross-type operations is not the main focus of the language, s
 - Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
 - Multiplication/Division of strings and lists via sequence repetition
 
-Examples:
-`true + 1 + 1 + 1 + "ue" = "true111ue"`
-`true - 1 - 1 - 1 - "ue" = "tr"`
-Explanation: the highest type in the list is string, so each item is coerced into a string, then concatenation is performed.
+The highest type in the sequence is String, so each item is coerced into a string, then concatenation is performed.  
+`true + 1 + 1 + 1 + "ue" = "true111ue"`  
+`true - 1 - 1 - 1 - "ue" = "tr"`  
 
-`"ab" * 2 = "abab"`
-`"abab" / 2 = "ab"`
-`"abab" / "ab = 2`
-`"abab" / 2 = "ab"`
-Explanation: sequence repetition, then reversal of sequence repetition.
+List/String multiplication and division is sequence repetition and reversal of sequence repetition
+`"ab" * 2 = "abab"`  
+`"abab" / 2 = "ab"`  
+`"abab" / "ab = 2`  
+`"abab" / 2 = "ab"`  
 
-`"abab" * -2 = "baba"`
-`"baba" / -2 = "ab"`
-`"baba" / "ab" = -2`
-Explanation: multiplying and dividing strings and lists by negative numbers creates their "inverse": a reversed sequence!
+Multiplying and dividing strings and lists by negative numbers creates their "inverse": a reversed sequence!  
+`"abab" * -2 = "baba"`  
+`"baba" / -2 = "ab"`  
+`"baba" / "ab" = -2`  
  
 # COMPOSABLE PROGRAMS
 
-The fundamental representation of a sequence of Expressions in Luna is a Program, represented by a sequence of Expressions separated by newlines. A Program will evaluate to the last expression in the sequence.
+The fundamental representation of a sequence of Expressions in Luna is a Program, represented by a sequence of Expressions separated by newlines. A Program will evaluate to the last expression in the sequence. Common examples of a Program are: a .luna file in its entirety, and a Function Body!
 
 ```
 print(1)
 print(2)
 print(3)
 ```
-Explanation: a .luna file in its entirety is a Program!
-
 ```
 =>()(
   1
@@ -66,7 +65,6 @@ Explanation: a .luna file in its entirety is a Program!
   3
 )
 ```
-Explanation: a Function body is also a Program! This function will return `3`
 
 One eventual goal of Luna is to implement composable Programs - for example, combining two Programs by concatenating their lists of Expressions.
 
@@ -85,7 +83,7 @@ At the AST level, Freezing an Expression means wrapping it in a Frozen class, wh
 -> b <>Print(2)
 -> c print(3)
 ```
-Explanation: `1, 3` is printed. The `b` variable contains a Frozen Print statement! It is not evaluated until it is invoked.
+Explanation: `1, 3` is printed. The `b` variable contains a Frozen Print statement! It is not evaluated until invoked.
 
 # INVOCATIONS
 
@@ -115,9 +113,9 @@ Example of Function definition and Invocation:
 my_func(1, 2)
 ```
 
-The `<<` keyword can be used to return from a function call, with or without a return expression after it.
+The `<<` keyword can be used to return from a function call, with or without a return expression after it. If `<<` is not provided, the evaluation of the last expression will be returned.
 
-Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to evaluate and become Un-Frozen. So, the environment will store the function as Un-Frozen. But, the Function body will only be evaluated when Invoked.
+Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to evaluate and become Un-Frozen. So, the environment will store the Un-Frozen Function. The Function body will only be evaluated when Invoked.
 
 # SWITCHES
 
@@ -126,7 +124,7 @@ Luna handles logical branching using Switches. There are no "if statements" - on
 - Switch cases will be eagerly evaluated when a Switch is evaluated.
 - Switch branches will NOT be evaluated until the matching branch was found during runtime.
 
-Switch Evaluated immediately:
+Switch evaluated immediately:
 ```
 {4}(
   3 >> print("three")
@@ -136,7 +134,7 @@ Switch Evaluated immediately:
 # prints "four"
 ```
 
-Frozen Switch with Composed Condition Evaluated at Invocation: 
+Frozen Switch with composed condition evaluated at invocation: 
 ```
 -> my_frozen_switch <>{my_condition}(
   3 >> "three"
@@ -213,12 +211,11 @@ TODO
 
 # TOKENIZER
 
-Luna's Tokenizer is implemented as a small finite state machine. It iterates through all charaters in a .luna file and breaks them down into a 1D array of Tokens, which can then be fed to the parser.
+Luna's Tokenizer is implemented as a small finite state machine. It iterates through all charaters in a `.luna` file and breaks them down into a 1D array of Tokens, which can then be fed to the parser.
 
 Examples of Tokens include:
-- String, Number, True, False, Identifier, Equals, Minus
+- `String`, `Number`, `True`, `False`, `Identifier`, `Equals`, `Minus`
 
 # BOOTSTRAPPING
 
-To run tests: `pytest`
-- This command runs all test files starting with "test_". All methods in test files starting with "test_" will be run.
+To run tests: `pytest` (runs all test files and methods starting with `test_`)
