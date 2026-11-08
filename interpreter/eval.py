@@ -17,7 +17,7 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
     luna_throw(f'Invalid env for luna_eval: {env}')
   if not isinstance(expr, EvalExpr):
     luna_throw(f'Invalid expr type for luna_eval: {expr}')
-  if env.depth > 10:
+  if env.depth > 50:
     luna_throw(f'Recursion depth of 50 exceeded!')
 
   match expr:
