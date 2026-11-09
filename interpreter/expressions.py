@@ -8,7 +8,7 @@ from .luna_types import Expression, EvalExpr
 
 @dataclass
 class Program(Expression):
-  l: list[EvalExpr] # program list cannot be composed.
+  l: list[EvalExpr]
 
 @dataclass
 class Frozen(Expression):
@@ -33,25 +33,37 @@ class VarSet(Expression):
 
 @dataclass
 class Function(Expression):
-  params: list[str] # dynamically generating params is not allowed
-  body: Program # dynamically generating body is not allowed
+  params: list[str]
+  body: Program
   def __post_init__(self):
     if len(self.params) != len(set(self.params)):
       raise ValueError("Function argument names must be unique.")
 
 @dataclass
 class Switch(Expression):
-  # dynamically generated condition is allowed.
-  # dynamically generated cases/branches is not allowed,
-  # as then they would be evaluated before the correct case is met.
   condition: EvalExpr
   cases: list[EvalExpr]
   branches: list[EvalExpr]
   default_branch: EvalExpr = False
 
 @dataclass
+class Loop(Expression):
+  iterable: EvalExpr
+  body: Program
+  iterator_varname: str | None = None
+  index_varname: str | None = None
+
+@dataclass
 class Return(Expression):
   e: EvalExpr
+
+@dataclass
+class Break(Expression):
+  pass
+
+@dataclass
+class Continue(Expression):
+  pass
 
 @dataclass
 class Print(Expression):
@@ -120,3 +132,17 @@ class Gt(Expression):
 @dataclass
 class Gte(Expression):
   e: EvalExpr
+
+# custom Exceptions related to Expression evaluation
+
+@dataclass
+class ReturnSignal(Exception):
+  e: EvalExpr
+
+@dataclass
+class ContinueSignal(Exception):
+  pass
+
+@dataclass
+class BreakSignal(Exception):
+  pass

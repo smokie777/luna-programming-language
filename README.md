@@ -113,7 +113,7 @@ Example of Function definition and Invocation:
 my_func(1, 2)
 ```
 
-The `<<` keyword can be used to return from a function call, with or without a return expression after it. If `<<` is not provided, the evaluation of the last expression will be returned.
+The `<<<` keyword can be used to return from a function call, with or without a return expression after it. If `<<<` is not provided, the evaluation of the last expression will be returned.
 
 Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to evaluate and become Un-Frozen. So, the environment will store the Un-Frozen Function. The Function body will only be evaluated when Invoked.
 
@@ -162,9 +162,53 @@ Switch shorthand to implement "if-then-else" ternary:
 ```
 Explanation: if the switch body is exactly two Expressions instead of a sequence of cases and branches, it is treated as a `true`/`false` ternary.
 
+# LOOPS
+
+Luna provides a `loop` keyword: `loop(iterable:number|boolean|list|string, iterator, index)(Program)`
+
+A loop will not create a new scope; its contents will be evaluated in the current scope.
+
+`iterator` and `index` are optional. If provided, new variables will be created in the current scope corresponding to the given identifier names. If this would overwrite a pre-existing variable's value in the current scope, those values would be reverted after the loop finishes (or is broken out of).
+
+If iterable is a Number, repeats the loop number times
+```
+loop(3)(print(0))
+# prints 0 0 0
+``` 
+If iterable is a boolean True, that is an infinite loop! If iterable is boolean False, nothing will happen.
+```
+loop(True, item, idx)(print(idx))
+# prints 0 1 2...inf
+```
+If iterable is a List or String, iterates over each item
+```
+loop(["a", "b", "c"], item, idx)(print(item + idx))
+# prints "a0" "b1" "c2"
+```
+```
+loop("abc", item, idx)(print(item + idx))
+# prints "a0" "b1" "c2"
+```
+
+A few loop keywords are supported as well:  
+`<<` breaks out of the current loop iteration  
+`>>>` continues to the next loop iteration  
+```
+loop("abc", item, idx)(
+  print(item + idx)
+  <<
+)
+# prints "a0"
+```
+
+A few noteworthy break/continune/return interactions:  
+- Returning `<<<` from a loop inside a function is valid and will immediately return from that function.
+- Breaking `<<` or continuing `>>>` inside a function but not inside a loop running in that function is invalid.
+- Breaking `<<`, continuing `>>>`, or returning `<<<` from not inside a loop or function at all is invalid.
+
 # INTERPRETER
 
-Luna's Interpreter uses a recursive evaluation function that evaluates Expressions into Runtime Values.
+Luna's interpreter is a recursive tree walking interpreter that evaluates Expressions into Runtime Values.
 
 An Expression can be a Python int/bool/str/list, or an Expression class.
 
@@ -198,8 +242,8 @@ The actual Luna code to generate this interpreter code would be:
 ```
 -> fact (n)(
   {n<=2}(
-    << n
-    << n * fact(n - 1)
+    <<< n
+    <<< n * fact(n - 1)
   )
 )
 print(fact(4))
