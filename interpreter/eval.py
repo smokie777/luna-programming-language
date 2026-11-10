@@ -123,6 +123,9 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
     case VarSet(varname, e):
       env.set(varname, luna_eval(e, env))
       return env.get(varname)
+    case VarSetGlobal(varname, e):
+      env.setGlobal(varname, luna_eval(e, env))
+      return env.get(varname)
     case Return(e):
       raise ReturnSignal(luna_eval(e, env))
     case Continue():

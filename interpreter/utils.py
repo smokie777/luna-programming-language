@@ -3,7 +3,7 @@
 from .luna_types import Lv
 
 def luna_throw(message: str):
-  raise Exception(f'[LUNA ERROR] {message}')
+  raise Exception(f'[LUNA INTERPRETER ERROR] {message}')
 
 # Returns the inverse of a value.
 def luna_inverse(v: Lv) -> Lv:

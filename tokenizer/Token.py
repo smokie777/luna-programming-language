@@ -22,6 +22,14 @@ class TokenType(Enum):
   CREATE_VARIABLE = "CREATE_VARIABLE"
   GREATER_THAN = "GREATER_THAN"
   LESS_THAN = "LESS THAN"
+  VOID = "VOID"
+
+  VARSET = "VARSET"
+  VARSET_GLOBAL = "VARSET_GLOBAL" 
+  OR = "OR"
+  AND = "AND"
+
+  NEWLINE = "NEWLINE"
 
 KEYWORD_TO_TOKEN_TYPE_MAP = {
   "(": TokenType.PAREN_OPEN,
@@ -35,6 +43,13 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   "false" : TokenType.FALSE,
   ">": TokenType.GREATER_THAN,
   "<": TokenType.LESS_THAN,
+  "!": TokenType.VOID,
+
+
+  "->": TokenType.VARSET,
+  "=>": TokenType.VARSET_GLOBAL,
+  "|": TokenType.OR,
+  "&": TokenType.AND,
 }
 
 lowercase_letters = "abcdefghijklmnopqrstuvwxyz"

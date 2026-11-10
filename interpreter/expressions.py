@@ -32,6 +32,11 @@ class VarSet(Expression):
   value: EvalExpr
 
 @dataclass
+class VarSetGlobal(Expression):
+  varname: str
+  value: EvalExpr
+
+@dataclass
 class Function(Expression):
   params: list[str]
   body: Program

@@ -99,11 +99,14 @@ b()
 ```
 Explanation: in the same example as before, now we can print `1, 3, 2` by Invoking the `Print(2)`.
 
-# FUNCTIONS AND SCOPING
+# FUNCTIONS AND SCOPES
 
 Luna supports dynamically scoped Functions with Arguments.
 
-Each Function evaluation creates a new Scope, which holds Variable definitions and other scope-related information. If a Scope does not contain a Variable (for getting and setting), the interpreter will try to find that Variable in the next parent Scope.
+Each Function invocation creates a new Scope, which holds Variable definitions and other scope-related information.  
+- Variable lookup will search for the variable in the current scope first, then all parent scopes.  
+- Variable setting using `->` will only set the variable inside the current scope.  
+- Variable setting using `=>` will search the current scope and all parent scopes for the variable, and set the variable in all scopes in which it was defined! If no definitions were found, it will behave the same as `->`.  
 
 Example of Function definition and Invocation:
 ```
@@ -114,6 +117,9 @@ my_func(1, 2)
 ```
 
 The `<<<` keyword can be used to return from a function call, with or without a return expression after it. If `<<<` is not provided, the evaluation of the last expression will be returned.
+
+By deafult, assigning variables 
+The `=>` keyword can be used instead of `->` to set a variable outside the current function scope. 
 
 Note: at the Interpreter level, a Function is Frozen when defined, but the action of evaluating it when assigning it to a Variable causes it to evaluate and become Un-Frozen. So, the environment will store the Un-Frozen Function. The Function body will only be evaluated when Invoked.
 
@@ -192,7 +198,7 @@ loop("abc", item, idx)(print(item + idx))
 
 A few loop keywords are supported as well:  
 `<<` breaks out of the current loop iteration  
-`>>>` continues to the next loop iteration  
+`>>` continues to the next loop iteration  
 ```
 loop("abc", item, idx)(
   print(item + idx)
@@ -203,8 +209,9 @@ loop("abc", item, idx)(
 
 A few noteworthy break/continune/return interactions:  
 - Returning `<<<` from a loop inside a function is valid and will immediately return from that function.
-- Breaking `<<` or continuing `>>>` inside a function but not inside a loop running in that function is invalid.
-- Breaking `<<`, continuing `>>>`, or returning `<<<` from not inside a loop or function at all is invalid.
+- Breaking `<<` or continuing `>>` inside a function but not inside a loop running in that function is invalid.
+- Breaking `<<`, continuing `>>`, or returning `<<<` from not inside a loop or function at all is invalid.
+- Continue `>>` is not related to the `>>` punctuation found inside Switch defintion
 
 # INTERPRETER
 
@@ -262,4 +269,4 @@ Examples of Tokens include:
 
 # BOOTSTRAPPING
 
-To run tests: `pytest` (runs all test files and methods starting with `test_`)
+To run tests: `python -m pytest` (runs all test files and methods starting with `test_`)

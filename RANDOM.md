@@ -30,3 +30,26 @@ print(fact(4))
   )                              # end the switch
 )*3()                            # end the frozen block, then repeat the block 3 times, then invoke it. note that "3" could be any higher number, as the block is exited once "n<=2".
 ```
+
+
+
+OPERATOR PRECEDENCE
+
+This is the table for Operator Precedence in Luna. All operators have left-to-right associativity. 
+
+```
+HIGHEST PRECEDENCE
+()               grouping
+f()              invocation
+!, <>            inverse, freeze
+^                exponent
+*, /, %          multiplication, division
++, -             addition, substraction
+>, <, >=, <=, =  equality comparison
+&                and
+|                or
+->, =>           variable assignment
+LOWEST PRECEDENCE
+```
+
+Note that break `<<`, continue `>>`, return `<<<` are Invocations.

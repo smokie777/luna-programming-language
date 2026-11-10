@@ -7,12 +7,14 @@ from enum import Enum
 class State(Enum):
   IN_NUMBER = "IN_NUMBER"
   IN_STRING = "IN_STRING"
+  IN_COMMENT = "IN_COMMENT"
   IN_NUMBER_AND_IS_FLOAT = "IN_NUMBER_AND_IS_FLOAT"
   IN_KEYWORD = "IN_KEYWORD"
   DEFAULT = "DEFAULT"
 
-# Takes a string which represents the text contents of a .luna file,
-# and returns a list of Tokens for the parser.
+# Luna's tokenizer is a small finite state machine.
+# It takes a string representing the contents of a .luna file, and tokenizes it into a list of Tokens for the parser.
+# tokenize() also handles lexing at the end.
 def luna_tokenize(s: str) -> list[Token]:
   s += " " # adding whitespace to EOF helps tokenize numbers at EOF
   tokens = []
@@ -41,6 +43,10 @@ def luna_tokenize(s: str) -> list[Token]:
         reset_state()
       else:
         seq += c
+    elif state == State.IN_COMMENT:
+      # comments do nothing. a comment ends after newline.
+      if c == "\n":
+        reset_state()
     # only digits and "." are allowed in a number.
     # "." can only occur one time, and there must be a digit before and after it.
     # "-" will be tokenized separately.
@@ -85,6 +91,8 @@ def luna_tokenize(s: str) -> list[Token]:
     elif state == State.DEFAULT:
       if c in VALID_WHITESPACE_CHARS:
         pass
+      elif c == "#":
+        state = State.IN_COMMENT
       elif c == "'":
         state = State.IN_STRING
       elif c in VALID_NUMBER_CHARS:
@@ -98,12 +106,34 @@ def luna_tokenize(s: str) -> list[Token]:
 
     # "\n" increments line number
     if c == "\n":
+      if state != State.IN_STRING:
+        tokens.append(Token(TokenType.NEWLINE, None, line_number))
       line_number += 1
 
     i += 1
 
-  # if the entire file was sucesssfully tokenized, return all the tokens.
-  if state == State.DEFAULT:
-    return tokens
+  if state not in (State.DEFAULT, State.IN_COMMENT):
+    raise SyntaxError(f'Invalid sequence found at end of file: {seq}')
 
-  raise SyntaxError(f'Invalid sequence found at end of file: {seq}')
+  return luna_lex(tokens)
+
+# lexes keyword combos into single keywords, and manages whitespace.
+# example: [-, >] becomes [VarSet] instead of [Minus, GreaterThan]
+# TODO: suppress newlines directly after any open brace
+def luna_lex(tokens):
+  ret = []
+  i = 0
+  while i < len(tokens):
+    if (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.MINUS
+      and tokens[i+1].type == TokenType.GREATER_THAN
+    ):
+      ret.append(Token(TokenType.VARSET, None, tokens[i].line_number))
+      i += 1
+    else:
+      ret.append(tokens[i])
+    i += 1
+  last_line_number = ret[-1].line_number if len(ret) else -1
+  ret.append(Token(TokenType.NEWLINE, None, last_line_number + 1))
+  return ret

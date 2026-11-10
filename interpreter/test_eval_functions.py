@@ -127,3 +127,24 @@ def test_function_nested_return():
     VarGet("three")
   ])
   assert luna_eval(p) == 3
+
+def test_var_set_global():
+  p = Program([
+    VarSet("a", 1),
+    Invoke(Function(
+      [],
+      Program([VarSetGlobal("a", 3)])
+    )),
+    VarGet("a")
+  ])
+  assert luna_eval(p) == 3
+  p1 = Program([
+    Invoke(Function(
+      [],
+      Program([
+        VarSetGlobal("a", 3),
+        VarGet("a")
+      ])
+    )),
+  ])
+  assert luna_eval(p) == 3
