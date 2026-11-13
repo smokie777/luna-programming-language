@@ -23,6 +23,7 @@ class TokenType(Enum):
   GREATER_THAN = "GREATER_THAN"
   LESS_THAN = "LESS THAN"
   VOID = "VOID"
+  BACKTICK = "BACKTICK"
 
   VARSET = "VARSET"
   VARSET_GLOBAL = "VARSET_GLOBAL" 
@@ -44,6 +45,7 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   ">": TokenType.GREATER_THAN,
   "<": TokenType.LESS_THAN,
   "!": TokenType.VOID,
+  "`": TokenType.BACKTICK,
 
 
   "->": TokenType.VARSET,
