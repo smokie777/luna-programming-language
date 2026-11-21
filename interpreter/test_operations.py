@@ -225,9 +225,63 @@ def test_invalid_division():
     with pytest.raises(Exception):
       luna_divide(i, False)
 
+def test_modulo():
+  assert luna_remainder_atomic(6, 3) == 0
+  assert luna_remainder_atomic(3, 6) == 3
+  assert luna_remainder_atomic(-6, 3) == 0
+  assert luna_remainder_atomic(3, -6) == 3
+  assert luna_remainder_atomic(-3, -6) == -3
+  assert luna_remainder_atomic("abab", "ab") == ""
+  assert luna_remainder_atomic("abab", 2) == ""
+  assert luna_remainder_atomic("abab", -2) == ""
+  assert luna_remainder_atomic([1,2,1,2],[1,2]) == []
+  assert luna_remainder_atomic([1,2,1,2],2) == []
+  assert luna_remainder_atomic([1,2,1,2],-2) == []
+
+def test_modulo_one():
+  cases = [2, 1, 0, "", []]
+  for i in cases:
+    assert luna_remainder_atomic(i, 1) == luna_void(i)
+  assert luna_remainder_atomic("3", 1) == "3"
+  assert luna_remainder_atomic([4], 1) == [4]
+
+def test_invalid_division():
+  cases = [2, "3", [4], 1, 0, "", []]
+  for i in cases:
+    with pytest.raises(Exception):
+      luna_remainder_atomic(True, i)
+    with pytest.raises(Exception):
+      luna_remainder_atomic(False, i)
+    with pytest.raises(Exception):
+      luna_remainder_atomic(i, 0)
+    with pytest.raises(Exception):
+      luna_remainder_atomic(i, [])
+    with pytest.raises(Exception):
+      luna_remainder_atomic(i, "")
+    with pytest.raises(Exception):
+      luna_remainder_atomic(i, False)
+
 def test_luna_void():
   assert luna_void("asdf") == ""
   assert luna_void(True) == False
   assert luna_void(3) == 0
   assert luna_void(3.5) == 0
   assert luna_void([1,2,3]) == []
+
+def test_power():
+  assert luna_power(2, 3) == 8
+  assert luna_power(-2, 3) == -8
+  with pytest.raises(Exception):
+    luna_power("abab", "ab") == 2
+  with pytest.raises(Exception):
+    luna_power("abab", 2) == "ab"
+  with pytest.raises(Exception):
+    luna_power("abab", -2) == "ba"
+  with pytest.raises(Exception):
+    luna_power([1,2,1,2],[1,2]) == 2
+  with pytest.raises(Exception):
+    luna_power([1,2,1,2],2) == [1,2]
+  with pytest.raises(Exception):
+    luna_power([1,2,1,2],-2) == [2,1]
+  assert luna_power(False, 3) == 0
+  assert luna_power(True, 3) == 1

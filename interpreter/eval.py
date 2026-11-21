@@ -25,6 +25,11 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return expr;
     case list():
       return [luna_eval(i, env) for i in expr]
+    case Map(aa):
+      return [
+        [luna_eval(i[0], env), luna_eval(i[1], env)]
+        for i in aa
+      ]
     case Frozen(e):
       return e
     case Program(l):
@@ -57,6 +62,11 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
           return luna_eval(invokable, env)
     case Function() as fn:
       return fn
+    case IfThenElse(condition, if_branch, else_branch):
+      if luna_to_boolean(luna_eval(condition, env)):
+        return False if if_branch is None else luna_eval(if_branch, env)
+      else:
+        return False if else_branch is None else luna_eval(else_branch, env)
     case Switch(condition, cases, branches, default_branch):
       condition = luna_eval(condition, env)
       cases = luna_eval(cases, env)
@@ -181,12 +191,18 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
     case Difference(e):
       l = eval_to_list_or_throw(e, env, "Difference")
       return luna_difference(l)
-    case Product(e): # can't short circuit; inputs may be lists
+    case Product(e):
       l = eval_to_list_or_throw(e, env, "Product")
       return luna_product(l)
-    case Quotient(e): # can't short circuit; inputs may be lists
+    case Quotient(e):
       l = eval_to_list_or_throw(e, env, "Quotient")
       return luna_quotient(l)
+    case Remainder(e):
+      l = eval_to_list_or_throw(e, env, "Remainder")
+      return luna_remainder(l)
+    case Exponent(e):
+      l = eval_to_list_or_throw(e, env, "Exponent")
+      return luna_exponent(l)
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')
 

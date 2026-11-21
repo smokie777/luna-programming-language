@@ -43,14 +43,25 @@ def test_eval_values():
 
 def test_eval_lists():
   assert luna_eval([1,2]) == [1,2]
-
-def test_eval_list_exprs():
   assert luna_eval([]) == []
+  assert luna_eval([1+1,2+2]) == [2,4]
   assert luna_eval([
     Product([2,3]),
     Product([3,3]),
     Product([4,3]),
   ]) == [6,9,12]
+
+def test_eval_maps():
+  assert luna_eval(Map([["k", "v"]])) == [["k", "v"]]
+  assert luna_eval(Map()) == []
+  assert luna_eval(Map([[1+1,2+2]])) == [[2,4]]
+  assert luna_eval(Map([
+    [Product([2,3]),Product([3,4])],
+    [Sum([2,3]),Sum([3,4])],
+  ])) == [
+    [6,12],
+    [5,7]
+  ]
 
 def test_eval_program_returns_last_expr_only():
   assert luna_eval(Program([

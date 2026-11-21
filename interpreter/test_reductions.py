@@ -68,3 +68,10 @@ def test_difference():
   assert luna_difference([True, 1, 1, 1]) == -2
   assert luna_difference([True, 1, 1, 1, "ue"]) == "tr"
   assert luna_difference(["footrue", True, "o", "o"]) == "f"
+
+def test_remainder():
+  assert luna_remainder([3, 6, 6]) == 3
+
+def test_exponent():
+  assert luna_exponent([2, 2, 3]) == 64
+  

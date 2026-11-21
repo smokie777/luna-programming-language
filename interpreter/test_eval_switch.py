@@ -4,6 +4,18 @@ from .expressions import *
 from .eval import luna_eval
 import pytest
 
+def test_if_then_else():
+  t = "true result"
+  f = "false result"
+  assert luna_eval(IfThenElse(True, t, f)) == t
+  assert luna_eval(IfThenElse("truthy", t, f)) == t
+  assert luna_eval(IfThenElse(False, t, f)) == f
+  assert luna_eval(IfThenElse(0, t, f)) == f
+  assert luna_eval(IfThenElse(True, None, f)) == False
+  assert luna_eval(IfThenElse(False, None, f)) == f
+  assert luna_eval(IfThenElse(True, t, None)) == t
+  assert luna_eval(IfThenElse(False, f, None)) == False
+
 def test_switch_basic():
   sc = Switch(
     2,

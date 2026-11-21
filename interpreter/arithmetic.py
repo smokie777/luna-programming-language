@@ -4,6 +4,7 @@ from .luna_types import Lv
 from .typeutils import *
 from .equals import luna_equals
 from .utils import luna_throw, luna_inverse, luna_void
+from math import trunc
 
 # Returns a new list or string which is the result of
 # removing the sequence b from the end of a.
@@ -175,7 +176,7 @@ def luna_times(a: Lv, b: Lv) -> Lv:
     case _:
       luna_throw(f'can\'t multiply {a} with {b}.')
 
-# Returns the result of dividing b by a
+# Returns the result of dividing a by b
 # Divide is intended to be the inverse of Times.
 # numbers: division
 # strings and lists: sequence repetition count, or sequence that is repeated
@@ -198,3 +199,42 @@ def luna_divide(a: Lv, b: Lv) -> Lv:
           luna_throw(f'can\'t divide {a} by {b}.')
     case _:
       luna_throw(f'can\'t divide {a} by {b}.')
+
+# Returns the result of a remainder b
+# numbers: remainder
+# strings and lists: either empty sequence or the whole sequence
+# booleans: error, as Times cannot produce a boolean.
+def luna_remainder_atomic(a: Lv, b: Lv) -> Lv:
+  if luna_equals(b, luna_void(b)):
+    luna_throw(f'void divisor is not allowed: {b}')
+  match a:
+    case str() | list():
+      division_result = luna_divide_sequence(a, b)
+      return a if luna_equals(division_result, a) else luna_void(a)
+    case bool():
+      luna_throw(f'a boolean cannot be divided. Got: {a}')
+    case int() | float():
+      match b:
+        case str() | list() | bool():
+          return a
+        case int() | float():
+          return a - b * trunc(a / b)
+        case _:
+          luna_throw(f'can\'t divide {a} by {b}.')
+    case _:
+      luna_throw(f'can\'t divide {a} by {b}.')
+
+# Returns the result of a to the power of b
+# numbers: exponentiation
+# strings and lists: error, as sequences can only be multiplied by numbers
+# booleans: convert up hierarchy to numbers
+def luna_power(a: Lv, b: Lv) -> Lv:
+  match a:
+    case bool() | int() | float():
+      match b:
+        case bool() | int() | float():
+          return luna_to_number(a) ** luna_to_number(b)
+        case _:
+          luna_throw(f'can\'t raise {a} to the power {b}.')
+    case _:
+      luna_throw(f'can\'t raise {a} to the power {b}.')

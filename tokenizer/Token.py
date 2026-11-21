@@ -1,12 +1,12 @@
 # Token.py
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 
 # A Luna Token must be in one of these classifications.
 # Multi-character tokens like "->" are separated into two tokens: "-" and ">"
 # A variable name will be tokenized as a STRING.
-class TokenType(Enum):
+class TokenType(StrEnum):
   TRUE = "TRUE"
   FALSE = "FALSE"
   NUMBER = "NUMBER"
@@ -16,17 +16,23 @@ class TokenType(Enum):
   MINUS = "MINUS"
   TIMES = "TIMES"
   DIVIDE = "DIVIDE"
+  PERCENT = "PERCENT"
   EQUALS = "EQUALS"
   PAREN_OPEN = "PAREN_OPEN"
   PAREN_CLOSE = "PAREN_CLOSE"
   CREATE_VARIABLE = "CREATE_VARIABLE"
-  GREATER_THAN = "GREATER_THAN"
-  LESS_THAN = "LESS THAN"
-  VOID = "VOID"
+  GT = "GT"
+  LT = "LT"
+  GTE = "GTE"
+  LTE = "LTE"
+  INVERSE = "INVERSE"
   BACKTICK = "BACKTICK"
+  CARET = "CARET"
 
   VARSET = "VARSET"
   VARSET_GLOBAL = "VARSET_GLOBAL" 
+  IF = "IF"
+  ELSE = "ELSE"
   OR = "OR"
   AND = "AND"
 
@@ -39,19 +45,25 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   "-": TokenType.MINUS,
   "*": TokenType.TIMES,
   "/": TokenType.DIVIDE,
+  "%": TokenType.PERCENT,
+  "^": TokenType.CARET,
   "=": TokenType.EQUALS,
   "true": TokenType.TRUE,
   "false" : TokenType.FALSE,
-  ">": TokenType.GREATER_THAN,
-  "<": TokenType.LESS_THAN,
-  "!": TokenType.VOID,
+  ">": TokenType.GT,
+  "<": TokenType.LT,
+  "!": TokenType.INVERSE,
   "`": TokenType.BACKTICK,
 
 
   "->": TokenType.VARSET,
   "=>": TokenType.VARSET_GLOBAL,
+  ">>": TokenType.IF,
+  "!>": TokenType.ELSE,
   "|": TokenType.OR,
   "&": TokenType.AND,
+  ">=": TokenType.GTE,
+  "<=": TokenType.LTE,
 }
 
 lowercase_letters = "abcdefghijklmnopqrstuvwxyz"

@@ -127,9 +127,37 @@ def luna_lex(tokens):
     if (
       i < len(tokens) - 1
       and tokens[i].type == TokenType.MINUS
-      and tokens[i+1].type == TokenType.GREATER_THAN
+      and tokens[i+1].type == TokenType.GT
     ):
       ret.append(Token(TokenType.VARSET, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.GT
+      and tokens[i+1].type == TokenType.GT
+    ):
+      ret.append(Token(TokenType.IF, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.INVERSE
+      and tokens[i+1].type == TokenType.GT
+    ):
+      ret.append(Token(TokenType.ELSE, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.GT
+      and tokens[i+1].type == TokenType.EQUALS
+    ):
+      ret.append(Token(TokenType.GTE, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.LT
+      and tokens[i+1].type == TokenType.EQUALS
+    ):
+      ret.append(Token(TokenType.LTE, None, tokens[i].line_number))
       i += 1
     else:
       ret.append(tokens[i])

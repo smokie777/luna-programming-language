@@ -7,6 +7,13 @@ from .luna_types import Expression, EvalExpr
 # Note: pydantic dataclasses automatically handles type checking.
 
 @dataclass
+class Map(Expression):
+  aa: list[list[EvalExpr]] = Field(default_factory=list)
+  def __post_init__(self):
+    if any([len(l) != 2 for l in self.aa]):
+      raise ValueError(f'Every item in a Map associative array must be a list of size 2. Got: {self.aa}')
+
+@dataclass
 class Program(Expression):
   l: list[EvalExpr]
 
@@ -50,6 +57,12 @@ class Switch(Expression):
   cases: list[EvalExpr]
   branches: list[EvalExpr]
   default_branch: EvalExpr = False
+
+@dataclass
+class IfThenElse(Expression):
+  condition: EvalExpr
+  if_branch: EvalExpr | None
+  else_branch: EvalExpr | None
 
 @dataclass
 class Loop(Expression):
@@ -108,6 +121,14 @@ class Product(Expression):
 
 @dataclass
 class Quotient(Expression):
+  e: EvalExpr
+
+@dataclass
+class Remainder(Expression):
+  e: EvalExpr
+
+@dataclass
+class Exponent(Expression):
   e: EvalExpr
 
 @dataclass

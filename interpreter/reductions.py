@@ -4,7 +4,7 @@ from .luna_types import LvList, Lv
 from .typeutils import luna_to_boolean, luna_to_list, luna_to_number, luna_to_string
 from .equals import luna_equals
 from .inequality import luna_lt, luna_lte, luna_gt, luna_gte
-from .arithmetic import luna_plus, luna_minus, luna_times, luna_divide
+from .arithmetic import luna_plus, luna_minus, luna_times, luna_divide, luna_remainder_atomic, luna_power
 from collections.abc import Callable, Iterable
 from .utils import luna_throw
 
@@ -84,8 +84,10 @@ def luna_difference(l: LvList) -> Lv:
 
 # Returns the product of all values in a list.
 def luna_product(l: LvList) -> Lv:
-  if len(l) < 2:
-    return 0
+  if len(l) == 0:
+    return False
+  elif len(l) == 1:
+    return l[0]
   return luna_reduce(l[0], l[1:], luna_times)
 
 # Returns the quotient of all values in a list.
@@ -93,6 +95,20 @@ def luna_quotient(l: LvList) -> Lv:
   if len(l) < 2:
     luna_throw(f'void divisor is not allowed.')
   return luna_reduce(l[0], l[1:], luna_divide)
+
+# Returns the remainder of all values in a list.
+def luna_remainder(l: LvList) -> Lv:
+  if len(l) < 2:
+    luna_throw(f'void divisor is not allowed.')
+  return luna_reduce(l[0], l[1:], luna_remainder_atomic)
+
+# Returns the exponentiation of all values in a list.
+def luna_exponent(l: LvList) -> Lv:
+  if len(l) == 0:
+    return False
+  elif len(l) == 1:
+    return l[0]
+  return luna_reduce(l[0], l[1:], luna_power)
 
 # Returns whether a list satisfies the named equality chain
 def luna_lt_all(l: LvList) -> Lv:
