@@ -19,7 +19,7 @@ HIGHEST PRECEDENCE
 >, <, >=, <=, =    equality comparison
 &                  and
 |                  or
->>, !>             if, else
+>>, !>             truthy/falsey coalescing operator (aka if/else)
 LOWEST PRECEDENCE
 ```
 
@@ -38,9 +38,9 @@ return             function return
 switch             define a switch
 print              print to console
 map                create a map
-boolean, b         convert to boolean
-string, s          convert to string
-number, n          convert to number
+boolean            convert to boolean
+string             convert to string
+number             convert to number
 ```
 
 Commonly used syntax:
@@ -67,7 +67,7 @@ Higher types may be converted to lower types, but this should be used sparingly,
 
 There is no `null` type; instead `false` is used, as that is the falsey value of the lowest type in the hierarchy. There is one falsey value for each type: `[]`, `""`, `0`, `false`.
 
-# CROSS TYPE OPERATIONS
+# POLYMORPHISM
 
 Cross-type operations across Values are generally allowed, and will respect the type hierarchy. Each operation decides which cross-type interactions are allowed, and when type coercion is appropriate.
 
