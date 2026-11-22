@@ -19,7 +19,7 @@ Operator Precedence (all operators have left-to-right associativity):
 HIGHEST PRECEDENCE
 ()                 grouping
 ()                 invocation (distinguished from grouping during parsing)
-!                  inverse
+-                  inverse
 ^                  exponent
 *, /, %            multiplication, division
 +, -               addition, subtraction

@@ -58,14 +58,14 @@ def test_parse_exponent():
   assert_parse_expr_tokens("3 ^ 4 ^ 5", Exponent([3,4,5])) 
 
 def test_parse_inverse():
-  assert_parse_expr_tokens("!3", Inverse(3)) 
+  assert_parse_expr_tokens("-3", Inverse(3)) 
 
 def test_parse_newlines():
   assert_parse_expr_tokens("3+(\n4+5\n)", Sum([3, Sum([4,5])])) 
 
 def test_operator_chain():
   assert_parse_expr_tokens(
-    "3 >> 3 | 4 & 5 <= 6 + 7 * 8 ^ !9 !> 'not three'",
+    "3 >> 3 | 4 & 5 <= 6 + 7 * 8 ^ -9 !> 'not three'",
     IfThenElse(
       3,
       Some([

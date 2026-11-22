@@ -126,7 +126,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   def parse_inverse():
     nonlocal idx
-    if check(TokenType.INVERSE):
+    if check(TokenType.MINUS):
       consume_current_and_newlines()
       return Inverse(parse_value())
     return parse_value()
