@@ -10,6 +10,7 @@ from .tt_to_expr_map import tt_to_expr_map
 def luna_parse(tokens: list[Token]) -> Expression:
   idx = 0
 
+  # check if the current token is a given token(s)
   def check(token_type: str | list) -> bool:
     if isinstance(token_type, str):
       return tokens[idx].type == token_type
@@ -17,17 +18,34 @@ def luna_parse(tokens: list[Token]) -> Expression:
       return tokens[idx].type in token_type
     luna_throw(f'Check input must be str or list. Got: {token_type}')
 
+  # get the current token
+  def current():
+    return tokens[idx]
+
+  # consume the current token
   def consume():
     nonlocal idx
     idx += 1
 
-  def current():
-    return tokens[idx]
+  # consume all newlines starting at the current token
+  def consume_newlines():
+    nonlocal idx
+    while idx < len(tokens) and check(TokenType.NEWLINE):
+      consume()
 
-  # TODO: handle multiline programs
+  # consume the current token, and all newlines after it
+  def consume_current_and_newlines():
+    consume()
+    consume_newlines()
+
   def parse_program():
-    # TODO: gather nodes of expressions separated by newline similarly to how parse_or gathers nodes separated by |
-    pass
+    nonlocal idx
+    nodes = [parse_expr()]
+    while idx < len(tokens) and check(TokenType.NEWLINE):
+      consume_newlines()
+      if idx < len(tokens):
+        nodes.append(parse_expr())
+    return Program(nodes)
 
   def parse_expr():
     nonlocal idx
@@ -44,10 +62,10 @@ def luna_parse(tokens: list[Token]) -> Expression:
     mid = None
     right = None
     if check(TokenType.IF):
-      consume()
+      consume_current_and_newlines()
       mid = parse_or()
     if check(TokenType.ELSE):
-      consume()
+      consume_current_and_newlines()
       right = parse_or()
     if mid is not None or right is not None:
       return IfThenElse(left, mid, right)
@@ -57,7 +75,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
     nonlocal idx
     nodes = [parse_and()]
     while idx < len(tokens) and check(TokenType.OR):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_and())
     return nodes[0] if len(nodes) == 1 else Some(nodes)
   
@@ -65,36 +83,36 @@ def luna_parse(tokens: list[Token]) -> Expression:
     nonlocal idx
     nodes = [parse_equality()]
     while idx < len(tokens) and check(TokenType.AND):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_equality())
     return nodes[0] if len(nodes) == 1 else All(nodes)
 
   def parse_equality():
     nonlocal idx
     nodes = [parse_addition()]
-    expr = tt_to_expr_map[current().type] if current().type in tt_to_expr_map else None
+    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
     while idx < len(tokens) and check([
       TokenType.LTE, TokenType.LT, TokenType.GTE, TokenType.GT, TokenType.EQUALS
     ]):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_addition())
     return nodes[0] if len(nodes) == 1 else expr(nodes)
 
   def parse_addition():
     nonlocal idx
     nodes = [parse_multiplication()]
-    expr = tt_to_expr_map[current().type] if current().type in tt_to_expr_map else None
+    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
     while idx < len(tokens) and check([TokenType.PLUS, TokenType.MINUS]):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_multiplication())
     return nodes[0] if len(nodes) == 1 else expr(nodes)
 
   def parse_multiplication():
     nonlocal idx
     nodes = [parse_exponent()]
-    expr = tt_to_expr_map[current().type] if current().type in tt_to_expr_map else None
+    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
     while idx < len(tokens) and check([TokenType.TIMES, TokenType.DIVIDE, TokenType.PERCENT]):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_exponent())
     return nodes[0] if len(nodes) == 1 else expr(nodes)
 
@@ -102,14 +120,14 @@ def luna_parse(tokens: list[Token]) -> Expression:
     nonlocal idx
     nodes = [parse_inverse()]
     while idx < len(tokens) and check(TokenType.CARET):
-      consume()
+      consume_current_and_newlines()
       nodes.append(parse_inverse())
     return nodes[0] if len(nodes) == 1 else Exponent(nodes)
 
   def parse_inverse():
     nonlocal idx
     if check(TokenType.INVERSE):
-      consume()
+      consume_current_and_newlines()
       return Inverse(parse_value())
     return parse_value()
 
@@ -147,8 +165,9 @@ def luna_parse(tokens: list[Token]) -> Expression:
         consume()
         return False
       case TokenType.PAREN_OPEN:
-        consume()
+        consume_current_and_newlines()
         node = parse_expr()
+        consume_newlines()
         if tokens[idx].type == TokenType.PAREN_CLOSE:
           consume()
           return node
@@ -157,4 +176,4 @@ def luna_parse(tokens: list[Token]) -> Expression:
     luna_throw(f'Unexpected value token: {t}')  
 
   
-  return parse_expr()
+  return parse_program()

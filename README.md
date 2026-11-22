@@ -4,6 +4,13 @@ Luna is an experiment into building a small programming language!
 
 It is a tokenizer + parser + interpreter system implemented in Python.
 
+# THE LUNA MANIFESTO (WIP)
+
+1. Intuitive is good.
+2. Flexibility and polymorphism are good.
+3. Types should be hierarchical, and polymorphic operations should go up the type hierarchy.
+4. Users should have full control over when code blocks are evaluated.
+
 # OPERATOR PRECEDENCE, KEYWORDS, AND SYNTAX
 
 Operator Precedence (all operators have left-to-right associativity):

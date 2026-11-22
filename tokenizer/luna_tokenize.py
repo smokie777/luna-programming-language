@@ -1,6 +1,7 @@
 # luna_tokenize.py
 
 from .Token import *
+from .luna_lex import luna_lex
 from enum import Enum
 
 # Luna's tokenizer is a small state machine with these valid states
@@ -116,52 +117,3 @@ def luna_tokenize(s: str) -> list[Token]:
     raise SyntaxError(f'Invalid sequence found at end of file: {seq}')
 
   return luna_lex(tokens)
-
-# lexes keyword combos into single keywords, and manages whitespace.
-# example: [-, >] becomes [VarSet] instead of [Minus, GreaterThan]
-# TODO: suppress newlines directly after any open brace
-def luna_lex(tokens):
-  ret = []
-  i = 0
-  while i < len(tokens):
-    if (
-      i < len(tokens) - 1
-      and tokens[i].type == TokenType.MINUS
-      and tokens[i+1].type == TokenType.GT
-    ):
-      ret.append(Token(TokenType.VARSET, None, tokens[i].line_number))
-      i += 1
-    elif (
-      i < len(tokens) - 1
-      and tokens[i].type == TokenType.GT
-      and tokens[i+1].type == TokenType.GT
-    ):
-      ret.append(Token(TokenType.IF, None, tokens[i].line_number))
-      i += 1
-    elif (
-      i < len(tokens) - 1
-      and tokens[i].type == TokenType.INVERSE
-      and tokens[i+1].type == TokenType.GT
-    ):
-      ret.append(Token(TokenType.ELSE, None, tokens[i].line_number))
-      i += 1
-    elif (
-      i < len(tokens) - 1
-      and tokens[i].type == TokenType.GT
-      and tokens[i+1].type == TokenType.EQUALS
-    ):
-      ret.append(Token(TokenType.GTE, None, tokens[i].line_number))
-      i += 1
-    elif (
-      i < len(tokens) - 1
-      and tokens[i].type == TokenType.LT
-      and tokens[i+1].type == TokenType.EQUALS
-    ):
-      ret.append(Token(TokenType.LTE, None, tokens[i].line_number))
-      i += 1
-    else:
-      ret.append(tokens[i])
-    i += 1
-  last_line_number = ret[-1].line_number if len(ret) else -1
-  ret.append(Token(TokenType.NEWLINE, None, last_line_number + 1))
-  return ret
