@@ -9,10 +9,7 @@ from .operators import EqualityOp, AdditionOp, MultiplicationOp
 
 @dataclass
 class Map(Expression):
-  aa: list[list[EvalExpr]] = Field(default_factory=list)
-  def __post_init__(self):
-    if any([len(l) != 2 for l in self.aa]):
-      raise ValueError(f'Every item in a Map associative array must be a list of size 2. Got: {self.aa}')
+  args: list[EvalExpr] = Field(default_factory=list)
 
 @dataclass
 class Program(Expression):
@@ -57,7 +54,7 @@ class Switch(Expression):
   condition: EvalExpr
   cases: list[EvalExpr]
   branches: list[EvalExpr]
-  default_branch: EvalExpr | None
+  default_branch: EvalExpr | None = None
 
 @dataclass
 class IfThenElse(Expression):

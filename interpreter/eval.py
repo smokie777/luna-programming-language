@@ -3,6 +3,7 @@
 from .expressions import *
 from .typeutils import *
 from .utils import *
+from .data_structures import LunaMap
 from .Env import Env
 from .luna_types import EvalExpr
 from .equals import luna_equals
@@ -25,11 +26,8 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return expr;
     case list():
       return [luna_eval(i, env) for i in expr]
-    case Map(aa):
-      return [
-        [luna_eval(i[0], env), luna_eval(i[1], env)]
-        for i in aa
-      ]
+    case Map(args):
+      return LunaMap([luna_eval(i, env) for i in args])
     case Frozen(e):
       return e
     case Program(l):

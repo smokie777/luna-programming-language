@@ -15,5 +15,6 @@ class ReservedKeywords(StrEnum):
   BOOLEAN = "boolean"
   STRING = "string"
   NUMBER = "number"
-
+  MAP = "map"
+  
 RESERVED_KEYWORDS_SET = { e.value for e in ReservedKeywords }

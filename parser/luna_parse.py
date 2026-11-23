@@ -44,13 +44,15 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   def parse_file():
     nonlocal idx
-    nodes = [parse_expr()]
-    while check(TokenType.NEWLINE):
+    nodes = []
+    while True:
       consume_newlines()
-      if idx < len(tokens): # check for EOF
-        nodes.append(parse_expr())
-      else:
+      if idx >= len(tokens): # check for EOF
         break
+      nodes.append(parse_expr())
+      if check(TokenType.NEWLINE):
+        continue
+      luna_throw(f'Unexpected token at end of expression in File: {current()}')
     return Program(nodes)
 
   def parse_expr():
@@ -153,6 +155,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
       case TokenType.BRACE_OPEN:
         return parse_program()
       case TokenType.PAREN_OPEN:
+        # this paren block is for "grouping", as opposed to parens for params/args.
         consume_current_and_newlines()
         node = parse_expr()
         consume_newlines()
@@ -161,6 +164,8 @@ def luna_parse(tokens: list[Token]) -> Expression:
           return node
         else:
           luna_throw(f'Found unclosed ")": {node}')
+      case TokenType.BRACKET_OPEN:
+        return parse_list()
     luna_throw(f'Unexpected value token: {t}')  
 
   def parse_name():
@@ -196,6 +201,9 @@ def luna_parse(tokens: list[Token]) -> Expression:
       case ReservedKeywords.PRINT:
         consume()
         return Print(parse_arguments(t.value)[0])
+      case ReservedKeywords.MAP:
+        consume()
+        return Map(parse_arguments(t.value))
       case ReservedKeywords.FUNCTION:
         consume()
         return Function(parse_params(t.value), parse_program())
@@ -215,7 +223,6 @@ def luna_parse(tokens: list[Token]) -> Expression:
           args[2].varname if len(args) == 3 else None,
           body
         )
-
       case _:
         # there is no consume() here because VarGet has no token or syntax
         return VarGet(parse_identifier())
@@ -288,12 +295,31 @@ def luna_parse(tokens: list[Token]) -> Expression:
       luna_throw(f'Program must start with {"{"}. Got: {current()}')
     nodes = [parse_expr()]
     while check(TokenType.NEWLINE):
-      consume_newlines()
+      consume_current_and_newlines()
       nodes.append(parse_expr())
     if check(TokenType.BRACE_CLOSE):
       consume()
       return Program(nodes)
-    luna_throw(f'Program must end with {"}"}. Got: {current()}')
+    luna_throw(f'Unexpected token at end of expression in Program: {current()}')
+
+  def parse_list():
+    nonlocal idx
+    if check(TokenType.BRACKET_OPEN):
+      consume_current_and_newlines()
+      if check(TokenType.BRACKET_CLOSE):
+        consume()
+        return []
+    else:
+      luna_throw(f'List must start with [. Got: {current()}')
+    nodes = [parse_expr()]
+    consume_newlines()
+    while check(TokenType.COMMA):
+      consume_current_and_newlines()
+      nodes.append(parse_expr())
+    if check(TokenType.BRACKET_CLOSE):
+      consume()
+      return nodes
+    luna_throw(f'List must end with ]. Got: {current()}')
 
 
   return parse_file()

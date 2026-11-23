@@ -19,6 +19,8 @@ class TokenType(StrEnum):
   PAREN_CLOSE = "PAREN_CLOSE"
   BRACE_OPEN = "BRACE_OPEN"
   BRACE_CLOSE = "BRACE_CLOSE"
+  BRACKET_OPEN = "BRACKET_OPEN"
+  BRACKET_CLOSE = "BRACKET_CLOSE"
   GT = "GT"
   LT = "LT"
   GTE = "GTE"
@@ -34,6 +36,7 @@ class TokenType(StrEnum):
   NEWLINE = "NEWLINE"
   COMMA = "COMMA"
   FREEZE = "FREEZE"
+  MAP = "MAP"
 
 KEYWORD_TO_TOKEN_TYPE_MAP = {
   # single character
@@ -41,6 +44,8 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   ")": TokenType.PAREN_CLOSE,
   "{": TokenType.BRACE_OPEN,
   "}": TokenType.BRACE_CLOSE,
+  "[": TokenType.BRACKET_OPEN,
+  "]": TokenType.BRACKET_CLOSE,
   "+": TokenType.PLUS,
   "-": TokenType.MINUS,
   "*": TokenType.TIMES,

@@ -131,7 +131,10 @@ def test_parse_freeze():
 
 def test_parse_program():
   assert_parse_expr_tokens("{3}", Program([3]))
+  assert_parse_expr_tokens("{3+4}", Program([Sum([3,4])]))
   assert_parse_expr_tokens("{3\n4}", Program([3, 4]))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("{3 3}"))
 
 def test_parse_function():
   assert_parse_expr_tokens("function(){}", Function([], Program([])))
@@ -141,4 +144,18 @@ def test_parse_loop():
   assert_parse_expr_tokens("loop(3){4}", Loop(3, None, None, Program([4])))
   assert_parse_expr_tokens("loop(3, item){4}", Loop(3, "item", None, Program([4])))
   assert_parse_expr_tokens("loop(3, item, idx){4}", Loop(3, "item", "idx", Program([4])))
+
+def test_parse_invalid_chars_after_expr():
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("3 3"))
+
+def test_parse_list():
+  assert_parse_expr_tokens("[]", [])
+  assert_parse_expr_tokens("[1,2,3]", [1,2,3])
+  assert_parse_expr_tokens("[1,2,3+4]", [1,2,Sum([3,4])])
+
+def test_parse_map():
+  assert_parse_expr_tokens("map()", Map([]))
+  assert_parse_expr_tokens("map([1,2])", Map([[1,2]]))
+  assert_parse_expr_tokens("map([1,2],[3,4])", Map([[1,2],[3,4]]))
   

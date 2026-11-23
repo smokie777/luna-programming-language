@@ -72,6 +72,19 @@ Higher types may be converted to lower types, but this should be used sparingly,
 
 There is no `null` type; instead `false` is used, as that is the falsey value of the lowest type in the hierarchy. There is one falsey value for each type: `[]`, `""`, `0`, `false`.
 
+# MAPS
+
+A Map, or a mapping of keys to values, is implemented as an associative array where each element is a list of size 2. A Map can be written as follows:
+
+```
+map(
+  ["key1", "value1"],
+  ["key2", "value2"],
+)
+```
+
+Composition is allowed when creating a Map - imagine that `map()` is a function, and each argument is an expression that evaluates to a list of size 2. The list of size 2 invariant is enforced at evaluation time. Note that since Maps are associative arrays, keys and values can be any valid expression, and duplicate keys are allowed. This is an intentional design choice to promote flexibility. 
+
 # POLYMORPHISM
 
 Cross-type operations across Values are generally allowed, and will respect the type hierarchy. Each operation decides which cross-type interactions are allowed, and when type coercion is appropriate.
