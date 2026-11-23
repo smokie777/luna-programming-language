@@ -18,6 +18,13 @@ def luna_lex(tokens):
       i += 1
     elif (
       i < len(tokens) - 1
+      and tokens[i].type == TokenType.EQUALS
+      and tokens[i+1].type == TokenType.GT
+    ):
+      ret.append(Token(TokenType.VARSET_GLOBAL, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
       and tokens[i].type == TokenType.GT
       and tokens[i+1].type == TokenType.GT
     ):
@@ -43,6 +50,13 @@ def luna_lex(tokens):
       and tokens[i+1].type == TokenType.EQUALS
     ):
       ret.append(Token(TokenType.LTE, None, tokens[i].line_number))
+      i += 1
+    elif (
+      i < len(tokens) - 1
+      and tokens[i].type == TokenType.LT
+      and tokens[i+1].type == TokenType.GT
+    ):
+      ret.append(Token(TokenType.FREEZE, None, tokens[i].line_number))
       i += 1
     else:
       ret.append(tokens[i])

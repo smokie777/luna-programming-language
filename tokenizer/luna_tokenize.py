@@ -76,17 +76,17 @@ def luna_tokenize(s: str) -> list[Token]:
     elif state == State.IN_KEYWORD:
       # single-character symbol keywords are immediately matched.
       # multi-character operators are matched in lexing.
-      # multi-character keywords are tokenized as identifiers, and handled in parsing
+      # multi-character keywords are tokenized as names, and handled in parsing
       if len(seq) == 1 and seq in KEYWORD_TO_TOKEN_TYPE_MAP:
         tokens.append(Token(KEYWORD_TO_TOKEN_TYPE_MAP.get(seq), None, line_number))
         reset_state()
         continue
-      elif c in VALID_IDENTIFIER_CHARS:
+      elif c in VALID_NAME_CHARS:
         seq += c
       else:
         if seq[0] == VALID_NUMBER_CHARS:
           luna_throw(f"Identifer name must begin with letter or underscore, and can only contain letters, underscores, and numbers. Got: {seq}")
-        tokens.append(Token(TokenType.IDENTIFIER, seq, line_number))
+        tokens.append(Token(TokenType.NAME, seq, line_number))
         reset_state()
         continue
     # in default state, either skip whitespace, or enter a valid state.

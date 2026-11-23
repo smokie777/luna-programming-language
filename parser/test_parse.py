@@ -64,7 +64,7 @@ def test_parse_inverse():
 def test_parse_newlines():
   assert_parse_expr_tokens("3+(\n4+5\n)", Sum([3, Sum([4,5])])) 
 
-def test_operator_chain():
+def test_parse_operator_chain():
   assert_parse_expr_tokens(
     "3 >> 3 | 4 & 5 <= 6 + 7 * 8 ^ -9 !> 'not three'",
     IfThenElse(
@@ -91,3 +91,38 @@ def test_operator_chain():
       "not three"
     )
   )
+
+def test_parse_keyword_no_args():
+  assert_parse_expr_tokens("true", True)
+  assert_parse_expr_tokens("false", False)
+  assert_parse_expr_tokens("continue", Continue())
+  assert_parse_expr_tokens("break", Break())
+
+def test_parse_keyword_with_args():
+  assert_parse_expr_tokens("return", Return(False))
+  assert_parse_expr_tokens("return(3)", Return(3))
+  assert_parse_expr_tokens("return(3+4)", Return(Sum([3, 4])))
+  assert_parse_expr_tokens("boolean(3)", ToBoolean(3))
+  assert_parse_expr_tokens("boolean(3+4)", ToBoolean(Sum([3, 4])))
+  assert_parse_expr_tokens("string(3)", ToString(3))
+  assert_parse_expr_tokens("string(3+4)", ToString(Sum([3, 4])))
+  assert_parse_expr_tokens("number(3)", ToNumber(3))
+  assert_parse_expr_tokens("number(3+4)", ToNumber(Sum([3, 4])))
+  assert_parse_expr_tokens("print(3)", Print(3))
+  assert_parse_expr_tokens("print(3+4)", Print(Sum([3, 4])))
+
+def test_parse_args_invalid_cases():
+  with pytest.raises(Exception):
+    assert_parse_expr_tokens("print(3,4)", Print(Sum([3, 4])))
+  with pytest.raises(Exception):
+    assert_parse_expr_tokens("print(3+4", Print(Sum([3, 4])))
+  with pytest.raises(Exception):
+    assert_parse_expr_tokens("print3+4)", Print(Sum([3, 4])))
+
+def test_parse_varset():
+  assert_parse_expr_tokens("-> x 4", VarSet("x", 4))
+  assert_parse_expr_tokens("-> x 3 + 4", VarSet("x", Sum([3, 4])))
+  assert_parse_expr_tokens("=> x 4", VarSetGlobal("x", 4))
+
+def test_parse_freeze():
+  assert_parse_expr_tokens("<>print(3)", Frozen(Print(3)))

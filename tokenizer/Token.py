@@ -6,11 +6,9 @@ from enum import StrEnum
 # A Luna Token must have one of these types.
 # Multi-character tokens like "->" are separated into two tokens: "-" and ">"
 class TokenType(StrEnum):
-  TRUE = "TRUE"
-  FALSE = "FALSE"
   NUMBER = "NUMBER"
   STRING = "STRING"
-  IDENTIFIER = "IDENTIFIER"
+  NAME = "NAME"
   PLUS = "PLUS"
   MINUS = "MINUS"
   TIMES = "TIMES"
@@ -32,6 +30,8 @@ class TokenType(StrEnum):
   AND = "AND"
   EXCLAMATION = "EXCLAMATION"
   NEWLINE = "NEWLINE"
+  COMMA = "COMMA"
+  FREEZE = "FREEZE"
 
 KEYWORD_TO_TOKEN_TYPE_MAP = {
   # single character
@@ -49,6 +49,7 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   "|": TokenType.OR,
   "&": TokenType.AND,
   "!": TokenType.EXCLAMATION,
+  ",": TokenType.COMMA,
   # multi character
   "->": TokenType.VARSET,
   "=>": TokenType.VARSET_GLOBAL,
@@ -56,6 +57,7 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   "!>": TokenType.ELSE,
   ">=": TokenType.GTE,
   "<=": TokenType.LTE,
+  "<>": TokenType.FREEZE
 }
 
 lowercase_letters = "abcdefghijklmnopqrstuvwxyz"
@@ -65,8 +67,8 @@ VALID_NUMBER_CHARS_WITH_PERIOD = VALID_NUMBER_CHARS | {"."}
 VALID_SYMBOL_CHARS = set("`~!@#$%^&*()_+-=[]{}|;:'\",<.>/?")
 VALID_WHITESPACE_CHARS = set(" \n")
 VALID_CHARS = VALID_ALPHA_CHARS | VALID_NUMBER_CHARS | VALID_SYMBOL_CHARS | VALID_WHITESPACE_CHARS
-VALID_IDENTIFIER_CHARS = set("_") | VALID_ALPHA_CHARS | VALID_NUMBER_CHARS
-VALID_KEYWORD_CHARS = set("".join(KEYWORD_TO_TOKEN_TYPE_MAP)) | VALID_IDENTIFIER_CHARS
+VALID_NAME_CHARS = set("_") | VALID_ALPHA_CHARS | VALID_NUMBER_CHARS
+VALID_KEYWORD_CHARS = set("".join(KEYWORD_TO_TOKEN_TYPE_MAP)) | VALID_NAME_CHARS
 
 @dataclass
 class Token:
