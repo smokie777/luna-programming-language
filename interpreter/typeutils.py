@@ -39,7 +39,7 @@ def luna_to_number(v: Lv) -> int | float:
     case int() | float():
       return v
     case list():
-      luna_throw(f'can\'t call luna_to_number on list {v}. use a reduction like "sum" instead.')
+      return 1 if len(v) else 0
     case _:
       luna_throw(f'can\'t call luna_to_number on: {v}')
 
@@ -54,7 +54,10 @@ def luna_to_string(v: Lv) -> str:
       # NOTE: this inherits python's behavior for edge cases. may rewrite later
       return str(v)
     case list():
-      luna_throw(f'can\'t call luna_to_string on list {v}. use a reduction like "join" instead.')
+      acc = ""
+      for i in v:
+        acc += luna_to_string(i)
+      return acc
     case _:
       luna_throw(f'can\'t call luna_to_string on: {v}')
 
@@ -62,11 +65,11 @@ def luna_to_string(v: Lv) -> str:
 def luna_to_list(v: Lv) -> list[Lv]:
   match v:
     case str():
-      return list(v)
+      return list(v) # creates a new list entry for each string char.
     case bool():
       return [v] if v else []
     case int() | float():
-      return [v]
+      return [] if v == 0 else [v]
     case list():
       return v
     case _:

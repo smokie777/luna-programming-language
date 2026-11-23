@@ -49,11 +49,14 @@ def test_tokenize_string():
 
 def test_tokenize_identifier():
   assert luna_tokenize("abc") == [Token(TokenType.IDENTIFIER, "abc", 1), nl(2)]
+  assert luna_tokenize("_abc") == [Token(TokenType.IDENTIFIER, "_abc", 1), nl(2)]
+  with pytest.raises(Exception):
+    luna_tokenize("3invalididentifier")
 
 def test_tokenize_keyword():
   assert luna_tokenize("=") == [Token(TokenType.EQUALS, None, 1), nl(2)]
-  assert luna_tokenize("true") == [Token(TokenType.TRUE, None, 1), nl(2)]
-  assert luna_tokenize("false") == [Token(TokenType.FALSE, None, 1), nl(2)]
+  assert luna_tokenize("true") == [Token(TokenType.IDENTIFIER, "true", 1), nl(2)]
+  assert luna_tokenize("false") == [Token(TokenType.IDENTIFIER, "false", 1), nl(2)]
   assert luna_tokenize("==+") == [
     Token(TokenType.EQUALS, None, 1),
     Token(TokenType.EQUALS, None, 1),
@@ -82,7 +85,6 @@ expected = [
   nl(2)
 ]
 def test_tokenize_composite_one_line():
-  print(luna_tokenize(s))
   assert luna_tokenize(s) == expected
 
 def test_tokenize_composite_one_line_no_spaces():

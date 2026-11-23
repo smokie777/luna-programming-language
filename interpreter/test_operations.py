@@ -46,8 +46,10 @@ def test_to_number():
   assert luna_to_number(False) == 0
   assert luna_to_number(3) == 3
   assert luna_to_number(3.5) == 3.5
+  assert luna_to_number([]) == 0
+  assert luna_to_number([1,2,3]) == 1
   with pytest.raises(Exception):
-    luna_to_number([])
+    luna_to_number({})
 
 def test_to_string():
   assert luna_to_string("foo") == "foo"
@@ -55,8 +57,10 @@ def test_to_string():
   assert luna_to_string(False) == ""
   assert luna_to_string(3) == "3"
   assert luna_to_string(3.5) == "3.5"
+  assert luna_to_string([]) == ""
+  assert luna_to_string([1,2,3]) == "123"
   with pytest.raises(Exception):
-    luna_to_string([])
+    luna_to_string({})
 
 def test_to_list():
   assert luna_to_list("foo") == ["f", "o", "o"]
@@ -66,6 +70,7 @@ def test_to_list():
   assert luna_to_list(3.5) == [3.5]
   assert luna_to_list([]) == []
   assert luna_to_list(["foo"]) == ["foo"]
+  assert luna_to_list("123") == ["1", "2", "3"]
   with pytest.raises(Exception):
     luna_to_list({})
 
@@ -226,40 +231,40 @@ def test_invalid_division():
       luna_divide(i, False)
 
 def test_modulo():
-  assert luna_remainder_atomic(6, 3) == 0
-  assert luna_remainder_atomic(3, 6) == 3
-  assert luna_remainder_atomic(-6, 3) == 0
-  assert luna_remainder_atomic(3, -6) == 3
-  assert luna_remainder_atomic(-3, -6) == -3
-  assert luna_remainder_atomic("abab", "ab") == ""
-  assert luna_remainder_atomic("abab", 2) == ""
-  assert luna_remainder_atomic("abab", -2) == ""
-  assert luna_remainder_atomic([1,2,1,2],[1,2]) == []
-  assert luna_remainder_atomic([1,2,1,2],2) == []
-  assert luna_remainder_atomic([1,2,1,2],-2) == []
+  assert luna_remainder(6, 3) == 0
+  assert luna_remainder(3, 6) == 3
+  assert luna_remainder(-6, 3) == 0
+  assert luna_remainder(3, -6) == 3
+  assert luna_remainder(-3, -6) == -3
+  assert luna_remainder("abab", "ab") == ""
+  assert luna_remainder("abab", 2) == ""
+  assert luna_remainder("abab", -2) == ""
+  assert luna_remainder([1,2,1,2],[1,2]) == []
+  assert luna_remainder([1,2,1,2],2) == []
+  assert luna_remainder([1,2,1,2],-2) == []
 
 def test_modulo_one():
   cases = [2, 1, 0, "", []]
   for i in cases:
-    assert luna_remainder_atomic(i, 1) == luna_void(i)
-  assert luna_remainder_atomic("3", 1) == "3"
-  assert luna_remainder_atomic([4], 1) == [4]
+    assert luna_remainder(i, 1) == luna_void(i)
+  assert luna_remainder("3", 1) == "3"
+  assert luna_remainder([4], 1) == [4]
 
 def test_invalid_division():
   cases = [2, "3", [4], 1, 0, "", []]
   for i in cases:
     with pytest.raises(Exception):
-      luna_remainder_atomic(True, i)
+      luna_remainder(True, i)
     with pytest.raises(Exception):
-      luna_remainder_atomic(False, i)
+      luna_remainder(False, i)
     with pytest.raises(Exception):
-      luna_remainder_atomic(i, 0)
+      luna_remainder(i, 0)
     with pytest.raises(Exception):
-      luna_remainder_atomic(i, [])
+      luna_remainder(i, [])
     with pytest.raises(Exception):
-      luna_remainder_atomic(i, "")
+      luna_remainder(i, "")
     with pytest.raises(Exception):
-      luna_remainder_atomic(i, False)
+      luna_remainder(i, False)
 
 def test_luna_void():
   assert luna_void("asdf") == ""

@@ -3,6 +3,7 @@
 import pytest
 from .luna_parse import luna_parse
 from interpreter.expressions import *
+from interpreter.operators import *
 from tokenizer.luna_tokenize import luna_tokenize
 
 def assert_parse_expr_tokens(source, expected):
@@ -28,16 +29,16 @@ def test_parse_and():
   assert_parse_expr_tokens("3 & 4 & 5", All([3,4,5])) 
 
 def test_parse_equality():
-  assert_parse_expr_tokens("3 < 4", Lt([3,4])) 
-  assert_parse_expr_tokens("3 < 4 < 5", Lt([3,4,5])) 
-  assert_parse_expr_tokens("3 <= 4", Lte([3,4])) 
-  assert_parse_expr_tokens("3 <= 4 <= 5", Lte([3,4,5])  ) 
-  assert_parse_expr_tokens("3 > 4", Gt([3,4])) 
-  assert_parse_expr_tokens("3 > 4 > 5", Gt([3,4,5])) 
-  assert_parse_expr_tokens("3 >= 4", Gte([3,4])) 
-  assert_parse_expr_tokens("3 >= 4 >= 5", Gte([3,4,5])  ) 
-  assert_parse_expr_tokens("3 = 4", Equals([3,4])) 
-  assert_parse_expr_tokens("3 = 4 = 5", Equals([3,4,5])) 
+  assert_parse_expr_tokens("3 < 4", Lt([3, 4]))
+  assert_parse_expr_tokens("3 < 4 < 5", Lt([3, 4, 5]))
+  assert_parse_expr_tokens("3 <= 4", Lte([3, 4]))
+  assert_parse_expr_tokens("3 <= 4 <= 5", Lte([3, 4, 5]))
+  assert_parse_expr_tokens("3 > 4", Gt([3, 4]))
+  assert_parse_expr_tokens("3 > 4 > 5", Gt([3, 4, 5]))
+  assert_parse_expr_tokens("3 >= 4", Gte([3, 4]))
+  assert_parse_expr_tokens("3 >= 4 >= 5", Gte([3, 4, 5]))
+  assert_parse_expr_tokens("3 = 4", Equals([3, 4]))
+  assert_parse_expr_tokens("3 = 4 = 5", Equals([3, 4, 5]))
 
 def test_parse_addition():
   assert_parse_expr_tokens("3 + 4", Sum([3,4])) 
@@ -50,8 +51,8 @@ def test_parse_multiplication():
   assert_parse_expr_tokens("3 * 4 * 5", Product([3,4,5])) 
   assert_parse_expr_tokens("3 / 4", Quotient([3,4])) 
   assert_parse_expr_tokens("3 / 4 / 5", Quotient([3,4,5])) 
-  assert_parse_expr_tokens("3 % 4", Remainder([3,4])) 
-  assert_parse_expr_tokens("3 % 4 % 5", Remainder([3,4,5])) 
+  assert_parse_expr_tokens("3 % 4", RemainderAll([3,4])) 
+  assert_parse_expr_tokens("3 % 4 % 5", RemainderAll([3,4,5])) 
 
 def test_parse_exponent():
   assert_parse_expr_tokens("3 ^ 4", Exponent([3,4])) 
@@ -72,7 +73,7 @@ def test_operator_chain():
         3,
         All([
           4,
-          Lte([
+          EqualityChain([
             5,
             Sum([
               6,
@@ -84,7 +85,7 @@ def test_operator_chain():
                 ])
               ])
             ])
-          ])
+          ], [EqualityOp.LTE])
         ])
       ]),
       "not three"

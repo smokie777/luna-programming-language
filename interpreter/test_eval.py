@@ -115,36 +115,76 @@ def test_eval_inverse():
 
 def test_eval_all():
   assert luna_eval(All([True, False])) == False
+  assert luna_eval(All([1, 2])) == True
+  assert luna_eval(All([1, 0])) == False
+  assert luna_eval(All([0, 0])) == False
 
 def test_eval_some():
   assert luna_eval(Some([True, False])) == True
+  assert luna_eval(Some([1, 2])) == True
+  assert luna_eval(Some([1, 0])) == True
+  assert luna_eval(Some([0, 0])) == False
 
-def test_eval_equals():
-  assert luna_eval(Equals([3, 3])) == True
+def test_eval_equality_chain():
+  assert luna_eval(EqualityChain(
+    [1,1,1],
+    [EqualityOp.EQ, EqualityOp.EQ]
+  )) == True
+  assert luna_eval(EqualityChain(
+    [1,2,3,3,2,1],
+    [EqualityOp.LT, EqualityOp.LTE, EqualityOp.EQ, EqualityOp.GT, EqualityOp.GTE]
+  )) == True
+  assert luna_eval(EqualityChain(
+    [1,1,2],
+    [EqualityOp.EQ, EqualityOp.EQ]
+  )) == False
+  assert luna_eval(EqualityChain(
+    [9,2,3,3,2,1],
+    [EqualityOp.LT, EqualityOp.LTE, EqualityOp.EQ, EqualityOp.GT, EqualityOp.GTE]
+  )) == False
 
-def test_eval_lt():
-  assert luna_eval(Lt([1,2])) == True
-
-def test_eval_lte():
-  assert luna_eval(Lte([1,1,2])) == True
-
-def test_eval_gt():
-  assert luna_eval(Gt([2,1])) == True
-
-def test_eval_gte():
-  assert luna_eval(Gte([2,1,1])) == True
-
-def test_eval_sum():
+def test_eval_addition_chain():
+  # same type
+  assert luna_eval(Sum([True, False, True])) == 2
   assert luna_eval(Sum([1,2,3])) == 6
-
-def test_eval_difference():
+  assert luna_eval(Sum(["a", "b", "c"])) == "abc"
+  assert luna_eval(Sum([[1], [2], [3]])) == [1, 2, 3]
+  # different type
+  assert luna_eval(Sum([False, 1])) == 1
+  assert luna_eval(Sum([False, 1, "2"])) == "12"
+  assert luna_eval(Sum([False, 1, "2", [4]])) == ["1", "2", 4]
+  # same type
+  assert luna_eval(Difference([True, False, True, True])) == -1
   assert luna_eval(Difference([1,2,3])) == -4
+  assert luna_eval(Difference(["abc", "c", "b"])) == "a"
+  assert luna_eval(Difference([[1, 2, 3], [3], [2]])) == [1]
+  # different type
+  assert luna_eval(Difference([False, 1])) == -1
+  assert luna_eval(Difference([False, 1, "2"])) == "-1"
+  assert luna_eval(Difference([False, 1, "2", [4]])) == ["-", "1"]
+  # interesting examples
+  assert luna_eval(Difference([True, 1])) == 0
+  assert luna_eval(Difference([12345, "345"])) == "12"
+  assert luna_eval(Difference([12345, "345", 2])) == "1"
+  assert luna_eval(Difference([12345, [12345]])) == []
+  assert luna_eval(Difference([True, 1, 1, 1])) == -2
+  assert luna_eval(Difference([True, 1, 1, 1, "ue"])) == "-2"
+  assert luna_eval(Difference(["footrue", True, "o", "o"])) == "f"
+  # cross type
+  assert luna_eval(AdditionChain([1, 2, 3, 4], [AdditionOp.PLUS, AdditionOp.MINUS, AdditionOp.PLUS])) == 4
 
-def test_eval_product():
-  assert luna_eval(Product([1,2,3,4])) == 24
-
-def test_eval_quotient():
-  assert luna_eval(Quotient([24,2,3])) == 4
+def test_eval_multiplication_chain():
+  assert luna_eval(Product([1, 2, 3])) == 6
+  assert luna_eval(Quotient([6, 3, 2])) == 1
+  assert luna_eval(RemainderAll([3, 6, 6])) == 3
+  assert luna_eval(MultiplicationChain(
+    [4, 3, 2, 3],
+    [MultiplicationOp.TIMES, MultiplicationOp.DIVIDE, MultiplicationOp.TIMES]
+  )) == 18
+  assert luna_eval(MultiplicationChain(
+    [4, 3, 2, 3, 5],
+    [MultiplicationOp.TIMES, MultiplicationOp.DIVIDE, MultiplicationOp.TIMES, MultiplicationOp.PERCENT]
+  )) == 3
 
 def test_eval_invoke_random_stuff():
-  assert luna_eval(Invoke(Sum([1,2,3]))) == 6
+  assert luna_eval(Invoke(All([True, True]))) == True

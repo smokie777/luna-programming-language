@@ -3,6 +3,7 @@
 from pydantic.dataclasses import dataclass
 from pydantic import Field
 from .luna_types import Expression, EvalExpr
+from .operators import EqualityOp, AdditionOp, MultiplicationOp
 
 # Note: pydantic dataclasses automatically handles type checking.
 
@@ -27,7 +28,7 @@ class Frozen(Expression):
 @dataclass
 class Invoke(Expression):
   e: EvalExpr
-  args: EvalExpr = Field(default_factory=list)
+  args: list[EvalExpr] = Field(default_factory=list)
 
 @dataclass
 class VarGet(Expression):
@@ -106,58 +107,43 @@ class ToList(Expression):
 @dataclass
 class Inverse(Expression):
   e: EvalExpr
-  
-@dataclass
-class Sum(Expression):
-  e: EvalExpr
-
-@dataclass
-class Difference(Expression):
-  e: EvalExpr
-
-@dataclass
-class Product(Expression):
-  e: EvalExpr
-
-@dataclass
-class Quotient(Expression):
-  e: EvalExpr
-
-@dataclass
-class Remainder(Expression):
-  e: EvalExpr
-
-@dataclass
-class Exponent(Expression):
-  e: EvalExpr
 
 @dataclass
 class All(Expression):
-  e: EvalExpr
+  items: list[EvalExpr]
 
 @dataclass
 class Some(Expression):
-  e: EvalExpr
+  items: list[EvalExpr]
+
+def validate_chain(items, operators, chain_type):
+  if len(items) < 2 or len(operators) + 1 != len(items):
+    raise ValueError(f"{chain_type} must have n items and n - 1 operators, where n >= 2. Got: {len(items)} items, {len(operators)} operators.")
 
 @dataclass
-class Equals(Expression):
-  e: EvalExpr
+class EqualityChain(Expression):
+  items: list[EvalExpr]
+  operators: list[EqualityOp]
+  def __post_init__(self):
+    validate_chain(self.items, self.operators, "EqualityChain")
 
 @dataclass
-class Lt(Expression):
-  e: EvalExpr
+class AdditionChain(Expression):
+  items: list[EvalExpr]
+  operators: list[AdditionOp]
+  def __post_init__(self):
+    validate_chain(self.items, self.operators, "AdditionChain")
 
 @dataclass
-class Lte(Expression):
-  e: EvalExpr
+class MultiplicationChain(Expression):
+  items: list[EvalExpr]
+  operators: list[MultiplicationOp]
+  def __post_init__(self):
+    validate_chain(self.items, self.operators, "MultiplicationChain")
 
 @dataclass
-class Gt(Expression):
-  e: EvalExpr
-
-@dataclass
-class Gte(Expression):
-  e: EvalExpr
+class Exponent(Expression):
+  items: list[EvalExpr]
 
 # custom Exceptions related to Expression evaluation
 
@@ -172,3 +158,35 @@ class ContinueSignal(Exception):
 @dataclass
 class BreakSignal(Exception):
   pass
+
+# helpers to generatee expressions, only to be used during testing.
+
+def Sum(l: list[EvalExpr]):
+  return AdditionChain(l, [AdditionOp.PLUS for _ in range(len(l) - 1)])
+
+def Difference(l: list[EvalExpr]):
+  return AdditionChain(l, [AdditionOp.MINUS for _ in range(len(l) - 1)])
+
+def Product(l: list[EvalExpr]):
+  return MultiplicationChain(l, [MultiplicationOp.TIMES for _ in range(len(l) - 1)])
+
+def Quotient(l: list[EvalExpr]):
+  return MultiplicationChain(l, [MultiplicationOp.DIVIDE for _ in range(len(l) - 1)])
+
+def RemainderAll(l: list[EvalExpr]):
+  return MultiplicationChain(l, [MultiplicationOp.PERCENT for _ in range(len(l) - 1)])
+
+def Lt(l: list[EvalExpr]):
+  return EqualityChain(l, [EqualityOp.LT for _ in range(len(l) - 1)])
+
+def Lte(l: list[EvalExpr]):
+  return EqualityChain(l, [EqualityOp.LTE for _ in range(len(l) - 1)])
+
+def Gt(l: list[EvalExpr]):
+  return EqualityChain(l, [EqualityOp.GT for _ in range(len(l) - 1)])
+
+def Gte(l: list[EvalExpr]):
+  return EqualityChain(l, [EqualityOp.GTE for _ in range(len(l) - 1)])
+
+def Equals(l: list[EvalExpr]):
+  return EqualityChain(l, [EqualityOp.EQ for _ in range(len(l) - 1)])

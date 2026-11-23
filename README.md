@@ -353,6 +353,8 @@ To run tests:
 
 `python -m pytest` to run all test files and methods starting with `test_`
 
+`python -m pytest -s` to run all tests, and also see print() statements
+
 `python -m pytest parser/test_parse.py` to run one specific test file
 
 `python -m parser.luna_parse` to run one specific file

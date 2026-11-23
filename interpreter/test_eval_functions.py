@@ -43,18 +43,11 @@ def test_function_execution_dynamic_args():
   assert luna_eval(p) == 10
 
 def test_function_call_invalid_args_or_fn():
-  p1 = Program([
+  with pytest.raises(Exception):
+    assert luna_eval(Program([
     VarSet("add_two", fn),
     Invoke(VarGet("add_two"), [1])
-  ])
-  p2 = Program([
-    VarSet("add_two", fn),
-    Invoke(VarGet("add_two"), 1)
-  ])
-  with pytest.raises(Exception):
-    assert luna_eval(p1)
-  with pytest.raises(Exception):
-    assert luna_eval(p2)
+  ]))
 
 def test_scopes():
   p1 = Program([
@@ -147,4 +140,4 @@ def test_var_set_global():
       ])
     )),
   ])
-  assert luna_eval(p) == 3
+  assert luna_eval(p1) == 3

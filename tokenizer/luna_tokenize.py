@@ -3,6 +3,7 @@
 from .Token import *
 from .luna_lex import luna_lex
 from enum import Enum
+from .utils import luna_throw
 
 # Luna's tokenizer is a small state machine with these valid states
 class State(Enum):
@@ -74,18 +75,18 @@ def luna_tokenize(s: str) -> list[Token]:
     # a keyword can be a reserved Luna keyword, or a variable name.
     elif state == State.IN_KEYWORD:
       # single-character symbol keywords are immediately matched.
+      # multi-character operators are matched in lexing.
+      # multi-character keywords are tokenized as identifiers, and handled in parsing
       if len(seq) == 1 and seq in KEYWORD_TO_TOKEN_TYPE_MAP:
         tokens.append(Token(KEYWORD_TO_TOKEN_TYPE_MAP.get(seq), None, line_number))
         reset_state()
         continue
-      elif c in VALID_ALPHA_CHARS or c in VALID_NUMBER_CHARS:
+      elif c in VALID_IDENTIFIER_CHARS:
         seq += c
       else:
-        token_type = KEYWORD_TO_TOKEN_TYPE_MAP.get(seq)
-        if token_type is not None:
-          tokens.append(Token(token_type, None, line_number))
-        else:
-          tokens.append(Token(TokenType.IDENTIFIER, seq, line_number))
+        if seq[0] == VALID_NUMBER_CHARS:
+          luna_throw(f"Identifer name must begin with letter or underscore, and can only contain letters, underscores, and numbers. Got: {seq}")
+        tokens.append(Token(TokenType.IDENTIFIER, seq, line_number))
         reset_state()
         continue
     # in default state, either skip whitespace, or enter a valid state.

@@ -2,11 +2,11 @@
 
 from .expressions import *
 from .typeutils import *
-from .arithmetic import *
-from .reductions import *
 from .utils import *
 from .Env import Env
 from .luna_types import EvalExpr
+from .equals import luna_equals
+from common.mappings import equality_op_to_eval_fn, addition_op_to_eval_fn, multiplication_op_to_eval_fn
 
 # Evaluates an expression recursively.
 # Each function call creates a new scope.
@@ -41,13 +41,12 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       invokable = luna_eval(e, env)
       match invokable:
         case Function(params, body):
-          args = eval_to_list_or_throw(args, env, "Invoke Function")
           if len(params) != len(args):
             luna_throw(f'Function expected {len(params)} args. Got: {len(args)}')
           scope = Env({}, env)
           scope.depth = env.depth + 1
           for i in range(len(args)):
-            scope.set(params[i], args[i])
+            scope.set(params[i], luna_eval(args[i], env))
           try:
             return luna_eval(body, scope)
           except ReturnSignal as signal:
@@ -150,64 +149,37 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return luna_to_string(luna_eval(e, env))
     case Inverse(e):
       return luna_inverse(luna_eval(e, env))
-    case All(e):
-      if isinstance(e, list): # short circuit
-        return luna_and((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "All")
-      return luna_and(l)
-    case Some(e):
-      if isinstance(e, list): # short circuit
-        return luna_or((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Some")
-      return luna_or(l)
-    case Equals(e):
-      if isinstance(e, list): # short circuit
-        return luna_equals_all((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_equals_all(l)
-    case Lt(e):
-      if isinstance(e, list): # short circuit
-        return luna_lt_all((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_lt_all(l)
-    case Lte(e):
-      if isinstance(e, list): # short circuit
-        return luna_lte_all((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_lte_all(l)
-    case Gt(e):
-      if isinstance(e, list): # short circuit
-        return luna_gt_all((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_gt_all(l)
-    case Gte(e):
-      if isinstance(e, list): # short circuit
-        return luna_gte_all((luna_eval(i, env) for i in e))
-      l = eval_to_list_or_throw(e, env, "Equals")
-      return luna_gte_all(l)
-    case Sum(e):
-      l = eval_to_list_or_throw(e, env, "Sum")
-      return luna_sum(l)
-    case Difference(e):
-      l = eval_to_list_or_throw(e, env, "Difference")
-      return luna_difference(l)
-    case Product(e):
-      l = eval_to_list_or_throw(e, env, "Product")
-      return luna_product(l)
-    case Quotient(e):
-      l = eval_to_list_or_throw(e, env, "Quotient")
-      return luna_quotient(l)
-    case Remainder(e):
-      l = eval_to_list_or_throw(e, env, "Remainder")
-      return luna_remainder(l)
-    case Exponent(e):
-      l = eval_to_list_or_throw(e, env, "Exponent")
-      return luna_exponent(l)
+    case All(items):
+      return all((luna_to_boolean(luna_eval(i, env)) for i in items))
+    case Some(items):
+      return any((luna_to_boolean(luna_eval(i, env)) for i in items))
+    case EqualityChain(items, operators):
+      prev = None
+      curr = luna_eval(items[0], env)
+      for idx, op in enumerate(operators):
+        prev = curr
+        curr = luna_eval(items[idx + 1], env)
+        result = equality_op_to_eval_fn[op](prev, curr)
+        if not result:
+          return False
+      return True
+    case AdditionChain(items, operators):
+      acc = luna_eval(items[0], env)
+      for idx, op in enumerate(operators):
+        acc = addition_op_to_eval_fn[op](acc, luna_eval(items[idx + 1], env))
+      return acc
+    case MultiplicationChain(items, operators):
+      acc = luna_eval(items[0], env)
+      for idx, op in enumerate(operators):
+        acc = multiplication_op_to_eval_fn[op](acc, luna_eval(items[idx + 1], env))
+      return acc
+    case Exponent(items):
+      acc = None
+      for i in items:
+        if acc is None:
+          acc = i
+        else:
+          acc = acc ** i
+      return acc
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')
-
-def eval_to_list_or_throw(e, env, operation_name):
-  l = luna_eval(e, env)
-  if not isinstance(l, list):
-    luna_throw(f'Operation {operation_name} requires a list. Got: {l}')
-  return l

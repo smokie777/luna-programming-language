@@ -25,7 +25,7 @@ def luna_lex(tokens):
       i += 1
     elif (
       i < len(tokens) - 1
-      and tokens[i].type == TokenType.INVERSE
+      and tokens[i].type == TokenType.EXCLAMATION
       and tokens[i+1].type == TokenType.GT
     ):
       ret.append(Token(TokenType.ELSE, None, tokens[i].line_number))

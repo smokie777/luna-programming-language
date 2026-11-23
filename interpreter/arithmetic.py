@@ -204,7 +204,7 @@ def luna_divide(a: Lv, b: Lv) -> Lv:
 # numbers: remainder
 # strings and lists: either empty sequence or the whole sequence
 # booleans: error, as Times cannot produce a boolean.
-def luna_remainder_atomic(a: Lv, b: Lv) -> Lv:
+def luna_remainder(a: Lv, b: Lv) -> Lv:
   if luna_equals(b, luna_void(b)):
     luna_throw(f'void divisor is not allowed: {b}')
   match a:

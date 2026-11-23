@@ -2,9 +2,8 @@
 
 from interpreter.expressions import *
 from tokenizer.Token import TokenType, Token
-from tokenizer.luna_tokenize import luna_tokenize
 from .utils import luna_throw
-from .tt_to_expr_map import tt_to_expr_map
+from common.mappings import tt_to_equality_op, tt_to_addition_op, tt_to_multiplication_op
 
 # A recursive descent parser which takes a 1-D list of tokens and returns an AST of Expressions.
 def luna_parse(tokens: list[Token]) -> Expression:
@@ -12,6 +11,8 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   # check if the current token is a given token(s)
   def check(token_type: str | list) -> bool:
+    if idx >= len(tokens):
+      return False
     if isinstance(token_type, str):
       return tokens[idx].type == token_type
     if isinstance(token_type, list):
@@ -89,32 +90,33 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   def parse_equality():
     nonlocal idx
-    nodes = [parse_addition()]
-    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
-    while idx < len(tokens) and check([
-      TokenType.LTE, TokenType.LT, TokenType.GTE, TokenType.GT, TokenType.EQUALS
-    ]):
+    items = [parse_addition()]
+    operators = []
+    while idx < len(tokens) and check(list(tt_to_equality_op.keys())):
+      operators.append(tt_to_equality_op[current().type])
       consume_current_and_newlines()
-      nodes.append(parse_addition())
-    return nodes[0] if len(nodes) == 1 else expr(nodes)
+      items.append(parse_addition())
+    return items[0] if len(items) == 1 else EqualityChain(items, operators)
 
   def parse_addition():
     nonlocal idx
-    nodes = [parse_multiplication()]
-    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
-    while idx < len(tokens) and check([TokenType.PLUS, TokenType.MINUS]):
+    items = [parse_multiplication()]
+    operators = []
+    while idx < len(tokens) and check(list(tt_to_addition_op.keys())):
+      operators.append(tt_to_addition_op[current().type])
       consume_current_and_newlines()
-      nodes.append(parse_multiplication())
-    return nodes[0] if len(nodes) == 1 else expr(nodes)
+      items.append(parse_multiplication())
+    return items[0] if len(items) == 1 else AdditionChain(items, operators)
 
   def parse_multiplication():
     nonlocal idx
-    nodes = [parse_exponent()]
-    expr = tt_to_expr_map[current().type] if idx < len(tokens) and current().type in tt_to_expr_map else None
-    while idx < len(tokens) and check([TokenType.TIMES, TokenType.DIVIDE, TokenType.PERCENT]):
+    items = [parse_exponent()]
+    operators = []
+    while idx < len(tokens) and check(list(tt_to_multiplication_op.keys())):
+      operators.append(tt_to_multiplication_op[current().type])
       consume_current_and_newlines()
-      nodes.append(parse_exponent())
-    return nodes[0] if len(nodes) == 1 else expr(nodes)
+      items.append(parse_exponent())
+    return items[0] if len(items) == 1 else MultiplicationChain(items, operators)
 
   def parse_exponent():
     nonlocal idx
@@ -150,7 +152,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   # ALL OPERATORS TO EVENTUALLY BE IMPLEMENTED HERE
 
-  # TODO: implement handling for lists, maps
+  # TODO: implement handling for identifiers, lists, maps
   def parse_value():
     nonlocal idx
     t = tokens[idx]
