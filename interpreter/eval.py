@@ -64,17 +64,14 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
         return False if if_branch is None else luna_eval(if_branch, env)
       else:
         return False if else_branch is None else luna_eval(else_branch, env)
-    case Switch(condition, cases, branches, default_branch):
+    case Switch(condition, cases, branches):
       condition = luna_eval(condition, env)
-      cases = luna_eval(cases, env)
-      if not isinstance(cases, list):
-        luna_throw(f'Switch cases must be a list. Got: {cases}')
-      if len(branches) != len(cases):
-        luna_throw(f'Switch cases and branches lists must have equal length. Got: {len(cases)} cases, {len(branches)} branches')
-      for idx in range(len(cases)):
-        if luna_equals(cases[idx], condition):
-          return luna_eval(branches[idx], env)
-      return luna_eval(default_branch, env)
+      for i in range(len(cases)):
+        if isinstance(cases[i], SwitchCatchAllCase) or (
+          luna_equals(luna_eval(cases[i], env), condition)
+        ):
+          return luna_eval(branches[i], env)
+      return False
     case Loop(iterable, iterator_varname, index_varname, body):
       iterable = luna_eval(iterable)
       if iterable in (False, "", 0, []):

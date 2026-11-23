@@ -66,7 +66,7 @@ def test_parse_newlines():
 
 def test_parse_operator_chain():
   assert_parse_expr_tokens(
-    "3 >> 3 | 4 & 5 <= 6 + 7 * 8 ^ -9 !> 'not three'",
+    "3 >> 3 | 4 & 5 <= 6 + 7 * 8 ^ -9(10) !> 'not three'",
     IfThenElse(
       3,
       Some([
@@ -81,7 +81,9 @@ def test_parse_operator_chain():
                 7,
                 Exponent([
                   8,
-                  Inverse(9)
+                  Inverse(
+                    Invoke(9, [10])
+                  )
                 ])
               ])
             ])
@@ -158,4 +160,28 @@ def test_parse_map():
   assert_parse_expr_tokens("map()", Map([]))
   assert_parse_expr_tokens("map([1,2])", Map([[1,2]]))
   assert_parse_expr_tokens("map([1,2],[3,4])", Map([[1,2],[3,4]]))
+
+def test_parse_switch():
+  assert_parse_expr_tokens(
+    "switch(3+4)`6:'six',7:'seven'`",
+    Switch(Sum([3, 4]), [6, 7], ["six", "seven"])
+  )
+  assert_parse_expr_tokens(
+    "switch(3+4)`6:'six',7:'seven',_:'default_branch'`",
+    Switch(Sum([3, 4]), [6, 7, SwitchCatchAllCase()], ["six", "seven", "default_branch"])
+  )
+  assert_parse_expr_tokens(
+    """
+    switch(3+4)`
+      6: 'six',
+      7:'seven',
+      _:'default_branch'
+    `
+    """,
+    Switch(Sum([3, 4]), [6, 7, SwitchCatchAllCase()], ["six", "seven", "default_branch"])
+  )
   
+def test_parse_invocation():
+  assert_parse_expr_tokens("x()", Invoke(VarGet("x"), []))
+  assert_parse_expr_tokens("x(1, 2, 3)", Invoke(VarGet("x"), [1, 2, 3]))
+  assert_parse_expr_tokens("function(arg){4}()", Invoke(Function(["arg"], Program([4]))))

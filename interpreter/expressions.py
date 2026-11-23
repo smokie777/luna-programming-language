@@ -47,7 +47,7 @@ class Function(Expression):
   body: Program
   def __post_init__(self):
     if len(self.params) != len(set(self.params)):
-      raise ValueError("Function argument names must be unique.")
+      raise ValueError(f'Function argument names must be unique. Got: {self.params}')
 
 @dataclass
 class Switch(Expression):
@@ -55,6 +55,13 @@ class Switch(Expression):
   cases: list[EvalExpr]
   branches: list[EvalExpr]
   default_branch: EvalExpr | None = None
+  def __post_init__(self):
+    if len(self.cases) != len(self.branches):
+      raise ValueError(f'Switch number of cases and branches must be equal. Got: {len(self.cases)} cases, {len(self.branches)} branches')
+
+@dataclass
+class SwitchCatchAllCase(Expression):
+  pass
 
 @dataclass
 class IfThenElse(Expression):

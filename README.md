@@ -52,8 +52,9 @@ Commonly used syntax:
 
 ```
 {}                 defines a Program
-()                 defines construct arguments
+()                 grouping or invocation
 []                 create a list
+``                 defines a Switch Body
 \n                 a newline indicates the end of an expression (unless in a string)
 ```
 
@@ -78,12 +79,14 @@ A Map, or a mapping of keys to values, is implemented as an associative array wh
 
 ```
 map(
-  ["key1", "value1"],
-  ["key2", "value2"],
+  ['key1', 'value1'],
+  ['key2', 'value2'],
 )
 ```
 
 Composition is allowed when creating a Map - imagine that `map()` is a function, and each argument is an expression that evaluates to a list of size 2. The list of size 2 invariant is enforced at evaluation time. Note that since Maps are associative arrays, keys and values can be any valid expression, and duplicate keys are allowed. This is an intentional design choice to promote flexibility. 
+
+A Map is considered to be a special construct rather than a Value type, so operations that can normally be performed using Value types do not apply to Maps. Instead, several Map helper functions will be provided.
 
 # POLYMORPHISM
 
@@ -96,19 +99,19 @@ Operations are designed with reversability in mind. For example, Plus can be rev
 While interesting cross-type operations is not the main focus of the language, some unconventional ones are allowed:
 
 Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
-`true + 1 + 1 + "ue" = "3ue"`  
-`true - "ue" = "tr"`
+`true + 1 + 1 + 'ue' = '3ue'`  
+`true - 'ue' = 'tr'`
 
 Multiplication/Division of strings and lists via sequence repetition
-`"ab" * 2 = "abab"`  
-`"abab" / 2 = "ab"`  
-`"abab" / "ab = 2`  
-`"abab" / 2 = "ab"`
+`'ab' * 2 = 'abab'`  
+`'abab' / 2 = 'ab'`  
+`'abab' / 'ab = 2`  
+`'abab' / 2 = 'ab'`
 
-Multiplying and dividing strings and lists by negative numbers creates their "inverse": a reversed sequence!  
-`"abab" * -2 = "baba"`  
-`"baba" / -2 = "ab"`  
-`"baba" / "ab" = -2`
+Multiplying and dividing strings and lists by negative numbers creates their 'inverse': a reversed sequence!  
+`'abab' * -2 = 'baba'`  
+`'baba' / -2 = 'ab'`  
+`'baba' / 'ab' = -2`
 
 # COMPOSABLE PROGRAMS
 
@@ -191,44 +194,40 @@ The `return` keyword is used to return from a function invocation, with or witho
 
 A Switch can be written with the following syntax:
 
-`switch(condition, Map, default)`
-
-At runtime, `condition` will be evaluated, and compared via equality to the evaluation of each `Map` key in order of top to bottom. If a match is found, then the matching key's value will be evaluated and returned, and the switch will exit. Only keys up until the matching key will be evaluated, and only the matching key's value will be evaluated. If a match is not found, the switch will return the optional `default` expression's evaluation, and if `default` is not provided, the switch will return `false`. A `Frozen Map` assigned to a variable may also be provided to a switch. 
-
 ```
--> result switch(3+4, map(
-  6: "six",
-  7: "seven"
-))
-print(result) # "seven"
+switch(condition)`
+  case1: branch1,
+  case2: branch2,
+  _: defaultbranch
+  ...
+`
 ```
 
+At runtime, `condition` will be evaluated, then the cases will be evaluated from top to bottom until a match is found. Then, the matching case's branch will be evaluated. Unreached cases and branches will not be evaluated. A default case `_` may optionally be provided; as soon as it is reached, the default branch executes. If no matching case is found, the switch returns `false`. Individual switch cases and branches can be composed using expressions.
+
+Note that the switch body is indicated with backticks, rather than any other grouping syntax, as a switch body has unique syntax and behavior. Switch cases are separated from branches by colons `:`, and different case-branch pairs are separated by commas `,`. 
+
 ```
--> result switch(3+4, map(
-  6: "six"
-), "default_value")
-print(result) # "default_value"
+-> result switch(3+4)`
+  6: 'six',
+  7: 'seven'
+`
+print(result) # 'seven'
 ```
 
 ```
--> result switch(3+4, map(
-  6: "six"
-))
+-> result switch(3+4)`
+  6: 'six',
+  _: 'default_value'
+`
+print(result) # 'default_value'
+```
+
+```
+-> result switch(3+4)`
+  6: 'six'
+`
 print(result) # false
-```
-
-```
--> my_switch_branches <>map(
-  6: { # this is a program with two expressions!
-    print("i am")
-    print("six")
-  },
-  7: {
-    print("i am")
-    print("seven")
-  },
-)
-switch(3+4, my_switch_branches) # prints "i am", "seven"
 ```
 
 Conditionals may also be implemented using `if-then-else` syntax, using `>>` to represent `if` and `!>` to represent `else`.
@@ -269,13 +268,13 @@ loop(True, item, idx){print(idx)}
 If iterable is a List or String, iterates over each item
 
 ```
-loop(["a", "b", "c"], item, idx){print(item + idx)}
-# prints "a0" "b1" "c2"
+loop(['a', 'b', 'c'], item, idx){print(item + idx)}
+# prints 'a0' 'b1' 'c2'
 ```
 
 ```
-loop("abc", item, idx){print(item + idx)}
-# prints "a0" "b1" "c2"
+loop('abc', item, idx){print(item + idx)}
+# prints 'a0' 'b1' 'c2'
 ```
 
 A few loop keywords are supported as well:  
@@ -283,11 +282,11 @@ A few loop keywords are supported as well:
 `continue` continues to the next loop iteration
 
 ```
-loop("abc", item, idx){
+loop('abc', item, idx){
   print(item + idx)
   break
 }
-# prints "a0"
+# prints 'a0'
 ```
 
 A few noteworthy function-loop interactions:
@@ -349,7 +348,7 @@ Luna's Tokenizer is implemented as a finite state machine. It iterates through a
 
 Examples of Tokens include:
 
-- `String`, `Number`, `True`, `False`, `Identifier`, `Equals`, `Minus`
+- `String`, `Number`, `True`, `False`, `Name`, `Equals`, `Minus`
 
 # BOOTSTRAPPING
 

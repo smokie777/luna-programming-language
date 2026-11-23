@@ -20,28 +20,41 @@ def test_switch_basic():
   sc = Switch(
     2,
     [1,2,3],
-    ["one","two","three"],
-    "default"
+    ["one","two","three"]
   )
   assert luna_eval(sc) == "two"
 
 def test_switch_default():
   sc = Switch(
     4,
-    [1,2,3],
-    ["one","two","three"],
-    "default"
+    [1,SwitchCatchAllCase(),3],
+    ["one","two","three"]
   )
-  assert luna_eval(sc) == "default"
+  assert luna_eval(sc) == "two"
 
 def test_switch_multi_case_match_first_wins():
   sc = Switch(
     4,
     [3,4,4],
-    ["one","two","three"],
-    "default"
+    ["one","two","three"]
   )
   assert luna_eval(sc) == "two"
+
+def test_switch_non_visited_cases_no_eval():
+  p = Program([
+    VarSet("a", 0),
+    Switch(
+      4,
+      [3,4,VarSet("a", Sum([VarGet("a"), 100]))],
+      [
+        "three",
+        "four",
+        "varset"
+      ]
+    ),
+    VarGet("a")
+  ])
+  assert luna_eval(p) == 0
 
 def test_switch_non_visited_branches_no_eval():
   p = Program([
@@ -53,8 +66,7 @@ def test_switch_non_visited_branches_no_eval():
         VarSet("a", Sum([VarGet("a"), 1])),
         VarSet("a", Sum([VarGet("a"), 10])),
         VarSet("a", Sum([VarGet("a"), 100]))
-      ],
-      VarSet("a", Sum([VarGet("a"), 1000]))
+      ]
     ),
     VarGet("a")
   ])
@@ -69,8 +81,7 @@ def test_switch_nesting():
       "default"
     ),
     ["one","two","three"],
-    ["fail","success","fail"],
-    "default"
+    ["fail","success","fail"]
   )
   assert luna_eval(sc) == "success"
 
@@ -79,8 +90,7 @@ def test_switch_composition():
     VarSet("my_switch", Frozen(Switch(
       2,
       [1,2,3],
-      ["one","two","three"],
-      "default"
+      ["one","two","three"]
     ))),
     VarSet("two_variable", VarGet("my_switch")),
     Invoke(VarGet("two_variable"))
@@ -92,8 +102,7 @@ def test_switch_variable_lookup_context():
     VarSet("my_switch", Frozen(Switch(
       VarGet("a"),
       [1,2,3,99],
-      ["one","two","three","ninetynine"],
-      "default"
+      ["one","two","three","ninetynine"]
     ))),
     VarSet("a", 99),
     VarSet("result", VarGet("my_switch")),

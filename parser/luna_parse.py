@@ -133,9 +133,17 @@ def luna_parse(tokens: list[Token]) -> Expression:
     nonlocal idx
     if check(TokenType.MINUS):
       consume_current_and_newlines()
-      return Inverse(parse_value())
-    return parse_value()
+      return Inverse(parse_invocation())
+    return parse_invocation()
 
+  def parse_invocation():
+    nonlocal idx
+    term = parse_value()
+    if check(TokenType.PAREN_OPEN):
+      args = parse_arguments("invoke")
+      return Invoke(term, args)
+    return term
+  
   def parse_value():
     nonlocal idx
     t = current()
@@ -210,7 +218,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
       case ReservedKeywords.LOOP:
         consume()
         args = parse_arguments(t.value)
-        if len(args) < 1 or len(args) > 3:
+        if len(args) < 1:
           luna_throw(f'Loop must be called as loop(iterable:number|boolean|list|string, iterator:identifier, index:identifier)Program. iterator and index are optional.') 
         body = parse_program()
         return Loop(
@@ -223,6 +231,11 @@ def luna_parse(tokens: list[Token]) -> Expression:
           args[2].varname if len(args) == 3 else None,
           body
         )
+      case ReservedKeywords.SWITCH:
+        consume()
+        condition = parse_arguments(t.value)[0]
+        cases, branches = parse_switch_body()
+        return Switch(condition, cases, branches)
       case _:
         # there is no consume() here because VarGet has no token or syntax
         return VarGet(parse_identifier())
@@ -274,6 +287,38 @@ def luna_parse(tokens: list[Token]) -> Expression:
       return args
     luna_throw(f'Arguments for "{construct_name}" must be enclosed in ().')
 
+  def parse_switch_body():
+    nonlocal idx
+    if check(TokenType.BACKTICK):
+      consume_current_and_newlines()
+      if check(TokenType.BACKTICK):
+        consume()
+        return [], []
+    else:
+      luna_throw(f'Switch body must start with backtick. Got: {current()}')
+    cases = []
+    branches = []
+    while True:
+      case = parse_expr()
+      if isinstance(case, VarGet) and case.varname == "_":
+        # this is a good workaround to prevent "_" from being tokenized as a standalone token,
+        # rather than as a valid start-of-name token
+        case = SwitchCatchAllCase()
+      cases.append(case)
+      consume_newlines()
+      if check(TokenType.COLON):
+        consume_current_and_newlines()
+        branches.append(parse_expr())
+        consume_newlines()
+        if check(TokenType.COMMA):
+          consume_current_and_newlines()
+          continue
+        if check(TokenType.BACKTICK):
+          consume()
+          return cases, branches
+        luna_throw(f'Switch branch must end with comma or backtick. Got: {current()}')  
+      luna_throw(f'Switch case must end with colon. Got: {current()}')
+
   def parse_varset(is_varset_global = False):
     nonlocal idx
     consume()
@@ -320,6 +365,5 @@ def luna_parse(tokens: list[Token]) -> Expression:
       consume()
       return nodes
     luna_throw(f'List must end with ]. Got: {current()}')
-
 
   return parse_file()

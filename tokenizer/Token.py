@@ -37,6 +37,8 @@ class TokenType(StrEnum):
   COMMA = "COMMA"
   FREEZE = "FREEZE"
   MAP = "MAP"
+  BACKTICK = "BACKTICK"
+  COLON = "COLON"
 
 KEYWORD_TO_TOKEN_TYPE_MAP = {
   # single character
@@ -59,6 +61,8 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   "&": TokenType.AND,
   "!": TokenType.EXCLAMATION,
   ",": TokenType.COMMA,
+  "`": TokenType.BACKTICK,
+  ":": TokenType.COLON,
   # multi character
   "->": TokenType.VARSET,
   "=>": TokenType.VARSET_GLOBAL,
