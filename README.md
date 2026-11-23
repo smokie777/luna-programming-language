@@ -16,15 +16,15 @@ Operator Precedence (all operators have left-to-right associativity):
 ```
 HIGHEST PRECEDENCE
 ()                 grouping
-()                 invocation (distinguished from grouping during parsing)
+()                 invocation
 -                  inverse
 ^                  exponent
-*, /, %            multiplication, division
+*, /, %            multiplication, division, remainder
 +, -               addition, subtraction
->, <, >=, <=, =    equality comparison
+>, <, >=, <=, =    equality, inequality
 &                  and
 |                  or
->>, !>             truthy/falsey coalescing operator (aka if/else)
+>>, !>             ternary
 LOWEST PRECEDENCE
 ```
 
@@ -35,27 +35,30 @@ true               boolean true
 false              boolean false
 ->, =>             local/global variable assignment
 <>                 freeze
-loop               define a loop
+if, else           if/else statement
+loop               loop definition
 continue           loop continue
 break              loop break
-function           define a function
+function           function definition
 return             function return
-switch             define a switch
+switch             switch definition
 print              print to console
-map                create a map
+map                map definition (key-value pair collection)
 boolean            convert to boolean
 string             convert to string
 number             convert to number
+list               convert to list
 ```
 
 Commonly used syntax:
 
 ```
-{}                 defines a Program
+{}                 program definition
 ()                 grouping or invocation
-[]                 create a list
-``                 defines a Switch Body
-\n                 a newline indicates the end of an expression (unless in a string)
+[]                 list definition
+``                 switch body definition
+\n                 a newline indicates the end of a complete expression
+                   newlines in an incomplete expression are ignored
 ```
 
 # HIERARCHICAL TYPES
@@ -75,18 +78,18 @@ There is no `null` type; instead `false` is used, as that is the falsey value of
 
 # MAPS
 
-A Map, or a mapping of keys to values, is implemented as an associative array where each element is a list of size 2. A Map can be written as follows:
+A Map, or a mapping of keys to values, is implemented as an associative array where each element is a list of size 2. The first element is the key, and the second element is the value. A Map can be written as follows:
 
 ```
 map(
-  ['key1', 'value1'],
-  ['key2', 'value2'],
+  [key1, value1],
+  [key2, value2],
 )
 ```
 
 Composition is allowed when creating a Map - imagine that `map()` is a function, and each argument is an expression that evaluates to a list of size 2. The list of size 2 invariant is enforced at evaluation time. Note that since Maps are associative arrays, keys and values can be any valid expression, and duplicate keys are allowed. This is an intentional design choice to promote flexibility. 
 
-A Map is considered to be a special construct rather than a Value type, so operations that can normally be performed using Value types do not apply to Maps. Instead, several Map helper functions will be provided.
+A Map is considered to be a special construct rather than a Value type, so operations that can normally be performed using Value types do not apply to Maps. Instead, Map helper functions will be provided.
 
 # POLYMORPHISM
 
@@ -98,11 +101,11 @@ Operations are designed with reversability in mind. For example, Plus can be rev
 
 While interesting cross-type operations is not the main focus of the language, some unconventional ones are allowed:
 
-Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
+Addition/Subtraction of strings and lists is concatenation and inverse concatenation (removing a matching sequence from the end):
 `true + 1 + 1 + 'ue' = '3ue'`  
 `true - 'ue' = 'tr'`
 
-Multiplication/Division of strings and lists via sequence repetition
+Multiplication/Division of strings and lists is sequence repetition:
 `'ab' * 2 = 'abab'`  
 `'abab' / 2 = 'ab'`  
 `'abab' / 'ab = 2`  
@@ -115,7 +118,14 @@ Multiplying and dividing strings and lists by negative numbers creates their 'in
 
 # COMPOSABLE PROGRAMS
 
-The fundamental representation of a sequence of Expressions is a Program, represented by a sequence of expressions inside curly braces `{}` separated by newlines `\n`. A Program will evaluate to the last expression in the sequence, unless the Program is a Function Body and `return` is used. A `.luna` file in its entirety evaluates like a Program, but it is technically not a Program at the interpreter level. Examples of Programs:
+The fundamental representation of a sequence of Expressions is a Program, represented by a sequence of expressions inside curly braces `{}` separated by newlines `\n`. A Program will evaluate to the last expression in the sequence, unless the Program is a Function Body and `return` is used. A `.luna` file in its entirety is a Program, even if `{}` are not explicitly written. Examples of Programs:
+
+```
+# A .luna file in its entirety is a Program.
+1
+2
+3
+```
 
 ```
 # Programs can be evaluated and assigned to variables.
@@ -170,16 +180,20 @@ b()
 # prints 1, 3, 2
 ```
 
+Invoking a non-invokable, non-frozen expression is allowed - the expression will simply be evaluated normally.
+
 # FUNCTIONS, SCOPES, AND VARIABLES
 
-Functions are defined using the `function` keyword. 
+Functions are defined using the `function` keyword, a comma-separated sequence of params, and a Program.
+
+`function(params)Program`
 
 Each Function invocation creates a new Scope, which holds local variable definitions and other scope-related information. Variable scoping rules include:
 
 - Variable getting will search in the current scope first, then in parent scopes.
 - Variable setting using `->` will only set the variable inside the current scope.
 - Variable setting using `=>` will search the current scope and all parent scopes for the variable, and set the variable in all scopes in which it was defined! If no definitions were found, it will behave the same as `->`.
-- A variable name must start with a letter, and only contain letters, numbers, and underscores.
+- A variable name must start with a letter or underscore, and only contain letters, numbers, and underscores.
 
 ```
 -> my_func function(a, b){
@@ -190,9 +204,41 @@ print(my_func(1, 2)) # prints 3
 
 The `return` keyword is used to return from a function invocation, with or without a return expression. If `return` is not provided, the evaluation of the last expression in the function body will be returned.
 
-# SWITCHES AND CONDITIONALS
+# CONDITIONALS: IF-THEN-ELSE, TERNARY
 
-A Switch can be written with the following syntax:
+An If-Then-Else construct can be created using the `if` and `else` keywords:
+
+`if(condition)Program else Program`
+
+Examples:
+```
+if (1+1=2) {
+  print(true)
+}
+```
+```
+if (1+1=3) {
+  print(true)
+} else {
+  print(false)
+}
+```
+
+An If-Then-Else can also be constructed using ternary operators `>>` and `!>`. The expression after `>>` is the true branch, and the expression after `!>` is the false branch. These ternary operators are not usable as standalones - they can only be used in a ternary expression.
+
+Examples:
+```
+-> x 3 = 3 >> "equal" !> "not equal"
+print(x) # "equal"
+```
+```
+-> x 3 = 4 >> "equal" !> "not equal"
+print(x) # "not equal"
+```
+
+# CONDITIONALS: SWITCH
+
+A Switch can be written using the `switch` keyword, and backticks to define the switch body:
 
 ```
 switch(condition)`
@@ -230,26 +276,15 @@ print(result) # 'default_value'
 print(result) # false
 ```
 
-Conditionals may also be implemented using `if-then-else` syntax, using `>>` to represent `if` and `!>` to represent `else`.
-
-If condition is truthy, then evaluate if_branch
-`condition >> if_branch`
-
-If condition is truthy, then evaluate if_branch, else evaluate else_branch
-`condition >> if_branch !> else_branch`
-
-If condition is falsey, then evaluate else_branch
-`condition !> else_branch`
-
 # LOOPS
 
-A loop can be created as follows:
+A loop can be created using the `loop` keyword:
 
 `loop(iterable:number|boolean|list|string, iterator, index)Program`
 
 A loop will not create a new scope; its contents will be evaluated in the current scope.
 
-`iterator` and `index` are optional. If provided, new temporary variables will be created in the current scope corresponding to the given identifier names. These temporary variables will be reverted after the loop finishes (or is broken out of).
+Identifier names for `iterator` and `index` are optional. If provided, new temporary variables will be created in the current scope corresponding to the given identifier names. These temporary variables will be reverted after the loop terminates.
 
 If iterable is a Number, repeats the loop number times
 
@@ -327,7 +362,7 @@ luna_eval(p) == 24 # True
 
 ```
 
-The actual Luna code to generate this interpreter code would be:
+The actual Luna code to generate this interpreter code could be:
 
 ```
 -> fact function(n){

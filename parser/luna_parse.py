@@ -42,6 +42,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
     consume()
     consume_newlines()
 
+  # parse_file is the entry point into the parsing of a file.
   def parse_file():
     nonlocal idx
     nodes = []
@@ -55,25 +56,28 @@ def luna_parse(tokens: list[Token]) -> Expression:
       luna_throw(f'Unexpected token at end of expression in File: {current()}')
     return Program(nodes)
 
+  # parse_expr initiates descent into the operator precedence chain.
   def parse_expr():
     nonlocal idx
-    # parse all operators, starting from the lowest prio
-    return parse_ifthenelse()
+    return parse_ternary()
 
-  def parse_ifthenelse():
+  def parse_ternary():
     nonlocal idx
     left = parse_or()
     mid = None
     right = None
-    if check(TokenType.IF):
+    if check(TokenType.TERNARY_IF):
       consume_current_and_newlines()
       mid = parse_or()
-    if check(TokenType.ELSE):
-      consume_current_and_newlines()
-      right = parse_or()
-    if mid is not None or right is not None:
+      consume_newlines()
+      if check(TokenType.TERNARY_ELSE):
+        consume_current_and_newlines()
+        right = parse_or()
+    if mid is not None and right is not None:
       return IfThenElse(left, mid, right)
-    return left
+    if mid is None and right is None:
+      return left
+    luna_throw(f'Incomplete ternary - both a truthy case >> and a falsey case !> must be provided')
 
   def parse_or():
     nonlocal idx
@@ -212,6 +216,15 @@ def luna_parse(tokens: list[Token]) -> Expression:
       case ReservedKeywords.MAP:
         consume()
         return Map(parse_arguments(t.value))
+      case ReservedKeywords.IF:
+        consume()
+        condition = parse_arguments(t.value)[0]
+        if_branch = parse_program()
+        else_branch = None
+        if check(TokenType.NAME) and current().value == ReservedKeywords.ELSE:
+          consume_current_and_newlines()
+          else_branch = parse_program()
+        return IfThenElse(condition, if_branch, else_branch)
       case ReservedKeywords.FUNCTION:
         consume()
         return Function(parse_params(t.value), parse_program())

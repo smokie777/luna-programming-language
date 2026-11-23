@@ -9,17 +9,23 @@ from tokenizer.luna_tokenize import luna_tokenize
 def assert_parse_expr_tokens(source, expected):
   assert luna_parse(luna_tokenize(source)) == Program([expected])
 
-def test_parse_if():
+def test_parse_ternary():
   assert_parse_expr_tokens("3 >> 'three' !> 'not three'", IfThenElse( 
     3, "three", "not three"
   ))
-  assert_parse_expr_tokens("3 >> 'three'", IfThenElse( 
-    3, "three", None
-  ))
-  assert_parse_expr_tokens("3 !> 'not three'", IfThenElse( 
-    3, None, "not three"
-  ))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("3 >> 'three'"))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("3 !> 'three'"))
 
+def test_parse_ifthenelse():
+  assert_parse_expr_tokens("if(3){'three'}", IfThenElse(
+    3, Program(["three"]), None
+  ))
+  assert_parse_expr_tokens("if(3){'three'}else{'notthree'}", IfThenElse(
+    3, Program(["three"]), Program(["notthree"])
+  ))
+  
 def test_parse_or():
   assert_parse_expr_tokens("3 | 4", Some([3,4])) 
   assert_parse_expr_tokens("3 | 4 | 5", Some([3,4,5])) 

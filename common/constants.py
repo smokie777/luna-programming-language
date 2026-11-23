@@ -16,5 +16,6 @@ class ReservedKeywords(StrEnum):
   STRING = "string"
   NUMBER = "number"
   MAP = "map"
-  
+  IF = "if"
+  ELSE = "else"
 RESERVED_KEYWORDS_SET = { e.value for e in ReservedKeywords }

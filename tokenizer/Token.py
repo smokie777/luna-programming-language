@@ -30,6 +30,8 @@ class TokenType(StrEnum):
   VARSET_GLOBAL = "VARSET_GLOBAL" 
   IF = "IF"
   ELSE = "ELSE"
+  TERNARY_IF = "TERNARY_IF"
+  TERNARY_ELSE = "TERNARY_ELSE"
   OR = "OR"
   AND = "AND"
   EXCLAMATION = "EXCLAMATION"
@@ -66,8 +68,8 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   # multi character
   "->": TokenType.VARSET,
   "=>": TokenType.VARSET_GLOBAL,
-  ">>": TokenType.IF,
-  "!>": TokenType.ELSE,
+  ">>": TokenType.TERNARY_IF,
+  "!>": TokenType.TERNARY_ELSE,
   ">=": TokenType.GTE,
   "<=": TokenType.LTE,
   "<>": TokenType.FREEZE

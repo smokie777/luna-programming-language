@@ -28,14 +28,14 @@ def luna_lex(tokens):
       and tokens[i].type == TokenType.GT
       and tokens[i+1].type == TokenType.GT
     ):
-      ret.append(Token(TokenType.IF, None, tokens[i].line_number))
+      ret.append(Token(TokenType.TERNARY_IF, None, tokens[i].line_number))
       i += 1
     elif (
       i < len(tokens) - 1
       and tokens[i].type == TokenType.EXCLAMATION
       and tokens[i+1].type == TokenType.GT
     ):
-      ret.append(Token(TokenType.ELSE, None, tokens[i].line_number))
+      ret.append(Token(TokenType.TERNARY_ELSE, None, tokens[i].line_number))
       i += 1
     elif (
       i < len(tokens) - 1
