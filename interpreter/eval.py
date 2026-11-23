@@ -77,7 +77,7 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
         if luna_equals(cases[idx], condition):
           return luna_eval(branches[idx], env)
       return luna_eval(default_branch, env)
-    case Loop(iterable, body, iterator_varname, index_varname):
+    case Loop(iterable, iterator_varname, index_varname, body):
       iterable = luna_eval(iterable)
       if iterable in (False, "", 0, []):
         return False

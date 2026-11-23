@@ -47,16 +47,16 @@ def test_tokenize_string():
   with pytest.raises(Exception):
     luna_tokenize("unclosedstring'")
 
-def test_tokenize_identifier():
-  assert luna_tokenize("abc") == [Token(TokenType.IDENTIFIER, "abc", 1), nl(2)]
-  assert luna_tokenize("_abc") == [Token(TokenType.IDENTIFIER, "_abc", 1), nl(2)]
+def test_tokenize_name():
+  assert luna_tokenize("abc") == [Token(TokenType.NAME, "abc", 1), nl(2)]
+  assert luna_tokenize("_abc") == [Token(TokenType.NAME, "_abc", 1), nl(2)]
   with pytest.raises(Exception):
-    luna_tokenize("3invalididentifier")
+    luna_tokenize("3invalidNAME")
 
 def test_tokenize_keyword():
   assert luna_tokenize("=") == [Token(TokenType.EQUALS, None, 1), nl(2)]
-  assert luna_tokenize("true") == [Token(TokenType.IDENTIFIER, "true", 1), nl(2)]
-  assert luna_tokenize("false") == [Token(TokenType.IDENTIFIER, "false", 1), nl(2)]
+  assert luna_tokenize("true") == [Token(TokenType.NAME, "true", 1), nl(2)]
+  assert luna_tokenize("false") == [Token(TokenType.NAME, "false", 1), nl(2)]
   assert luna_tokenize("==+") == [
     Token(TokenType.EQUALS, None, 1),
     Token(TokenType.EQUALS, None, 1),
@@ -66,14 +66,14 @@ def test_tokenize_keyword():
   with pytest.raises(Exception):
     luna_tokenize("@")
 
-def test_tokenize_keyword_vs_identifier():
-  assert luna_tokenize("trueabc") == [Token(TokenType.IDENTIFIER, "trueabc", 1), nl(2)]
-  assert luna_tokenize("true1") == [Token(TokenType.IDENTIFIER, "true1", 1), nl(2)]
-  assert luna_tokenize("CaPs") == [Token(TokenType.IDENTIFIER, "CaPs", 1), nl(2)]
+def test_tokenize_keyword_vs_name():
+  assert luna_tokenize("trueabc") == [Token(TokenType.NAME, "trueabc", 1), nl(2)]
+  assert luna_tokenize("true1") == [Token(TokenType.NAME, "true1", 1), nl(2)]
+  assert luna_tokenize("CaPs") == [Token(TokenType.NAME, "CaPs", 1), nl(2)]
 s = "-> x -2 * (3 - 4.5)"
 expected = [
   Token(TokenType.VARSET, None, 1),
-  Token(TokenType.IDENTIFIER, "x", 1),
+  Token(TokenType.NAME, "x", 1),
   Token(TokenType.MINUS, None, 1),
   Token(TokenType.NUMBER, 2, 1),
   Token(TokenType.TIMES, None, 1),
@@ -100,9 +100,9 @@ def test_tokenize_multiline():
 
 def test_tokenize_composite_more_cases():###
   assert luna_tokenize("abc+def") == [
-    Token(TokenType.IDENTIFIER, "abc", 1),
+    Token(TokenType.NAME, "abc", 1),
     Token(TokenType.PLUS, None, 1),
-    Token(TokenType.IDENTIFIER, "def", 1),
+    Token(TokenType.NAME, "def", 1),
     nl(2)
   ]
 

@@ -17,6 +17,8 @@ class TokenType(StrEnum):
   EQUALS = "EQUALS"
   PAREN_OPEN = "PAREN_OPEN"
   PAREN_CLOSE = "PAREN_CLOSE"
+  BRACE_OPEN = "BRACE_OPEN"
+  BRACE_CLOSE = "BRACE_CLOSE"
   GT = "GT"
   LT = "LT"
   GTE = "GTE"
@@ -37,6 +39,8 @@ KEYWORD_TO_TOKEN_TYPE_MAP = {
   # single character
   "(": TokenType.PAREN_OPEN,
   ")": TokenType.PAREN_CLOSE,
+  "{": TokenType.BRACE_OPEN,
+  "}": TokenType.BRACE_CLOSE,
   "+": TokenType.PLUS,
   "-": TokenType.MINUS,
   "*": TokenType.TIMES,
@@ -64,7 +68,7 @@ lowercase_letters = "abcdefghijklmnopqrstuvwxyz"
 VALID_ALPHA_CHARS = set(lowercase_letters + lowercase_letters.upper())
 VALID_NUMBER_CHARS = set("1234567890")
 VALID_NUMBER_CHARS_WITH_PERIOD = VALID_NUMBER_CHARS | {"."}
-VALID_SYMBOL_CHARS = set("`~!@#$%^&*()_+-=[]{}|;:'\",<.>/?")
+VALID_SYMBOL_CHARS = set(r"`~!@#$%^&*()_+-=[]{}|;:'\",<.>/?")
 VALID_WHITESPACE_CHARS = set(" \n")
 VALID_CHARS = VALID_ALPHA_CHARS | VALID_NUMBER_CHARS | VALID_SYMBOL_CHARS | VALID_WHITESPACE_CHARS
 VALID_NAME_CHARS = set("_") | VALID_ALPHA_CHARS | VALID_NUMBER_CHARS

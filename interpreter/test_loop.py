@@ -9,9 +9,9 @@ def test_loop_number_iterable():
     VarSet("a", 0),
     Loop(
       3,
+      None,
+      None,
       Program([VarSet("a", Sum([VarGet("a"), 2]))]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -20,9 +20,9 @@ def test_loop_number_iterable():
     VarSet("a", 0),
     Loop(
       3,
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
     ),
     VarGet("a")
   ])
@@ -31,9 +31,9 @@ def test_loop_number_iterable():
     VarSet("a", 0),
     Loop(
       3,
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
     ),
     VarGet("a")
   ])
@@ -44,9 +44,9 @@ def test_loop_string_iterable():
     VarSet("a", 0),
     Loop(
       "abc",
+      None,
+      None,
       Program([VarSet("a", Sum([VarGet("a"), 2]))]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -55,9 +55,9 @@ def test_loop_string_iterable():
     VarSet("a", 0),
     Loop(
       "abc",
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
     ),
     VarGet("a")
   ])
@@ -66,9 +66,9 @@ def test_loop_string_iterable():
     VarSet("a", ""),
     Loop(
       "abc",
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
     ),
     VarGet("a")
   ])
@@ -79,9 +79,9 @@ def test_loop_list_iterable():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([VarSet("a", Sum([VarGet("a"), 2]))]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -90,9 +90,9 @@ def test_loop_list_iterable():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
     ),
     VarGet("a")
   ])
@@ -101,9 +101,9 @@ def test_loop_list_iterable():
     VarSet("a", ""),
     Loop(
       ["a", "b", "c"],
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
     ),
     VarGet("a")
   ])
@@ -114,9 +114,9 @@ def test_list_iterable():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([VarSet("a", Sum([VarGet("a"), 2]))]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -125,9 +125,9 @@ def test_list_iterable():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("index")]))]),
     ),
     VarGet("a")
   ])
@@ -136,9 +136,9 @@ def test_list_iterable():
     VarSet("a", ""),
     Loop(
       ["a", "b", "c"],
-      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
       "item",
       "index",
+      Program([VarSet("a", Sum([VarGet("a"), VarGet("item")]))]),
     ),
     VarGet("a")
   ])
@@ -169,13 +169,13 @@ def test_loop_break():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([
         VarSet("a", Sum([VarGet("a"), 2])),
         Break(),
         VarSet("a", Sum([VarGet("a"), 100]))
       ]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -186,13 +186,13 @@ def test_loop_continue():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([
         VarSet("a", Sum([VarGet("a"), 2])),
         Continue(),
         VarSet("a", Sum([VarGet("a"), 100]))
       ]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -204,13 +204,13 @@ def test_loop_return_can_return_outer_function():
     Program([
       Loop(
         ["a", "b", "c"],
+        None,
+        None,
         Program([
           VarSet("a", Sum([VarGet("a"), 1])),
           Return(VarGet("a")),
           VarSet("a", Sum([VarGet("a"), 100]))
         ]),
-        None,
-        None,
       )
     ])
   )
@@ -235,13 +235,13 @@ def test_cant_break_continue_inside_fn_outside_loop():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([
         VarSet("a", Sum([VarGet("a"), 1])),
         Invoke(break_fn, []),
         VarSet("a", Sum([VarGet("a"), 1]))
       ]),
-      None,
-      None,
     ),
     VarGet("a")
   ])
@@ -249,13 +249,13 @@ def test_cant_break_continue_inside_fn_outside_loop():
     VarSet("a", 0),
     Loop(
       ["a", "b", "c"],
+      None,
+      None,
       Program([
         VarSet("a", Sum([VarGet("a"), 1])),
         Invoke(continue_fn, []),
         VarSet("a", Sum([VarGet("a"), 1]))
       ]),
-      None,
-      None,
     ),
     VarGet("a")
   ])

@@ -7,9 +7,7 @@ It is a tokenizer + parser + interpreter system implemented in Python.
 # THE LUNA MANIFESTO (WIP)
 
 1. Intuitive is good.
-2. Flexibility and polymorphism are good.
-3. Types should be hierarchical, and polymorphic operations should go up the type hierarchy.
-4. Users should have full control over when code blocks are evaluated.
+2. Clarity is good.
 
 # OPERATOR PRECEDENCE, KEYWORDS, AND SYNTAX
 
@@ -84,14 +82,11 @@ Operations are designed with reversability in mind. For example, Plus can be rev
 
 While interesting cross-type operations is not the main focus of the language, some unconventional ones are allowed:
 
-- Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
-- Multiplication/Division of strings and lists via sequence repetition
+Addition/Subtraction of strings and lists via concatenation and inverse concatenation (removing a matching sequence from the end)
+`true + 1 + 1 + "ue" = "3ue"`  
+`true - "ue" = "tr"`
 
-The highest type in the sequence is String, so each item is coerced into a string, then concatenation is performed.  
-`true + 1 + 1 + 1 + "ue" = "true111ue"`  
-`true - 1 - 1 - 1 - "ue" = "tr"`
-
-List/String multiplication and division is sequence repetition and reversal of sequence repetition
+Multiplication/Division of strings and lists via sequence repetition
 `"ab" * 2 = "abab"`  
 `"abab" / 2 = "ab"`  
 `"abab" / "ab = 2`  
@@ -104,16 +99,11 @@ Multiplying and dividing strings and lists by negative numbers creates their "in
 
 # COMPOSABLE PROGRAMS
 
-The fundamental representation of a sequence of Expressions is a Program, represented by a sequence of expressions inside curly braces `{}` separated by newlines `\n`. A Program will evaluate to the last expression in the sequence. A `.luna` file in its entirety counts as a Program, even if `{}` is not written. Examples of Programs:
+The fundamental representation of a sequence of Expressions is a Program, represented by a sequence of expressions inside curly braces `{}` separated by newlines `\n`. A Program will evaluate to the last expression in the sequence, unless the Program is a Function Body and `return` is used. A `.luna` file in its entirety evaluates like a Program, but it is technically not a Program at the interpreter level. Examples of Programs:
 
 ```
-print(1)
-print(2)
-print(3) # a .luna file is a Program.
-```
-
-```
--> x { # Programs can be evaluated and assigned to variables.
+# Programs can be evaluated and assigned to variables.
+-> x {
   1
   2
   3
@@ -122,7 +112,8 @@ print(x) # prints 3
 ```
 
 ```
-function(){ # a Function body is a Program. Function bodies will not be evaluated until invoked.
+# a Function body is a Program. Function bodies will not be evaluated until invoked.
+function(){
   1
   2
   3
@@ -139,7 +130,7 @@ Every Expression can be frozen! This should (hopefully) allow for some creative 
 
 At the AST level, Freezing an expression means wrapping it in a Frozen node. When the Interpreter evaluates a Frozen expression, it will strip away the Frozen node and return the un-evaluated node inside.
 
-Certain constructs will be automatically Frozen without requiring the `<>` syntax, such as function bodies.
+Certain constructs that do not evaluate by default do not need to be explicitly frozen, such as Function Bodies.
 
 ```
 -> a print(1)
@@ -242,7 +233,7 @@ If condition is falsey, then evaluate else_branch
 
 A loop can be created as follows:
 
-`loop(iterable:number|boolean|list|string, iterator, index)(Program)`
+`loop(iterable:number|boolean|list|string, iterator, index)Program`
 
 A loop will not create a new scope; its contents will be evaluated in the current scope.
 
@@ -251,26 +242,26 @@ A loop will not create a new scope; its contents will be evaluated in the curren
 If iterable is a Number, repeats the loop number times
 
 ```
-loop(3)(print(0))
+loop(3){print(0)}
 # prints 0 0 0
 ```
 
 If iterable is a boolean True, that is an infinite loop! If iterable is boolean False, nothing will happen.
 
 ```
-loop(True, item, idx)(print(idx))
+loop(True, item, idx){print(idx)}
 # prints 0 1 2...inf
 ```
 
 If iterable is a List or String, iterates over each item
 
 ```
-loop(["a", "b", "c"], item, idx)(print(item + idx))
+loop(["a", "b", "c"], item, idx){print(item + idx)}
 # prints "a0" "b1" "c2"
 ```
 
 ```
-loop("abc", item, idx)(print(item + idx))
+loop("abc", item, idx){print(item + idx)}
 # prints "a0" "b1" "c2"
 ```
 
@@ -279,10 +270,10 @@ A few loop keywords are supported as well:
 `continue` continues to the next loop iteration
 
 ```
-loop("abc", item, idx)(
+loop("abc", item, idx){
   print(item + idx)
   break
-)
+}
 # prints "a0"
 ```
 

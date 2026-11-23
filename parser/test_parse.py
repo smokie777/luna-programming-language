@@ -111,7 +111,9 @@ def test_parse_keyword_with_args():
   assert_parse_expr_tokens("print(3)", Print(3))
   assert_parse_expr_tokens("print(3+4)", Print(Sum([3, 4])))
 
-def test_parse_args_invalid_cases():
+def test_parse_args():
+  # enable once we can make fn with no args
+  # assert_parse_expr_tokens("print(\n\n\n)", Print(Sum([3, 4])))
   with pytest.raises(Exception):
     assert_parse_expr_tokens("print(3,4)", Print(Sum([3, 4])))
   with pytest.raises(Exception):
@@ -126,3 +128,17 @@ def test_parse_varset():
 
 def test_parse_freeze():
   assert_parse_expr_tokens("<>print(3)", Frozen(Print(3)))
+
+def test_parse_program():
+  assert_parse_expr_tokens("{3}", Program([3]))
+  assert_parse_expr_tokens("{3\n4}", Program([3, 4]))
+
+def test_parse_function():
+  assert_parse_expr_tokens("function(){}", Function([], Program([])))
+  assert_parse_expr_tokens("function(arg){4}", Function(["arg"], Program([4])))
+
+def test_parse_loop():
+  assert_parse_expr_tokens("loop(3){4}", Loop(3, None, None, Program([4])))
+  assert_parse_expr_tokens("loop(3, item){4}", Loop(3, "item", None, Program([4])))
+  assert_parse_expr_tokens("loop(3, item, idx){4}", Loop(3, "item", "idx", Program([4])))
+  

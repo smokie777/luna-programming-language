@@ -57,7 +57,7 @@ class Switch(Expression):
   condition: EvalExpr
   cases: list[EvalExpr]
   branches: list[EvalExpr]
-  default_branch: EvalExpr = False
+  default_branch: EvalExpr | None
 
 @dataclass
 class IfThenElse(Expression):
@@ -68,9 +68,9 @@ class IfThenElse(Expression):
 @dataclass
 class Loop(Expression):
   iterable: EvalExpr
+  iterator_varname: str | None
+  index_varname: str | None
   body: Program
-  iterator_varname: str | None = None
-  index_varname: str | None = None
 
 @dataclass
 class Return(Expression):

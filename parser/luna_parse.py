@@ -42,13 +42,15 @@ def luna_parse(tokens: list[Token]) -> Expression:
     consume()
     consume_newlines()
 
-  def parse_program():
+  def parse_file():
     nonlocal idx
     nodes = [parse_expr()]
     while check(TokenType.NEWLINE):
-      consume_newlines() # same effect as consume_current_and_newlines()
+      consume_newlines()
       if idx < len(tokens): # check for EOF
         nodes.append(parse_expr())
+      else:
+        break
     return Program(nodes)
 
   def parse_expr():
@@ -148,11 +150,13 @@ def luna_parse(tokens: list[Token]) -> Expression:
       case TokenType.FREEZE:
         consume()
         return Frozen(parse_expr())
+      case TokenType.BRACE_OPEN:
+        return parse_program()
       case TokenType.PAREN_OPEN:
         consume_current_and_newlines()
         node = parse_expr()
         consume_newlines()
-        if tokens[idx].type == TokenType.PAREN_CLOSE:
+        if check(TokenType.PAREN_CLOSE):
           consume()
           return node
         else:
@@ -179,66 +183,117 @@ def luna_parse(tokens: list[Token]) -> Expression:
         consume()
         if current().type != TokenType.PAREN_OPEN:
           return Return(False)
-        return Return(parse_arguments(t.value, 1)[0])
+        return Return(parse_arguments(t.value)[0])
       case ReservedKeywords.BOOLEAN:
         consume()
-        return ToBoolean(parse_arguments(t.value, 1)[0])
+        return ToBoolean(parse_arguments(t.value)[0])
       case ReservedKeywords.STRING:
         consume()
-        return ToString(parse_arguments(t.value, 1)[0])
+        return ToString(parse_arguments(t.value)[0])
       case ReservedKeywords.NUMBER:
         consume()
-        return ToNumber(parse_arguments(t.value, 1)[0])
+        return ToNumber(parse_arguments(t.value)[0])
       case ReservedKeywords.PRINT:
         consume()
-        return Print(parse_arguments(t.value, 1)[0])
+        return Print(parse_arguments(t.value)[0])
+      case ReservedKeywords.FUNCTION:
+        consume()
+        return Function(parse_params(t.value), parse_program())
+      case ReservedKeywords.LOOP:
+        consume()
+        args = parse_arguments(t.value)
+        if len(args) < 1 or len(args) > 3:
+          luna_throw(f'Loop must be called as loop(iterable:number|boolean|list|string, iterator:identifier, index:identifier)Program. iterator and index are optional.') 
+        body = parse_program()
+        return Loop(
+          args[0],
+          # the loop iterator is an argument, but the loop item and idx are params.
+          # args[x].varname is a hack to extract a string from VarGet without needing to write another parse_.
+          # a custom parse_ should probably eventually be written to prevent the user
+          # from passing in expressions that evaluate to strings.
+          args[1].varname if len(args) >= 2 else None,
+          args[2].varname if len(args) == 3 else None,
+          body
+        )
+
       case _:
-        return parse_identifier()
+        # there is no consume() here because VarGet has no token or syntax
+        return VarGet(parse_identifier())
 
   def parse_identifier():
-    pass
+    if not check(TokenType.NAME):
+      luna_throw(f'Expected identifer. Got: {current()}')
+    if current().value in RESERVED_KEYWORDS_SET:
+      luna_throw(f'Identifier name cannot be a reserved keyword: {current().value}')
+    ret = current().value
+    consume()
+    return ret
 
   def parse_params(construct_name: str):
-    # to be same as arguments but parse identifiers not exprs?
-    pass
-
-  def parse_arguments(construct_name: str, num_args: int):
     nonlocal idx
     if check(TokenType.PAREN_OPEN):
-      if tokens[idx + 1].type == TokenType.PAREN_CLOSE:
-        return []
       consume_current_and_newlines()
+      if check(TokenType.PAREN_CLOSE):
+        consume()
+        return []
     else:
-      luna_throw(f'Arguments/params for "{construct_name}" must be enclosed in ().')
+      luna_throw(f'Params for "{construct_name}" must be enclosed in ().')
+    params = [parse_identifier()]
+    consume_newlines()
+    while check(TokenType.COMMA):
+      consume_current_and_newlines()
+      params.append(parse_identifier())
+    if check(TokenType.PAREN_CLOSE):
+      consume()
+      return params
+    luna_throw(f'Params for "{construct_name}" must be enclosed in ().')
+
+  def parse_arguments(construct_name: str):
+    nonlocal idx
+    if check(TokenType.PAREN_OPEN):
+      consume_current_and_newlines()
+      if check(TokenType.PAREN_CLOSE):
+        consume()
+        return []
+    else:
+      luna_throw(f'Arguments for "{construct_name}" must be enclosed in ().')
     args = [parse_expr()]
     consume_newlines()
     while check(TokenType.COMMA):
-      if len(args) >= num_args:
-        luna_throw(f'"{construct_name}" must take {num_args} arguments.')
       consume_current_and_newlines()
       args.append(parse_expr())
     if check(TokenType.PAREN_CLOSE):
       consume()
       return args
-    luna_throw(f'Arguments/params for "{construct_name}" must be enclosed in ().')
+    luna_throw(f'Arguments for "{construct_name}" must be enclosed in ().')
 
   def parse_varset(is_varset_global = False):
     nonlocal idx
     consume()
-    varname = None
-    if check(TokenType.NAME):
-      if current().value not in RESERVED_KEYWORDS_SET:
-        varname = current().value
-        consume()
-      else:
-        luna_throw(f'Variable name cannot be a reserved keyword: {current().value}')
+    varname = parse_identifier()
     varvalue = parse_expr()
     if is_varset_global:
       return VarSetGlobal(varname, varvalue)
     else: 
       return VarSet(varname, varvalue)
       
+  def parse_program():
+    nonlocal idx
+    if check(TokenType.BRACE_OPEN):
+      consume_current_and_newlines()
+      if check(TokenType.BRACE_CLOSE):
+        consume()
+        return Program([])
+    else:
+      luna_throw(f'Program must start with {"{"}. Got: {current()}')
+    nodes = [parse_expr()]
+    while check(TokenType.NEWLINE):
+      consume_newlines()
+      nodes.append(parse_expr())
+    if check(TokenType.BRACE_CLOSE):
+      consume()
+      return Program(nodes)
+    luna_throw(f'Program must end with {"}"}. Got: {current()}')
 
 
-  
-  return parse_program()
+  return parse_file()
