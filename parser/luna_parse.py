@@ -14,7 +14,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   # check if the current token is a given token(s)
   def check(token_type: str | list) -> bool:
-    if idx >= len(tokens):
+    if idx >= len(tokens): # detect EOF
       return False
     if isinstance(token_type, str):
       return tokens[idx].type == token_type
@@ -24,11 +24,15 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   # get the current token
   def current():
+    if idx >= len(tokens):
+      luna_throw(f'Unexpected end of file')
     return tokens[idx]
 
   # consume the current token
   def consume():
     nonlocal idx
+    if idx >= len(tokens):
+      luna_throw(f'Unexpected end of file')
     idx += 1
 
   # consume all newlines starting at the current token
@@ -58,7 +62,6 @@ def luna_parse(tokens: list[Token]) -> Expression:
 
   # parse_expr initiates descent into the operator precedence chain.
   def parse_expr():
-    nonlocal idx
     return parse_ternary()
 
   def parse_ternary():
@@ -79,73 +82,54 @@ def luna_parse(tokens: list[Token]) -> Expression:
       return left
     luna_throw(f'Incomplete ternary - both a truthy case >> and a falsey case !> must be provided')
 
-  def parse_or():
+  def _parse_single_op_chain(next_parse_fn, op_token_type, ast_node_constructor):
     nonlocal idx
-    nodes = [parse_and()]
-    while check(TokenType.OR):
+    nodes = [next_parse_fn()]
+    while check(op_token_type):
       consume_current_and_newlines()
-      nodes.append(parse_and())
-    return nodes[0] if len(nodes) == 1 else Some(nodes)
+      nodes.append(next_parse_fn())
+    return nodes[0] if len(nodes) == 1 else ast_node_constructor(nodes)
+
+  def _parse_multi_op_chain(next_parse_fn, op_token_type_map, ast_node_constructor):
+    nonlocal idx
+    items = [next_parse_fn()]
+    operators = []
+    while check(list(op_token_type_map.keys())):
+      operators.append(op_token_type_map[current().type])
+      consume_current_and_newlines()
+      items.append(next_parse_fn())
+    return items[0] if len(items) == 1 else ast_node_constructor(items, operators)
+
+  def parse_or():
+    return _parse_single_op_chain(parse_and, TokenType.OR, Some)
   
   def parse_and():
-    nonlocal idx
-    nodes = [parse_equality()]
-    while check(TokenType.AND):
-      consume_current_and_newlines()
-      nodes.append(parse_equality())
-    return nodes[0] if len(nodes) == 1 else All(nodes)
-
+    return _parse_single_op_chain(parse_equality, TokenType.AND, All)
+  
   def parse_equality():
-    nonlocal idx
-    items = [parse_addition()]
-    operators = []
-    while check(list(tt_to_equality_op.keys())):
-      operators.append(tt_to_equality_op[current().type])
-      consume_current_and_newlines()
-      items.append(parse_addition())
-    return items[0] if len(items) == 1 else EqualityChain(items, operators)
+    return _parse_multi_op_chain(parse_addition, tt_to_equality_op, EqualityChain)
 
   def parse_addition():
-    nonlocal idx
-    items = [parse_multiplication()]
-    operators = []
-    while check(list(tt_to_addition_op.keys())):
-      operators.append(tt_to_addition_op[current().type])
-      consume_current_and_newlines()
-      items.append(parse_multiplication())
-    return items[0] if len(items) == 1 else AdditionChain(items, operators)
+    return _parse_multi_op_chain(parse_multiplication, tt_to_addition_op, AdditionChain)
 
   def parse_multiplication():
-    nonlocal idx
-    items = [parse_exponent()]
-    operators = []
-    while check(list(tt_to_multiplication_op.keys())):
-      operators.append(tt_to_multiplication_op[current().type])
-      consume_current_and_newlines()
-      items.append(parse_exponent())
-    return items[0] if len(items) == 1 else MultiplicationChain(items, operators)
+    return _parse_multi_op_chain(parse_exponent, tt_to_multiplication_op, MultiplicationChain)
 
   def parse_exponent():
-    nonlocal idx
-    nodes = [parse_inverse()]
-    while check(TokenType.CARET):
-      consume_current_and_newlines()
-      nodes.append(parse_inverse())
-    return nodes[0] if len(nodes) == 1 else Exponent(nodes)
+    return _parse_single_op_chain(parse_inverse, TokenType.CARET, Exponent)
 
   def parse_inverse():
     nonlocal idx
     if check(TokenType.MINUS):
-      consume_current_and_newlines()
-      return Inverse(parse_invocation())
+      consume()
+      return Inverse(parse_inverse())
     return parse_invocation()
 
   def parse_invocation():
     nonlocal idx
     term = parse_value()
-    if check(TokenType.PAREN_OPEN):
-      args = parse_arguments("invoke")
-      return Invoke(term, args)
+    while check(TokenType.PAREN_OPEN):
+      term = Invoke(term, parse_arguments("invoke"))
     return term
   
   def parse_value():
