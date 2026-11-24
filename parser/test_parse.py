@@ -120,6 +120,10 @@ def test_parse_keyword_with_args():
   assert_parse_expr_tokens("number(3+4)", ToNumber(Sum([3, 4])))
   assert_parse_expr_tokens("print(3)", Print(3))
   assert_parse_expr_tokens("print(3+4)", Print(Sum([3, 4])))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("print()"))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("print(1, 2)"))
 
 def test_parse_args():
   # enable once we can make fn with no args
@@ -155,6 +159,10 @@ def test_parse_loop():
   assert_parse_expr_tokens("loop(3){4}", Loop(3, None, None, Program([4])))
   assert_parse_expr_tokens("loop(3, item){4}", Loop(3, "item", None, Program([4])))
   assert_parse_expr_tokens("loop(3, item, idx){4}", Loop(3, "item", "idx", Program([4])))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("loop(){4}"))
+  with pytest.raises(Exception):
+    luna_parse(luna_tokenize("loop(3, a, b, c){4}"))
 
 def test_parse_invalid_chars_after_expr():
   with pytest.raises(Exception):

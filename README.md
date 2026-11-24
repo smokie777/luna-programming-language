@@ -395,4 +395,6 @@ To run tests:
 
 `python -m pytest parser/test_parse.py` to run one specific test file
 
+`python -m pytest parser/test_parse.py::test_method_name` to run one specific test method
+
 `python -m parser.luna_parse` to run one specific file
