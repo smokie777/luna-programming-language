@@ -385,7 +385,7 @@ Examples of Tokens include:
 
 - `String`, `Number`, `True`, `False`, `Name`, `Equals`, `Minus`
 
-# BOOTSTRAPPING
+# TESTING
 
 To run tests:
 
@@ -398,3 +398,19 @@ To run tests:
 `python -m pytest parser/test_parse.py::test_method_name` to run one specific test method
 
 `python -m parser.luna_parse` to run one specific file
+
+# BOOTSTRAPPING
+
+Note: the below steps require Python and Git
+
+To install the Luna programming language from a clone of this repo:
+
+`python -m pip install -e .`
+
+To install the Luna programming language from GitHub:
+
+`python -m pip install git+https://github.com/smokie777/luna-programming-language.git`
+
+To run a .luna file:
+
+`luna filename.luna`
