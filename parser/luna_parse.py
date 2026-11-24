@@ -184,10 +184,10 @@ def luna_parse(tokens: list[Token]) -> Expression:
         consume()
         if current().type != TokenType.PAREN_OPEN:
           return Return(False)
-        return Return(parse_arguments(t.value)[0])
+        return Return(parse_arguments(t.value)[0]) # TODO: throw a luna error if arg is not provided
       case ReservedKeywords.BOOLEAN:
         consume()
-        return ToBoolean(parse_arguments(t.value)[0])
+        return ToBoolean(parse_arguments(t.value)[0]) # TODO: revisit num of arguments for various fn's
       case ReservedKeywords.STRING:
         consume()
         return ToString(parse_arguments(t.value)[0])
@@ -330,19 +330,19 @@ def luna_parse(tokens: list[Token]) -> Expression:
     nonlocal idx
     if check(TokenType.BRACE_OPEN):
       consume_current_and_newlines()
-      if check(TokenType.BRACE_CLOSE):
-        consume()
-        return Program([])
     else:
       luna_throw(f'Program must start with {"{"}. Got: {current()}')
-    nodes = [parse_expr()]
-    while check(TokenType.NEWLINE):
-      consume_current_and_newlines()
+    nodes = []
+    while not check(TokenType.BRACE_CLOSE):
+      if check(TokenType.NEWLINE):
+        consume_current_and_newlines()
+        continue
       nodes.append(parse_expr())
-    if check(TokenType.BRACE_CLOSE):
-      consume()
-      return Program(nodes)
-    luna_throw(f'Unexpected token at end of expression in Program: {current()}')
+      if not check(TokenType.BRACE_CLOSE) and not check(TokenType.NEWLINE):
+        luna_throw(f'Invalid token found at end of Expr in Program: {current()}')
+
+    consume()
+    return Program(nodes)
 
   def parse_list():
     nonlocal idx

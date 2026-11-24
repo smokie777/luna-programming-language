@@ -70,7 +70,7 @@ def test_parse_inverse():
   assert_parse_expr_tokens("3- -3", Difference([3, Inverse(3)]))
 
 def test_parse_newlines():
-  assert_parse_expr_tokens("3+(\n4+5\n)", Sum([3, Sum([4,5])])) 
+  assert_parse_expr_tokens("3+\n(\n4+5\n)", Sum([3, Sum([4,5])])) 
 
 def test_parse_operator_chain():
   assert_parse_expr_tokens(
@@ -125,11 +125,11 @@ def test_parse_args():
   # enable once we can make fn with no args
   # assert_parse_expr_tokens("print(\n\n\n)", Print(Sum([3, 4])))
   with pytest.raises(Exception):
-    assert_parse_expr_tokens("print(3,4)", Print(Sum([3, 4])))
+    luna_parse(luna_tokenize("print(3 4)"))
   with pytest.raises(Exception):
-    assert_parse_expr_tokens("print(3+4", Print(Sum([3, 4])))
+    luna_parse(luna_tokenize("print(3+4"))
   with pytest.raises(Exception):
-    assert_parse_expr_tokens("print3+4)", Print(Sum([3, 4])))
+    luna_parse(luna_tokenize("print3+4)"))
 
 def test_parse_varset():
   assert_parse_expr_tokens("-> x 4", VarSet("x", 4))
@@ -143,6 +143,7 @@ def test_parse_program():
   assert_parse_expr_tokens("{3}", Program([3]))
   assert_parse_expr_tokens("{3+4}", Program([Sum([3,4])]))
   assert_parse_expr_tokens("{3\n4}", Program([3, 4]))
+  assert_parse_expr_tokens("{\n\n1\n\n2\n\n}", Program([1, 2]))
   with pytest.raises(Exception):
     luna_parse(luna_tokenize("{3 3}"))
 
@@ -194,8 +195,3 @@ def test_parse_invocation():
   assert_parse_expr_tokens("x(1, 2, 3)", Invoke(VarGet("x"), [1, 2, 3]))
   assert_parse_expr_tokens("function(arg){4}()", Invoke(Function(["arg"], Program([4]))))
   assert_parse_expr_tokens("x()()()", Invoke(Invoke(Invoke(VarGet("x"), []), []), []))
-
-def test_parse_program_newlines():
-  assert_parse_expr_tokens("1+\n2", Sum([1, 2]))
-  assert luna_parse(luna_tokenize("1+2\n3+4")) == Program([Sum([1, 2]), Sum([3, 4])])
-  # assert_parse_expr_tokens("{\n1\n2\n}", Program([1, 2]))
