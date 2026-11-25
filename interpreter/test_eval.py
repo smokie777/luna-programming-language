@@ -5,11 +5,6 @@ from .eval import luna_eval
 from .data_structures import LunaMap
 import pytest
 
-fn = Function(
-  ["a", "b"],
-  Program([Sum([VarGet("a"), VarGet("b")])])
-)
-
 def test_eval_non_expression():
   with pytest.raises(Exception):
     assert luna_eval({})

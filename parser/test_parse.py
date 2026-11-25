@@ -153,6 +153,7 @@ def test_parse_program():
 
 def test_parse_function():
   assert_parse_expr_tokens("function(){}", Function([], Program([])))
+  assert_parse_expr_tokens("f(){}", Function([], Program([])))
   assert_parse_expr_tokens("function(arg){4}", Function(["arg"], Program([4])))
 
 def test_parse_loop():

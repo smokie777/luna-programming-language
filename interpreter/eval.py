@@ -148,6 +148,7 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return all((luna_to_boolean(luna_eval(i, env)) for i in items))
     case Some(items):
       return any((luna_to_boolean(luna_eval(i, env)) for i in items))
+    # START LIST UTILS
     case EqualityChain(items, operators):
       prev = None
       curr = luna_eval(items[0], env)
@@ -176,5 +177,18 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
         else:
           acc = acc ** i
       return acc
+    case All(items):
+      return all((luna_to_boolean(luna_eval(i, env)) for i in items))
+    case Some(items):
+      return any((luna_to_boolean(luna_eval(i, env)) for i in items))
+    case Lmap(e1, e2):
+      l = luna_eval(e1, env)
+      if not isinstance(l, list):
+        luna_throw(f'lmap arg 1 must eval to a list, got: {l}')
+      fn = luna_eval(e2, env)
+      if not isinstance(fn, Function):
+        luna_throw(f'lmap arg 2 must eval to a Function, got: {fn}')
+      return [luna_eval(Invoke(fn, [i]), env) for i in l]
+    # END LIST UTILS
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')

@@ -9,6 +9,7 @@ class ReservedKeywords(StrEnum):
   RETURN = "return"
   BREAK = "break"
   FUNCTION = "function"
+  F = "f"
   LOOP = "loop"
   SWITCH = "switch"
   PRINT = "print"
@@ -18,4 +19,5 @@ class ReservedKeywords(StrEnum):
   MAP = "map"
   IF = "if"
   ELSE = "else"
+  LMAP = "lmap"
 RESERVED_KEYWORDS_SET = { e.value for e in ReservedKeywords }

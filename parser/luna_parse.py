@@ -209,7 +209,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
           consume_current_and_newlines()
           else_branch = parse_program()
         return IfThenElse(condition, if_branch, else_branch)
-      case ReservedKeywords.FUNCTION:
+      case ReservedKeywords.FUNCTION | ReservedKeywords.F:
         consume()
         return Function(parse_params(t.value), parse_program())
       case ReservedKeywords.LOOP:
@@ -233,6 +233,12 @@ def luna_parse(tokens: list[Token]) -> Expression:
         condition = parse_arguments(t.value, 1)[0]
         cases, branches = parse_switch_body()
         return Switch(condition, cases, branches)
+      # START LIST UTILS
+      case ReservedKeywords.LMAP:
+        consume()
+        args = parse_arguments(t.value, 2)
+        return Lmap(args[0], args[1])
+      # END LIST UTILS
       case _:
         # there is no consume() here because VarGet has no token or syntax
         return VarGet(parse_identifier())

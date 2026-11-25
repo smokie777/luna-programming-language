@@ -194,3 +194,9 @@ def Gte(l: list[EvalExpr]):
 
 def Equals(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.EQ for _ in range(len(l) - 1)])
+
+# list utils
+@dataclass
+class Lmap(Expression):
+  e1: EvalExpr
+  e2: EvalExpr

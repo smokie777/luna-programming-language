@@ -1,1 +1,4 @@
-print('hello world!')
+-> x f(){
+  lmap([1,2,3], f(i){i*2})
+}
+print(x())
