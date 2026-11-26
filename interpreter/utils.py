@@ -32,3 +32,7 @@ def luna_void(v: Lv) -> Lv:
       return []
     case _:
       luna_throw(f'can\'t call void on: {v}')
+
+# Clamp a number between a min_val and a max_val
+def clamp(n, min_val, max_val):
+  return max(min_val, min(n, max_val))

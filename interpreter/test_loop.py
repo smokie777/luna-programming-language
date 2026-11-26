@@ -1,7 +1,7 @@
 # test_loop.py
 
 from .expressions import *
-from .eval import luna_eval
+from .luna_eval import luna_eval
 import pytest
 
 def test_loop_number_iterable():

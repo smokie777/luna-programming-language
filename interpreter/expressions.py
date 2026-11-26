@@ -167,31 +167,22 @@ class BreakSignal(Exception):
 
 def Sum(l: list[EvalExpr]):
   return AdditionChain(l, [AdditionOp.PLUS for _ in range(len(l) - 1)])
-
 def Difference(l: list[EvalExpr]):
   return AdditionChain(l, [AdditionOp.MINUS for _ in range(len(l) - 1)])
-
 def Product(l: list[EvalExpr]):
   return MultiplicationChain(l, [MultiplicationOp.TIMES for _ in range(len(l) - 1)])
-
 def Quotient(l: list[EvalExpr]):
   return MultiplicationChain(l, [MultiplicationOp.DIVIDE for _ in range(len(l) - 1)])
-
 def RemainderAll(l: list[EvalExpr]):
   return MultiplicationChain(l, [MultiplicationOp.PERCENT for _ in range(len(l) - 1)])
-
 def Lt(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.LT for _ in range(len(l) - 1)])
-
 def Lte(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.LTE for _ in range(len(l) - 1)])
-
 def Gt(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.GT for _ in range(len(l) - 1)])
-
 def Gte(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.GTE for _ in range(len(l) - 1)])
-
 def Equals(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.EQ for _ in range(len(l) - 1)])
 
@@ -200,3 +191,37 @@ def Equals(l: list[EvalExpr]):
 class Lmap(Expression):
   e1: EvalExpr
   e2: EvalExpr
+@dataclass
+class Filter(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+@dataclass
+class Insert(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+  e3: EvalExpr | None
+@dataclass
+class Pop(Expression):
+  e1: EvalExpr
+  e2: EvalExpr | None
+@dataclass
+class Get(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+@dataclass
+class GetIndex(Expression):
+  e1: EvalExpr
+  e2: EvalExpr  
+@dataclass
+class Find(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+@dataclass
+class FindIndex(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+@dataclass
+class Slice(Expression):
+  e1: EvalExpr
+  e2: EvalExpr
+  e3: EvalExpr | None

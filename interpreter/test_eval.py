@@ -1,7 +1,7 @@
 # test_eval.py
 
 from .expressions import *
-from .eval import luna_eval
+from .luna_eval import luna_eval
 from .data_structures import LunaMap
 import pytest
 
@@ -17,6 +17,16 @@ def test_eval_env_isolation():
   luna_eval(VarSet('my_var', 3))
   with pytest.raises(Exception):
     assert luna_eval(VarGet('my_var'))
+
+def test_eval_helpers():
+  fn = Function(["i"], Program([Product([VarGet("i"),2])]))
+  luna_eval(Lmap([], fn))
+  luna_eval(Lmap(IfThenElse(True, [], "not a list"), fn))
+  luna_eval(Lmap([], IfThenElse(True, fn, "not a fn")))
+  with pytest.raises(Exception):
+    luna_eval(Lmap([], "not a fn"))
+  with pytest.raises(Exception):
+    luna_eval(Lmap("not a list", fn))
 
 def test_get_and_set_variables():
   luna_eval(Program([

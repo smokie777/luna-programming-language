@@ -184,25 +184,25 @@ def luna_parse(tokens: list[Token]) -> Expression:
         consume()
         if current().type != TokenType.PAREN_OPEN:
           return Return(False)
-        return Return(parse_arguments(t.value, 1)[0])
+        return Return(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.BOOLEAN:
         consume()
-        return ToBoolean(parse_arguments(t.value, 1)[0])
+        return ToBoolean(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.STRING:
         consume()
-        return ToString(parse_arguments(t.value, 1)[0])
+        return ToString(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.NUMBER:
         consume()
-        return ToNumber(parse_arguments(t.value, 1)[0])
+        return ToNumber(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.PRINT:
         consume()
-        return Print(parse_arguments(t.value, 1)[0])
+        return Print(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.MAP:
         consume()
         return Map(parse_arguments(t.value))
       case ReservedKeywords.IF:
         consume()
-        condition = parse_arguments(t.value, 1)[0]
+        condition = parse_arguments(t.value, [1])[0]
         if_branch = parse_program()
         else_branch = None
         if check(TokenType.NAME) and current().value == ReservedKeywords.ELSE:
@@ -214,9 +214,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
         return Function(parse_params(t.value), parse_program())
       case ReservedKeywords.LOOP:
         consume()
-        args = parse_arguments(t.value)
-        if len(args) < 1 or len(args) > 3:
-          luna_throw(f'Loop must take 1, 2, or 3 arguments, got: {len(args)}')
+        args = parse_arguments(t.value, [1, 2, 3])
         body = parse_program()
         return Loop(
           args[0],
@@ -230,14 +228,46 @@ def luna_parse(tokens: list[Token]) -> Expression:
         )
       case ReservedKeywords.SWITCH:
         consume()
-        condition = parse_arguments(t.value, 1)[0]
+        condition = parse_arguments(t.value, [1])[0]
         cases, branches = parse_switch_body()
         return Switch(condition, cases, branches)
       # START LIST UTILS
       case ReservedKeywords.LMAP:
         consume()
-        args = parse_arguments(t.value, 2)
+        args = parse_arguments(t.value, [2])
         return Lmap(args[0], args[1])
+      case ReservedKeywords.FILTER:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return Filter(args[0], args[1])
+      case ReservedKeywords.INSERT:
+        consume()
+        args = parse_arguments(t.value, [2, 3])
+        return Insert(args[0], args[1], args[2] if len(args) == 3 else None)
+      case ReservedKeywords.POP:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return Pop(args[0], args[1])
+      case ReservedKeywords.GET:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return Get(args[0], args[1])
+      case ReservedKeywords.GETINDEX:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return GetIndex(args[0], args[1])
+      case ReservedKeywords.FIND:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return Find(args[0], args[1])
+      case ReservedKeywords.FINDINDEX:
+        consume()
+        args = parse_arguments(t.value, [2])
+        return FindIndex(args[0], args[1])
+      case ReservedKeywords.SLICE:
+        consume()
+        args = parse_arguments(t.value, [2, 3])
+        return Slice(args[0], args[1], args[2] if len(args) == 3 else None)
       # END LIST UTILS
       case _:
         # there is no consume() here because VarGet has no token or syntax
@@ -252,7 +282,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
     consume()
     return ret
 
-  def parse_params(construct_name: str):
+  def parse_params(construct_name:str):
     nonlocal idx
     if check(TokenType.PAREN_OPEN):
       consume_current_and_newlines()
@@ -271,7 +301,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
       return params
     luna_throw(f'Params for "{construct_name}" must be enclosed in ().')
 
-  def parse_arguments(construct_name: str, exact_num_args = None):
+  def parse_arguments(construct_name:str, exact_num_args:list|None = None):
     nonlocal idx
     if check(TokenType.PAREN_OPEN):
       consume_current_and_newlines()
@@ -289,7 +319,7 @@ def luna_parse(tokens: list[Token]) -> Expression:
       args.append(parse_expr())
     if check(TokenType.PAREN_CLOSE):
       consume()
-      if exact_num_args is None or exact_num_args == len(args):
+      if exact_num_args is None or len(args) in exact_num_args:
         return args
       luna_throw(f'"{construct_name}" must have {exact_num_args} args, got: {len(args)}')
     luna_throw(f'Arguments for "{construct_name}" must be enclosed in ().')

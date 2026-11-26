@@ -2,11 +2,12 @@
 
 from .expressions import *
 from .typeutils import *
-from .utils import *
+from .utils import luna_throw, luna_inverse, clamp
 from .data_structures import LunaMap
 from .Env import Env
 from .luna_types import EvalExpr
 from .equals import luna_equals
+from .eval_helpers import eval_to_list_or_throw, eval_to_function_or_throw, eval_to_int_or_throw
 from common.mappings import equality_op_to_eval_fn, addition_op_to_eval_fn, multiplication_op_to_eval_fn
 
 # Evaluates an expression recursively.
@@ -148,7 +149,6 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return all((luna_to_boolean(luna_eval(i, env)) for i in items))
     case Some(items):
       return any((luna_to_boolean(luna_eval(i, env)) for i in items))
-    # START LIST UTILS
     case EqualityChain(items, operators):
       prev = None
       curr = luna_eval(items[0], env)
@@ -181,14 +181,67 @@ def luna_eval(expr:EvalExpr, env=None) -> EvalExpr:
       return all((luna_to_boolean(luna_eval(i, env)) for i in items))
     case Some(items):
       return any((luna_to_boolean(luna_eval(i, env)) for i in items))
+    # START LIST UTILS
     case Lmap(e1, e2):
-      l = luna_eval(e1, env)
-      if not isinstance(l, list):
-        luna_throw(f'lmap arg 1 must eval to a list, got: {l}')
-      fn = luna_eval(e2, env)
-      if not isinstance(fn, Function):
-        luna_throw(f'lmap arg 2 must eval to a Function, got: {fn}')
+      l = eval_to_list_or_throw(e1, luna_eval, env, "lmap arg 1")
+      fn = eval_to_function_or_throw(e2, luna_eval, env, "lmap arg 2")
       return [luna_eval(Invoke(fn, [i]), env) for i in l]
+    case Filter(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "filter arg 1")
+      fn = eval_to_function_or_throw(e2, luna_eval, env, "filter arg 2")
+      return [i for i in l if luna_to_boolean(luna_eval(Invoke(fn, [i]), env))]
+    case Insert(e1, e2, e3):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "insert arg 1")
+      v = luna_eval(e2)
+      if e3 is None:
+        l.append(v)
+      else:
+        idx = eval_to_int_or_throw(e3, luna_eval, env, "insert arg 3 (index), if provided,")
+        l.insert(clamp(idx, 0, len(l)), v)
+      return v
+    case Pop(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "pop arg 1")
+      if e2 is None:
+        return l.pop()
+      idx = eval_to_int_or_throw(e2, luna_eval, env, "pop arg 2 (index), if provided,")
+      return l.pop(clamp(idx, 0, len(l)-1))
+    case Get(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "get arg 1")
+      idx = eval_to_int_or_throw(e2, luna_eval, env, "get arg 2 (index), if provided,")
+      return l[clamp(idx, 0, len(l)-1)]
+    case GetIndex(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "getindex arg 1")
+      v = luna_eval(e2, env)
+      for index, item in enumerate(l):
+        if luna_equals(item, v):
+          return index
+      return False
+    case Find(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "find arg 1")
+      fn = eval_to_function_or_throw(e2, luna_eval, env, "find arg 2")
+      for i in l:
+        if luna_to_boolean(luna_eval(Invoke(fn, [i]), env)):
+          return i
+      return False
+    case FindIndex(e1, e2):
+      l = eval_to_list_or_throw(e1, luna_eval, env, "findindex arg 1")
+      fn = eval_to_function_or_throw(e2, luna_eval, env, "findindex arg 2")
+      for index, item in enumerate(l):
+        if luna_to_boolean(luna_eval(Invoke(fn, [item]), env)):
+          return index
+      return False
+    case Slice(e1, e2, e3):
+      # apparently, end_idx being exclusive results in interesting mathematical elegances.
+      l = eval_to_list_or_throw(e1, luna_eval, env, "slice arg 1")
+      start_idx = clamp(eval_to_int_or_throw(e2, luna_eval, env, "slice arg 2"), 0, len(l) - 1)
+      end_idx = len(l) if e3 is None else (
+        clamp(eval_to_int_or_throw(e3, luna_eval, env, "slice arg 3"), 0, len(l))
+      )
+      ret = []
+      while start_idx < end_idx:
+        ret.append(l[start_idx])
+        start_idx += 1
+      return ret
     # END LIST UTILS
     case _:
       luna_throw(f'can\'t evalute a non-expression: {expr}')

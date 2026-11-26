@@ -403,6 +403,8 @@ To run tests:
 
 Note: the below steps require Python and Git
 
+Note: the language is still in development and many key features are missing, I don't recommend using the language for anything other than some quick testing for now.
+
 To install the Luna programming language from a clone of this repo:
 
 `python -m pip install -e .`

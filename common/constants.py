@@ -20,4 +20,13 @@ class ReservedKeywords(StrEnum):
   IF = "if"
   ELSE = "else"
   LMAP = "lmap"
+  FILTER = "filter"
+  INSERT = "insert"
+  POP = "pop"
+  GET = "get"
+  GETINDEX = "getindex"
+  FIND = "find"
+  FINDINDEX = "findindex"
+  SLICE = "slice"
+  
 RESERVED_KEYWORDS_SET = { e.value for e in ReservedKeywords }
