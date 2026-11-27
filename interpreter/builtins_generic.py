@@ -6,7 +6,7 @@ from .expressions import BuiltinFunction
 
 def builtin_print(eval_fn, env, args):
   mutate_exact_num_args(args, 1, "print")
-  print(args[0])
+  print(eval_fn(args[0], env))
   return False
 
 def builtin_to_boolean(eval_fn, env, args):
@@ -27,8 +27,8 @@ def builtin_to_list(eval_fn, env, args):
 
 builtins_generic = {
   "print": BuiltinFunction(builtin_print),
-  "boolean": BuiltinFunction(builtin_to_boolean),
-  "string": BuiltinFunction(builtin_to_string),
-  "number": BuiltinFunction(builtin_to_number),
-  "list": BuiltinFunction(builtin_to_list),
+  "toboolean": BuiltinFunction(builtin_to_boolean),
+  "tostring": BuiltinFunction(builtin_to_string),
+  "tonumber": BuiltinFunction(builtin_to_number),
+  "tolist": BuiltinFunction(builtin_to_list),
 }

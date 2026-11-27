@@ -105,10 +105,10 @@ def test_eval_variables():
     luna_eval(VarGet(3,))
 
 def test_eval_type_conversions():
-  assert_builtin_fn_call("boolean", [3], True)
-  assert_builtin_fn_call("number", ["3"], 3)
-  assert_builtin_fn_call("string", [3], "3")
-  assert_builtin_fn_call("list", [3], [3])
+  assert_builtin_fn_call("toboolean", [3], True)
+  assert_builtin_fn_call("tonumber", ["3"], 3)
+  assert_builtin_fn_call("tostring", [3], "3")
+  assert_builtin_fn_call("tolist", [3], [3])
   
 def test_eval_inverse():
   assert luna_eval(Inverse(3)) == -3

@@ -10,15 +10,18 @@ import time
 def main():
   should_show_time = "-t" in sys.argv
   should_suppress_warnings = "-s" in sys.argv
+  should_show_ast = "-a" in sys.argv
 
-  args = [arg for arg in sys.argv[1:] if arg not in ("-t", "-s")]
+  args = [arg for arg in sys.argv[1:] if arg not in ("-t", "-s", "-a")]
 
   if len(args) != 1:
-    print("""
-      Usage: python main.py [-t] [-s] <filename>
-      [-t]: show execution time
-      [-s]: suppress warnings
-    """)
+    print(
+"""
+Usage: python main.py [-t] [-s] <filename>
+[-t]: print execution time
+[-s]: suppress warnings
+[-a]: print AST
+""")
     sys.exit(1)
 
   filename = args[0]
@@ -29,6 +32,8 @@ def main():
   start_time = time.perf_counter() if should_show_time else 0
   tokens = luna_tokenize(source)
   ast = luna_parse(tokens, should_suppress_warnings)
+  if should_show_ast:
+    print(ast)
   luna_eval(ast)
   
   if should_show_time:

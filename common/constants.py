@@ -22,10 +22,10 @@ class ReservedKeywords(StrEnum):
 class BuiltinKeywords(StrEnum):
   # GENERIC
   PRINT = "print"
-  BOOLEAN = "boolean"
-  STRING = "string"
-  NUMBER = "number"
-  LIST = "list"
+  BOOLEAN = "toboolean"
+  STRING = "tostring"
+  NUMBER = "tonumber"
+  LIST = "tolist"
   # LIST
   LMAP = "lmap"
   FILTER = "filter"

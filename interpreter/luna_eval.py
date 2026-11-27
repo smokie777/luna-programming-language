@@ -70,7 +70,7 @@ def luna_eval(expr:EvalExpr, env:Env|None=None) -> EvalExpr:
           return luna_eval(branches[i], env)
       return False
     case Loop(iterable, iterator_varname, index_varname, body):
-      iterable = luna_eval(iterable)
+      iterable = luna_eval(iterable, env)
       if iterable in (False, "", 0, []):
         return False
       max_idx = 0

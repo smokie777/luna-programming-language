@@ -350,6 +350,7 @@ A list of all built-in functions:
                                      returns last item if idx not provided
   get(list, idx) -> number:          get item from list by index
   getindex(list, item) -> number:    get item index from list by value
+  contains(list, item) -> boolean:   whether item exists in list by value
   find(list, fn) -> ite:             get item from list by callback
   findindex(list) -> number:         get item index from list by callback
   slice(list, idx1, idx2) -> list:   slice list by range [idx1, idx2)

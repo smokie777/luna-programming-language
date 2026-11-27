@@ -226,10 +226,6 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
   def parse_identifier():
     if not check(TokenType.NAME):
       luna_throw(f'Expected identifer. Got: {current()}')
-    if current().value in RESERVED_KEYWORDS_SET:
-      luna_throw(f'Identifier name cannot be a reserved keyword: {current().value}')
-    if current().value in BUILTIN_KEYWORDS_SET and not should_suppress_warnings:
-      print(f'[WARNING]: {current().value} was used as an identifier name, shadowing a built-in function.')
     ret = current().value
     consume()
     return ret
@@ -313,6 +309,10 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
     consume()
     varname = parse_identifier()
     varvalue = parse_expr()
+    if varname in RESERVED_KEYWORDS_SET:
+      luna_throw(f'Variable name cannot be a reserved keyword: {varname}')
+    if varname in BUILTIN_KEYWORDS_SET and not should_suppress_warnings:
+      print(f'[WARNING]: {varname} was used as a variable name, shadowing a built-in function.')
     if is_varset_global:
       return VarSetGlobal(varname, varvalue)
     else: 

@@ -82,6 +82,17 @@ def test_eval_getindex():
     assert luna_eval(create_program(i)) == expected
   assert_builtin_not_mutate("getindex", [VarGet("a"), 3])
 
+def test_eval_contains():
+  def create_program(contains_expr):
+    return Program([VarSet("a", [1, 2, 3]), contains_expr])
+  cases = [
+    (Invoke(VarGet("contains"), [VarGet("a"), 3]), True),
+    (Invoke(VarGet("contains"), [VarGet("a"), 4]), False),
+  ]
+  for i, expected in cases:
+    assert luna_eval(create_program(i)) == expected
+  assert_builtin_not_mutate("contains", [VarGet("a"), 3])
+
 def test_eval_find():
   def create_program(find_expr):
     return Program([VarSet("a", [1, 2, 3]), find_expr])

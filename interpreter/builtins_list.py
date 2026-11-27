@@ -52,6 +52,10 @@ def builtin_getindex(eval_fn, env, args):
       return index
   return False
 
+def builtin_contains(eval_fn, env, args):
+  idx = builtin_getindex(eval_fn, env, args)
+  return idx is not False
+
 def builtin_find(eval_fn, env, args):
   mutate_exact_num_args(args, 2, "find")
   l = eval_to_list_or_throw(args[0], eval_fn, env, "find arg 1")
@@ -139,6 +143,7 @@ builtins_list = {
   "pop": BuiltinFunction(builtin_pop),
   "get": BuiltinFunction(builtin_get),
   "getindex": BuiltinFunction(builtin_getindex),
+  "contains": BuiltinFunction(builtin_contains),
   "find": BuiltinFunction(builtin_find),
   "findindex": BuiltinFunction(builtin_findindex),
   "slice": BuiltinFunction(builtin_slice),
