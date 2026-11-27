@@ -31,8 +31,7 @@ def test_to_boolean():
   assert luna_to_boolean(0.0) == False
   assert luna_to_boolean([]) == False
   assert luna_to_boolean([1]) == True
-  with pytest.raises(Exception):
-    luna_to_boolean({})
+  assert luna_to_boolean({}) == True
 
 def test_to_number():
   assert luna_to_number("-3.6") == -3.6

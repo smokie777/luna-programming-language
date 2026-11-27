@@ -3,7 +3,6 @@
 from .expressions import *
 from .typeutils import *
 from .utils import luna_throw, luna_inverse
-from .data_structures import LunaMap
 from .Env import Env
 from .create_default_env import create_default_env
 from .luna_types import EvalExpr
@@ -24,7 +23,7 @@ def luna_eval(expr:EvalExpr, env:Env|None=None) -> EvalExpr:
     case list():
       return [luna_eval(i, env) for i in expr]
     case Map(args):
-      return LunaMap([luna_eval(i, env) for i in args])
+      return Map([luna_eval(i, env) for i in args])
     case Frozen(e):
       return e
     case Program(l):

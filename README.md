@@ -53,7 +53,7 @@ Commonly used syntax:
 {}                 program definition
 ()                 grouping or invocation
 []                 list definition
-``                 switch body definition
+``                 switch/map body definition
 \n                 a newline indicates the end of a complete expression.
                    newlines in an incomplete expression are ignored.
 ```
@@ -71,22 +71,28 @@ Types are hierarchical, with List at the top and Boolean at the bottom. In opera
 
 Higher types may be converted to lower types, but this should be used sparingly, as it goes against the idea of hierarchical types.
 
+These value types can be defined as follows:
+
+```
+-> my_boolean true
+-> my_boolean false
+-> my_number 123
+-> my_string 'abc'
+-> my_list [1,2,3]
+```
+
 There is no `null` type; instead `false` is used, as that is the falsey value of the lowest type in the hierarchy. There is one falsey value for each type: `[]`, `""`, `0`, `false`.
 
 # MAPS
 
-A Map, or a mapping of keys to values, is implemented as an associative array where each element is a list of size 2. The first element is the key, and the second element is the value. A Map can be written as follows:
+A Map, or a mapping of keys to values, is implemented as an associative array where each element is a list of size 2. The first element is the key, and the second element is the value. While duplicate keys are not allowed, the associative array implementation allows all expressions to be keys - not just hashable ones! However, the downside to this flexible design is that many classical dictionary operations become O(n) instead of O(1). A Map can be written as follows:
 
 ```
-map(
-  [key1, value1],
-  [key2, value2],
-)
+map`
+  key1: value1,
+  key2: value2,
+`
 ```
-
-Composition is allowed when creating a Map - imagine that `map()` is a function, and each argument is an expression that evaluates to a list of size 2. The list of size 2 invariant is enforced at evaluation time. Note that since Maps are associative arrays, keys and values can be any valid expression, and duplicate keys are allowed. This is an intentional design choice to promote flexibility. 
-
-A Map is considered to be a special construct rather than a Value type, so operations that can normally be performed using Value types do not apply to Maps. Instead, Map helper functions will be provided.
 
 # POLYMORPHISM
 
@@ -208,11 +214,13 @@ An If-Then-Else construct can be created using the `if` and `else` keywords:
 `if(condition)Program else Program`
 
 Examples:
+
 ```
 if (1+1=2) {
   print(true)
 }
 ```
+
 ```
 if (1+1=3) {
   print(true)
@@ -224,10 +232,12 @@ if (1+1=3) {
 An If-Then-Else can also be constructed using ternary operators `>>` and `!>`. The expression after `>>` is the true branch, and the expression after `!>` is the false branch. These ternary operators are not usable as standalones - they can only be used in a ternary expression.
 
 Examples:
+
 ```
 -> x 3 = 3 >> "equal" !> "not equal"
 print(x) # "equal"
 ```
+
 ```
 -> x 3 = 4 >> "equal" !> "not equal"
 print(x) # "not equal"
@@ -248,7 +258,7 @@ switch(condition)`
 
 At runtime, `condition` will be evaluated, then the cases will be evaluated from top to bottom until a match is found. Then, the matching case's branch will be evaluated. Unreached cases and branches will not be evaluated. A default case `_` may optionally be provided; as soon as it is reached, the default branch executes. If no matching case is found, the switch returns `false`. Individual switch cases and branches can be composed using expressions.
 
-Note that the switch body is indicated with backticks, rather than any other grouping syntax, as a switch body has unique syntax and behavior. Switch cases are separated from branches by colons `:`, and different case-branch pairs are separated by commas `,`. 
+Note that the switch body is indicated with backticks, rather than any other grouping syntax, as a switch body has unique syntax and behavior. Switch cases are separated from branches by colons `:`, and different case-branch pairs are separated by commas `,`.
 
 ```
 -> result switch(3+4)`
@@ -332,6 +342,7 @@ A few noteworthy function-loop interactions:
 Built-in functions are implemented as Python methods keyed to variables in the interpreter's global scope (environment). They may be invoked by simply invoking their identifier name, similar to a normal function invocation. Built-ins may be shadowed if the user assigns a different value to the built-in name, but then a warning will be printed to the console.
 
 A list of all built-in functions:
+
 ```
   # Generic built-ins:
   print(expr) -> False:              print to console
@@ -359,7 +370,7 @@ A list of all built-in functions:
   product(list) -> value:            product of all items in a list
   quotient(list) -> value:           quotient of all items in a list
   remainder(list) -> value:          remainder of all items in a list
-  lt(list) -> boolean:               < inequality chain 
+  lt(list) -> boolean:               < inequality chain
   lte(list) -> boolean:              <= inequality chain
   gt(list) -> boolean:               > inequality chain
   gte(list) -> boolean:              >= inequality chain
@@ -367,7 +378,6 @@ A list of all built-in functions:
   all(list) -> boolean:              whether all items in a list are truthy
   some(list) -> boolean:             whether at least one item in a list is truthy
 ```
-
 
 # INTERPRETER
 

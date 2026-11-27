@@ -164,11 +164,6 @@ def test_parse_list():
   assert_parse_expr_tokens("[1,2,3]", [1,2,3])
   assert_parse_expr_tokens("[1,2,3+4]", [1,2,Sum([3,4])])
 
-def test_parse_map():
-  assert_parse_expr_tokens("map()", Map([]))
-  assert_parse_expr_tokens("map([1,2])", Map([[1,2]]))
-  assert_parse_expr_tokens("map([1,2],[3,4])", Map([[1,2],[3,4]]))
-
 def test_parse_switch():
   assert_parse_expr_tokens(
     "switch(3+4)`6:'six',7:'seven'`",
@@ -189,6 +184,16 @@ def test_parse_switch():
     Switch(Sum([3, 4]), [6, 7, SwitchCatchAllCase()], ["six", "seven", "default_branch"])
   )
   
+def test_parse_map():
+  assert_parse_expr_tokens(
+    "map`6:'six',7:'seven'`",
+    Map([[6, "six"], [7, "seven"]])
+  )
+  assert_parse_expr_tokens(
+    "map``",
+    Map([])
+  )
+
 def test_parse_invocation():
   assert_parse_expr_tokens("x()", Invoke(VarGet("x"), []))
   assert_parse_expr_tokens("x(1, 2, 3)", Invoke(VarGet("x"), [1, 2, 3]))

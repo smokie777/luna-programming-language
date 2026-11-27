@@ -2,6 +2,7 @@
 
 from .utils import luna_throw
 from .expressions import Function, Expression
+from .luna_types import LvMap
 from collections.abc import Callable
 
 def eval_to_list_or_throw(e:Expression, eval_fn:Callable, env, description:str) -> list:
@@ -21,4 +22,9 @@ def eval_to_int_or_throw(e:Expression, eval_fn:Callable, env, description:str) -
   if isinstance(ret, int | float):
     return int(ret)
   luna_throw(f'{description} must be an Integer, got: {ret}')
-  
+
+def eval_to_map_or_throw(e:Expression, eval_fn:Callable, env, description:str) -> list:
+  ret = eval_fn(e, env)
+  if isinstance(ret, LvMap):
+    return ret
+  luna_throw(f'{description} must be a Map, got: {ret}')

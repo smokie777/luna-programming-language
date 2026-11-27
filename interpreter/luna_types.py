@@ -6,8 +6,11 @@ from pydantic.dataclasses import dataclass
 class Expression:
   pass
 
-LvNum = int | float
-LvPrimitive = str | bool | LvNum
-LvList = list[LvPrimitive]
-Lv = LvPrimitive | LvList
-EvalExpr = Lv | Expression | list[Expression | Lv]
+@dataclass
+class LvMap(Expression):
+  pass
+
+type LvNum = int | float
+type LvPrimitive = str | bool | LvNum
+type Lv = LvPrimitive | list[Lv] | LvMap
+type EvalExpr = Lv | Expression | list[EvalExpr]

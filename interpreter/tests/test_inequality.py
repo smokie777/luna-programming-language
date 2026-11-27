@@ -2,6 +2,10 @@
 
 import pytest
 from ..inequality import *
+from ..expressions import Map
+
+map1 = Map([["a", 1]])
+map2 = Map([["a", 1], ["b", 2]])
 
 def test_lt():
   assert luna_lt("a", "aa") == True
@@ -19,7 +23,10 @@ def test_lt():
   assert luna_lt(False, True) == True
   assert luna_lt(True, True) == False
   assert luna_lt(False, False) == False
-  assert luna_lt(True, False) == False  
+  assert luna_lt(True, False) == False
+  assert luna_lt(map1, map1) == False
+  assert luna_lt(map1, map2) == True
+  assert luna_lt(map2, map1) == False
   with pytest.raises(Exception):
     assert luna_lt({}, {})
 
@@ -39,7 +46,10 @@ def test_gt():
   assert luna_gt(False, True) == False
   assert luna_gt(True, True) == False
   assert luna_gt(False, False) == False
-  assert luna_gt(True, False) == True  
+  assert luna_gt(True, False) == True
+  assert luna_gt(map1, map1) == False
+  assert luna_gt(map1, map2) == False
+  assert luna_gt(map2, map1) == True
   with pytest.raises(Exception):
     assert luna_gt({}, {})
 
@@ -59,7 +69,10 @@ def test_lte():
   assert luna_lte(False, True) == True
   assert luna_lte(True, True) == True
   assert luna_lte(False, False) == True
-  assert luna_lte(True, False) == False  
+  assert luna_lte(True, False) == False
+  assert luna_lte(map1, map1) == True
+  assert luna_lte(map1, map2) == True
+  assert luna_lte(map2, map1) == False
   with pytest.raises(Exception):
     assert luna_lte({}, {})
 
@@ -80,5 +93,8 @@ def test_gte():
   assert luna_gte(True, True) == True
   assert luna_gte(False, False) == True
   assert luna_gte(True, False) == True
+  assert luna_gte(map1, map1) == True
+  assert luna_gte(map1, map2) == False
+  assert luna_gte(map2, map1) == True
   with pytest.raises(Exception):
     assert luna_gte({}, {})

@@ -1,7 +1,7 @@
 # inequality.py
 
 from .equals import luna_equals
-from .luna_types import Lv
+from .luna_types import Lv, LvMap
 from .utils import luna_throw
 
 # Rules for Luna inequality:
@@ -36,6 +36,12 @@ def luna_lt(a:Lv, b:Lv) -> bool:
       match b:
         case list():
           return len(a) < len(b)
+        case _:
+          return False
+    case LvMap():
+      match b:
+        case LvMap():
+          return len(a.aa) < len(b.aa)
         case _:
           return False
     case _:

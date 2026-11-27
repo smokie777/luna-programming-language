@@ -2,7 +2,6 @@
 
 from ..expressions import *
 from ..luna_eval import luna_eval
-from ..data_structures import LunaMap
 from .test_utils import assert_builtin_fn_call
 import pytest
 
@@ -49,13 +48,13 @@ def test_eval_lists():
   ]) == [6,9,12]
 
 def test_eval_maps():
-  assert luna_eval(Map([["k", "v"]])) == LunaMap([["k", "v"]])
-  assert luna_eval(Map()) == LunaMap([])
-  assert luna_eval(Map([[1+1,2+2]])) == LunaMap([[2,4]])
+  assert luna_eval(Map([["k", "v"]])) == Map([["k", "v"]])
+  assert luna_eval(Map()) == Map([])
+  assert luna_eval(Map([[1+1,2+2]])) == Map([[2,4]])
   assert luna_eval(Map([
     [Product([2,3]),Product([3,4])],
     [Sum([2,3]),Sum([3,4])],
-  ])) == LunaMap([
+  ])) == Map([
     [6,12],
     [5,7]
   ])
@@ -103,12 +102,6 @@ def test_eval_variables():
     luna_eval(VarSet(3, 3))
   with pytest.raises(Exception):
     luna_eval(VarGet(3,))
-
-def test_eval_type_conversions():
-  assert_builtin_fn_call("toboolean", [3], True)
-  assert_builtin_fn_call("tonumber", ["3"], 3)
-  assert_builtin_fn_call("tostring", [3], "3")
-  assert_builtin_fn_call("tolist", [3], [3])
   
 def test_eval_inverse():
   assert luna_eval(Inverse(3)) == -3

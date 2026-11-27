@@ -37,12 +37,6 @@ def builtin_pop(eval_fn, env, args):
   idx = eval_to_int_or_throw(args[1], eval_fn, env, "pop arg 2 (index), if provided,")
   return l.pop(clamp(idx, 0, len(l)-1))
 
-def builtin_get(eval_fn, env, args):
-  mutate_exact_num_args(args, 2, "get")
-  l = eval_to_list_or_throw(args[0], eval_fn, env, "get arg 1")
-  idx = eval_to_int_or_throw(args[1], eval_fn, env, "get arg 2 (index), if provided,")
-  return l[clamp(idx, 0, len(l)-1)]
-
 def builtin_getindex(eval_fn, env, args):
   mutate_exact_num_args(args, 2, "getindex")
   l = eval_to_list_or_throw(args[0], eval_fn, env, "getindex arg 1")
@@ -141,7 +135,6 @@ builtins_list = {
   "filter": BuiltinFunction(builtin_filter),
   "insert": BuiltinFunction(builtin_insert),
   "pop": BuiltinFunction(builtin_pop),
-  "get": BuiltinFunction(builtin_get),
   "getindex": BuiltinFunction(builtin_getindex),
   "contains": BuiltinFunction(builtin_contains),
   "find": BuiltinFunction(builtin_find),

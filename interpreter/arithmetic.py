@@ -1,10 +1,11 @@
 # arithmetic.py
 
-from .luna_types import Lv
+from .luna_types import Lv, LvMap
 from .typeutils import *
 from .equals import luna_equals
 from .utils import luna_throw, luna_inverse, luna_void
 from math import trunc
+from .expressions import Map
 
 # Returns a new list or string which is the result of
 # removing the sequence b from the end of a.
@@ -71,6 +72,7 @@ def luna_divide_sequence(seq:list|str, divisor: Lv) -> Lv:
 # numbers: addition
 # strings and lists: concatenation
 # booleans: convert up hierarchy to numbers
+# maps: add all kv pairs from b to a, overwriting duplicate keys
 def luna_plus(a:Lv, b:Lv) -> Lv:
   match a:
     case str():
@@ -111,6 +113,22 @@ def luna_plus(a:Lv, b:Lv) -> Lv:
           return a + b
         case _:
           luna_throw(f'can\'t add {b} to {a}.')
+    case LvMap():
+      match b:
+        case LvMap():
+          result_aa = []
+          for kvp_a in a.aa:
+            result_aa.append(kvp_a)
+          for idx_a, kvp_a in enumerate(result_aa):
+            for idx_b, kvp_b in enumerate(b.aa):
+              if luna_equals(kvp_a[0], kvp_b[0]):
+                result_aa[idx_a][1] = kvp_b[1]
+                break
+              if idx_b == len(b.aa) - 1:
+                result_aa.append(kvp_b)
+          return Map(result_aa)
+        case _:
+          luna_throw(f'can\'t add {b} to {a}.')
     case _:
       luna_throw(f'can\'t add {b} to {a}.')
 
@@ -119,6 +137,7 @@ def luna_plus(a:Lv, b:Lv) -> Lv:
 # numbers: subtraction
 # strings and lists: inverse concatenation
 # booleans: convert up hierarchy to numbers
+# maps: remove all matching kv pairs
 def luna_minus(a:Lv, b:Lv) -> Lv:
   match a:
     case str() | list():
@@ -139,6 +158,19 @@ def luna_minus(a:Lv, b:Lv) -> Lv:
           return a - luna_to_number(b)
         case _:
           luna_throw(f'can\'t subtract {b} from {a}.')
+    case LvMap():
+      match b:
+        case LvMap():
+          result_aa = []
+          for kvp_a in a.aa:
+            for idx, kvp_b in enumerate(b.aa):
+              if luna_equals(kvp_a, kvp_b):
+                break
+              if idx == len(b.aa) - 1:
+                result_aa.append(kvp_a)
+          return Map(result_aa)
+        case _:
+          luna_throw(f'can\'t subtract {b} to {a}.')
     case _:
       luna_throw(f'can\'t subtract {b} from {a}.')
 

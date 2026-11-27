@@ -3,6 +3,7 @@
 from ..expressions import *
 from ..luna_eval import luna_eval
 from .test_utils import assert_builtin_fn_call
+from ..equals import luna_equals
 import pytest
 
 def assert_builtin_not_mutate(builtin_name:str, builtin_args:list):
@@ -11,6 +12,12 @@ def assert_builtin_not_mutate(builtin_name:str, builtin_args:list):
     Invoke(VarGet(builtin_name), builtin_args),
     VarGet("a")
   ])) == [1,2,3]
+
+def test_list_equality():
+  assert luna_equals([],[])
+  assert luna_equals([1,2],[1,2])
+  assert luna_equals([1,2,[3]],[1,2,[3]])
+  assert luna_equals([1,2],[2,1]) == False
 
 def test_eval_lmap():
   fn = Function(["i"], Program([Product([VarGet("i"), 2])]))

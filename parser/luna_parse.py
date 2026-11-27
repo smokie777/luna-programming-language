@@ -187,7 +187,7 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
         return Return(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.MAP:
         consume()
-        return Map(parse_arguments(t.value))
+        return Map(parse_map_body())
       case ReservedKeywords.IF:
         consume()
         condition = parse_arguments(t.value, [1])[0]
@@ -272,6 +272,32 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
       luna_throw(f'"{construct_name}" must have {exact_num_args} args, got: {len(args)}')
     luna_throw(f'Arguments for "{construct_name}" must be enclosed in ().')
 
+  def parse_map_body():
+    nonlocal idx
+    if check(TokenType.BACKTICK):
+      consume_current_and_newlines()
+      if check(TokenType.BACKTICK):
+        consume()
+        return []
+    else:
+      luna_throw(f'map body must start with backtick. Got: {current()}')
+    aa = []
+    while True:
+      key = parse_expr()
+      consume_newlines()
+      if check(TokenType.COLON):
+        consume_current_and_newlines()
+        aa.append([key, parse_expr()])
+        consume_newlines()
+        if check(TokenType.COMMA):
+          consume_current_and_newlines()
+          continue
+        if check(TokenType.BACKTICK):
+          consume()
+          return aa
+        luna_throw(f'Expected comma or backtick after map value. Got: {current()}')
+      luna_throw(f'Expected colon after map key. Got: {current()}')
+
   def parse_switch_body():
     nonlocal idx
     if check(TokenType.BACKTICK):
@@ -301,8 +327,8 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
         if check(TokenType.BACKTICK):
           consume()
           return cases, branches
-        luna_throw(f'Switch branch must end with comma or backtick. Got: {current()}')  
-      luna_throw(f'Switch case must end with colon. Got: {current()}')
+        luna_throw(f'Expected comma or backtick after switch branch. Got: {current()}')
+      luna_throw(f'Expected colon after switch case. Got: {current()}')
 
   def parse_varset(is_varset_global = False):
     nonlocal idx

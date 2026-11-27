@@ -1,8 +1,9 @@
 # typeutils.py
 
-from .luna_types import Lv, LvList, LvNum
+from .luna_types import Lv, LvNum
 from .utils import luna_throw
 import re
+from .expressions import Map
 
 # In Luna, all values can be freely converted across types.
 # Additionally, all falsey values can be freely converted between one another.
@@ -18,11 +19,10 @@ def luna_to_boolean(v:Lv) -> bool:
     case int() | float():
       return v != 0
     case list():
-      # ideally, the user would specify a reduction like "and" or "or" instead.
-      # but, this case is needed so "and" and "or" don't throw or recurse for nested arrays. 
       return len(v) != 0 
     case _:
-      luna_throw(f'can\'t call luna_to_boolean on: {v}')
+      # anything else that exists that is not falsey is truthy
+      return True
 
 # Converts a runtime value into a number (float or int) runtime value.
 def luna_to_number(v:Lv) -> LvNum:
@@ -41,7 +41,7 @@ def luna_to_number(v:Lv) -> LvNum:
     case list():
       return 1 if len(v) else 0
     case _:
-      luna_throw(f'can\'t call luna_to_number on: {v}')
+      luna_throw(f'can\'t convert to number: {v}')
 
 # Converts a runtime value into a string runtime value.
 def luna_to_string(v:Lv) -> str:
@@ -59,10 +59,10 @@ def luna_to_string(v:Lv) -> str:
         acc += luna_to_string(i)
       return acc
     case _:
-      luna_throw(f'can\'t call luna_to_string on: {v}')
+      luna_throw(f'can\'t convert to string: {v}')
 
 # Converts a runtime value into a list.
-def luna_to_list(v:Lv) -> LvList:
+def luna_to_list(v:Lv) -> list:
   match v:
     case str():
       return list(v) # creates a new list entry for each string char.
@@ -73,7 +73,7 @@ def luna_to_list(v:Lv) -> LvList:
     case list():
       return v
     case _:
-      luna_throw(f'can\'t call luna_to_list on: {v}')
+      luna_throw(f'can\'t convert to list: {v}')
 
 # Returns a tuple of runtime values (a, b)
 # where type of b is coerced to that of a.

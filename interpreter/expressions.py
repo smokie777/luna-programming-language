@@ -2,15 +2,24 @@
 
 from pydantic.dataclasses import dataclass
 from pydantic import Field
-from .luna_types import Expression, EvalExpr
+from .luna_types import Expression, EvalExpr, LvMap
 from .operators import EqualityOp, AdditionOp, MultiplicationOp
 from collections.abc import Callable
+from .utils import luna_throw
 
 # Note: pydantic dataclasses automatically handles type checking.
 
 @dataclass
-class Map(Expression):
-  args: list[EvalExpr] = Field(default_factory=list)
+class Map(LvMap):
+  aa: list[list[EvalExpr]] = Field(default_factory=list)
+  def __post_init__(self):
+    from .equals import luna_equals
+    if any([len(l) != 2 for l in self.aa]):
+      luna_throw(f'Every entry in a Map must be a key-value pair. Got: {self.aa}')
+    for i in range(len(self.aa)):
+      for j in range(i + 1, len(self.aa)):
+        if luna_equals(self.aa[i][0], self.aa[j][0]):
+          luna_throw(f'Every key in a Map must be unique. Got duplicate key: {self.aa[i][0]}')
 
 @dataclass
 class Program(Expression):
