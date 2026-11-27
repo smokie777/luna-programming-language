@@ -4,7 +4,12 @@ from ..typeutils import *
 from ..arithmetic import *
 from ..equals import luna_equals
 from ..utils import *
+from ..expressions import Map
+
 import pytest
+
+def make_test_map():
+  return Map([["a", 1], ["b", 2]])
 
 def test_coerce():
   matrix_axis = ["a", True, 3, [4]]
@@ -48,7 +53,7 @@ def test_to_number():
   assert luna_to_number([]) == 0
   assert luna_to_number([1,2,3]) == 1
   with pytest.raises(Exception):
-    luna_to_number({})
+    luna_to_number(make_test_map())
 
 def test_to_string():
   assert luna_to_string("foo") == "foo"
@@ -59,7 +64,7 @@ def test_to_string():
   assert luna_to_string([]) == ""
   assert luna_to_string([1,2,3]) == "123"
   with pytest.raises(Exception):
-    luna_to_string({})
+    luna_to_string(make_test_map())
 
 def test_to_list():
   assert luna_to_list("foo") == ["f", "o", "o"]
@@ -71,7 +76,7 @@ def test_to_list():
   assert luna_to_list(["foo"]) == ["foo"]
   assert luna_to_list("123") == ["1", "2", "3"]
   with pytest.raises(Exception):
-    luna_to_list({})
+    luna_to_list(make_test_map())
 
 def test_inverse():
   assert luna_inverse("foo") == "oof"
@@ -80,8 +85,11 @@ def test_inverse():
   assert luna_inverse(34) == -34
   assert luna_inverse(3.5) == -3.5
   assert luna_inverse([1,2]) == [2,1]
+  assert luna_equals(luna_inverse(make_test_map()), Map([[2, "b"], [1, "a"]]))
   with pytest.raises(Exception):
     luna_inverse({})
+  with pytest.raises(Exception):
+    luna_inverse(Map([[1, "would_be_duplicate_key"], [2, "would_be_duplicate_key"]]))
 
 def test_equals():
   matrix_axis = ["1", True, 1, 1.0, [1]]

@@ -1,6 +1,7 @@
 # utils.py
 
-from .luna_types import Lv, LvNum
+from .luna_types import Lv, LvNum, LvMap
+from .equals import luna_equals
 
 def luna_throw(message: str):
   raise Exception(f'[LUNA INTERPRETER ERROR] {message}')
@@ -16,6 +17,15 @@ def luna_inverse(v:Lv) -> Lv:
       return v * -1
     case list():
       return v[::-1]
+    case LvMap():
+      result_aa = []
+      for key, value in v.aa:
+        for idx, kvp in enumerate(result_aa):
+          if luna_equals(value, kvp[0]):
+            luna_throw(f'map can\'t have a duplicate key: {key}')
+        result_aa.append([value, key])
+      from .expressions import Map
+      return Map(result_aa)
     case _:
       luna_throw(f'can\'t call inverse on: {v}')
 
