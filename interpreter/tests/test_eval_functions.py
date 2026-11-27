@@ -1,7 +1,7 @@
 # test_eval_functions.py
 
-from .expressions import *
-from .luna_eval import luna_eval
+from ..expressions import *
+from ..luna_eval import luna_eval
 import pytest
 
 fn = Function(

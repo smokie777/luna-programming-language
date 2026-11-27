@@ -4,6 +4,7 @@ from pydantic.dataclasses import dataclass
 from pydantic import Field
 from .luna_types import Expression, EvalExpr
 from .operators import EqualityOp, AdditionOp, MultiplicationOp
+from collections.abc import Callable
 
 # Note: pydantic dataclasses automatically handles type checking.
 
@@ -50,6 +51,10 @@ class Function(Expression):
       raise ValueError(f'Function argument names must be unique. Got: {self.params}')
 
 @dataclass
+class BuiltinFunction(Expression):
+  python_fn: Callable
+
+@dataclass
 class Switch(Expression):
   condition: EvalExpr
   cases: list[EvalExpr]
@@ -89,26 +94,6 @@ class Continue(Expression):
   pass
 
 @dataclass
-class Print(Expression):
-  e: EvalExpr
-
-@dataclass
-class ToBoolean(Expression):
-  e: EvalExpr
-
-@dataclass
-class ToNumber(Expression):
-  e: EvalExpr
-
-@dataclass
-class ToString(Expression):
-  e: EvalExpr
-
-@dataclass
-class ToList(Expression):
-  e: EvalExpr
-
-@dataclass
 class Inverse(Expression):
   e: EvalExpr
 
@@ -120,7 +105,7 @@ class All(Expression):
 class Some(Expression):
   items: list[EvalExpr]
 
-def validate_chain(items, operators, chain_type):
+def _validate_chain(items, operators, chain_type):
   if len(items) < 2 or len(operators) + 1 != len(items):
     raise ValueError(f"{chain_type} must have n items and n - 1 operators, where n >= 2. Got: {len(items)} items, {len(operators)} operators.")
 
@@ -129,21 +114,21 @@ class EqualityChain(Expression):
   items: list[EvalExpr]
   operators: list[EqualityOp]
   def __post_init__(self):
-    validate_chain(self.items, self.operators, "EqualityChain")
+    _validate_chain(self.items, self.operators, "EqualityChain")
 
 @dataclass
 class AdditionChain(Expression):
   items: list[EvalExpr]
   operators: list[AdditionOp]
   def __post_init__(self):
-    validate_chain(self.items, self.operators, "AdditionChain")
+    _validate_chain(self.items, self.operators, "AdditionChain")
 
 @dataclass
 class MultiplicationChain(Expression):
   items: list[EvalExpr]
   operators: list[MultiplicationOp]
   def __post_init__(self):
-    validate_chain(self.items, self.operators, "MultiplicationChain")
+    _validate_chain(self.items, self.operators, "MultiplicationChain")
 
 @dataclass
 class Exponent(Expression):
@@ -163,7 +148,8 @@ class ContinueSignal(Exception):
 class BreakSignal(Exception):
   pass
 
-# helpers to generatee expressions, only to be used during testing.
+# helpers to generate chain AST nodes,
+# in cases where only 1 operator is used
 
 def Sum(l: list[EvalExpr]):
   return AdditionChain(l, [AdditionOp.PLUS for _ in range(len(l) - 1)])
@@ -185,43 +171,3 @@ def Gte(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.GTE for _ in range(len(l) - 1)])
 def Equals(l: list[EvalExpr]):
   return EqualityChain(l, [EqualityOp.EQ for _ in range(len(l) - 1)])
-
-# list utils
-@dataclass
-class Lmap(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-@dataclass
-class Filter(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-@dataclass
-class Insert(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-  e3: EvalExpr | None
-@dataclass
-class Pop(Expression):
-  e1: EvalExpr
-  e2: EvalExpr | None
-@dataclass
-class Get(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-@dataclass
-class GetIndex(Expression):
-  e1: EvalExpr
-  e2: EvalExpr  
-@dataclass
-class Find(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-@dataclass
-class FindIndex(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-@dataclass
-class Slice(Expression):
-  e1: EvalExpr
-  e2: EvalExpr
-  e3: EvalExpr | None

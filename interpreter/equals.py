@@ -6,7 +6,7 @@ from .luna_types import Lv
 # Different types are never equal.
 # List equality is defined as: both lists have the same length,
 # and the value at each index of both lists are equal.
-def luna_equals(a: Lv, b: Lv) -> bool:
+def luna_equals(a:Lv, b:Lv) -> bool:
   match a:
     case str():
       match b:

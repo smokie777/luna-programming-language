@@ -4,6 +4,8 @@ Luna is an experiment into building a small programming language!
 
 It is a tokenizer + parser + interpreter system implemented in Python.
 
+The purpose for Luna's existence is to be a fun, lightweight programming language with cool behaviors that can be used to write real scripts!
+
 # THE LUNA MANIFESTO (WIP)
 
 1. Intuitive is good.
@@ -42,12 +44,7 @@ break              loop break
 function           function definition
 return             function return
 switch             switch definition
-print              print to console
 map                map definition (key-value pair collection)
-boolean            convert to boolean
-string             convert to string
-number             convert to number
-list               convert to list
 ```
 
 Commonly used syntax:
@@ -57,8 +54,8 @@ Commonly used syntax:
 ()                 grouping or invocation
 []                 list definition
 ``                 switch body definition
-\n                 a newline indicates the end of a complete expression
-                   newlines in an incomplete expression are ignored
+\n                 a newline indicates the end of a complete expression.
+                   newlines in an incomplete expression are ignored.
 ```
 
 # HIERARCHICAL TYPES
@@ -330,6 +327,47 @@ A few noteworthy function-loop interactions:
 - `break` or `continue` inside a function but not inside a loop is invalid
 - `break`, `continue`, or `return` from not inside a loop or function is invalid
 
+# BUILT-IN FUNCTIONS
+
+Built-in functions are implemented as Python methods keyed to variables in the interpreter's global scope (environment). They may be invoked by simply invoking their identifier name, similar to a normal function invocation. Built-ins may be shadowed if the user assigns a different value to the built-in name, but then a warning will be printed to the console.
+
+A list of all built-in functions:
+```
+  # Generic built-ins:
+  print(expr) -> False:              print to console
+  boolean(expr) -> boolean:          convert to boolean
+  string(expr) -> string:            convert to string
+  number(expr) -> number:            convert to number
+  list(expr) -> list:                convert to list
+
+  # List built-ins:
+  lmap(list, function) -> list:      list map
+  filter(list, function) -> list:    list filter
+  insert(list, item, idx) -> item:   inserts item into list at idx.
+                                     inserts at end of list if
+                                     idx not provided
+  pop(list, idx) -> item:            removes and returns item at idx
+                                     returns last item if idx not provided
+  get(list, idx) -> number:          get item from list by index
+  getindex(list, item) -> number:    get item index from list by value
+  find(list, fn) -> ite:             get item from list by callback
+  findindex(list) -> number:         get item index from list by callback
+  slice(list, idx1, idx2) -> list:   slice list by range [idx1, idx2)
+  sum(list) -> value:                sum of all items in a list
+  difference(list) -> value:         difference of all items in a list
+  product(list) -> value:            product of all items in a list
+  quotient(list) -> value:           quotient of all items in a list
+  remainder(list) -> value:          remainder of all items in a list
+  lt(list) -> boolean:               < inequality chain 
+  lte(list) -> boolean:              <= inequality chain
+  gt(list) -> boolean:               > inequality chain
+  gte(list) -> boolean:              >= inequality chain
+  equals(list) -> boolean:           equality chain
+  all(list) -> boolean:              whether all items in a list are truthy
+  some(list) -> boolean:             whether at least one item in a list is truthy
+```
+
+
 # INTERPRETER
 
 Luna's interpreter is a recursive tree-walking interpreter that evaluates Expressions into Runtime Values.
@@ -338,7 +376,7 @@ An Expression can be a Python int/bool/str/list, or an Expression class.
 
 A Runtime Value is simply the output of the Python code that the interpreter is written in. For example, a Runtime Value may be a Python string "foo".
 
-Example of (Python) Interpreter code which produces and executes a recursive Factorial function with `n=4` that will yield `24`:
+Example of Python Interpreter code which produces and executes a recursive Factorial function with `n=4` that will yield `24`:
 
 ```
 fact = Function(
@@ -385,25 +423,17 @@ Examples of Tokens include:
 
 - `String`, `Number`, `True`, `False`, `Name`, `Equals`, `Minus`
 
-# TESTING
-
-To run tests:
-
-`python -m pytest` to run all test files and methods starting with `test_`
-
-`python -m pytest -s` to run all tests, and also see print() statements
-
-`python -m pytest parser/test_parse.py` to run one specific test file
-
-`python -m pytest parser/test_parse.py::test_method_name` to run one specific test method
-
-`python -m parser.luna_parse` to run one specific file
-
 # BOOTSTRAPPING
 
-Note: the below steps require Python and Git
+This project requires Python 3.13.
 
-Note: the language is still in development and many key features are missing, I don't recommend using the language for anything other than some quick testing for now.
+Note: the language is still in development and many key features are missing, I don't recommend using the language seriously for now.
+
+All bootstrapping commands should be run from the root directory:
+
+To install dependencies:
+
+`pip install -r requirements.txt`
 
 To install the Luna programming language from a clone of this repo:
 
@@ -416,3 +446,17 @@ To install the Luna programming language from GitHub:
 To run a .luna file:
 
 `luna filename.luna`
+
+# TESTING
+
+All testing commands should be run from the root directory:
+
+`python -m pytest` to run all test files and methods starting with `test_`
+
+`python -m pytest -s` to run all tests, and also see print() statements
+
+`python -m pytest parser/test_parse.py` to run one specific test file
+
+`python -m pytest parser/test_parse.py::test_method_name` to run one specific test method
+
+`python -m parser.luna_parse` to run one specific file

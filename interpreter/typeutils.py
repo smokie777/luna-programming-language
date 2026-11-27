@@ -1,6 +1,6 @@
 # typeutils.py
 
-from .luna_types import Lv
+from .luna_types import Lv, LvList, LvNum
 from .utils import luna_throw
 import re
 
@@ -9,7 +9,7 @@ import re
 # Falsey values are: False, 0, "", [].
 
 # Converts a runtime value into a boolean runtime value.
-def luna_to_boolean(v: Lv) -> bool:
+def luna_to_boolean(v:Lv) -> bool:
   match v:
     case str():
       return v != ""
@@ -25,7 +25,7 @@ def luna_to_boolean(v: Lv) -> bool:
       luna_throw(f'can\'t call luna_to_boolean on: {v}')
 
 # Converts a runtime value into a number (float or int) runtime value.
-def luna_to_number(v: Lv) -> int | float:
+def luna_to_number(v:Lv) -> LvNum:
   match v:
     case str():
       # rules:
@@ -44,7 +44,7 @@ def luna_to_number(v: Lv) -> int | float:
       luna_throw(f'can\'t call luna_to_number on: {v}')
 
 # Converts a runtime value into a string runtime value.
-def luna_to_string(v: Lv) -> str:
+def luna_to_string(v:Lv) -> str:
   match v:
     case str():
       return v
@@ -62,7 +62,7 @@ def luna_to_string(v: Lv) -> str:
       luna_throw(f'can\'t call luna_to_string on: {v}')
 
 # Converts a runtime value into a list.
-def luna_to_list(v: Lv) -> list[Lv]:
+def luna_to_list(v:Lv) -> LvList:
   match v:
     case str():
       return list(v) # creates a new list entry for each string char.
@@ -77,7 +77,7 @@ def luna_to_list(v: Lv) -> list[Lv]:
 
 # Returns a tuple of runtime values (a, b)
 # where type of b is coerced to that of a.
-def _luna_coerce_left(a: Lv, b: Lv) -> Lv:
+def _luna_coerce_left(a:Lv, b:Lv) -> Lv:
    match a:
     case str():
       return (a, luna_to_string(b))
@@ -93,7 +93,7 @@ def _luna_coerce_left(a: Lv, b: Lv) -> Lv:
   
 # Returns a tuple of runtime values (a, b)
 # where type of a is coerced to that of b.
-def _luna_coerce_right(a: Lv, b: Lv) -> Lv:
+def _luna_coerce_right(a:Lv, b:Lv) -> Lv:
   match b:
     case str():
       return (luna_to_string(a), b)
@@ -114,7 +114,7 @@ def _luna_coerce_right(a: Lv, b: Lv) -> Lv:
 # 3. Number
 # 4. Boolean
 # Lower types will be converted to higher types.
-def luna_coerce(a: Lv, b: Lv) -> Lv: 
+def luna_coerce(a:Lv, b:Lv) -> Lv: 
   match a:
     case str():
       match b:

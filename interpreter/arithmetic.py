@@ -10,7 +10,7 @@ from math import trunc
 # removing the sequence b from the end of a.
 # Returns a if a does not end with b.
 # If neither a nor b are lists or strings, a is converted into a string.
-def luna_inverse_concatenate(a: Lv, b: Lv) -> Lv:
+def luna_inverse_concatenate(a:Lv, b:Lv) -> Lv:
   allowed_types = (str, list)
   if not isinstance(a, allowed_types) and not isinstance(b, allowed_types):
     a = luna_to_string(a)
@@ -22,7 +22,7 @@ def luna_inverse_concatenate(a: Lv, b: Lv) -> Lv:
 # Repeats a list or string count times.
 # If count is zero, the type of seq is set to its falsey value.
 # If count is negative, seq is repeated, the inverted.
-def luna_repeat_sequence(seq: list | str, count: Lv) -> list | str:
+def luna_repeat_sequence(seq:list|str, count: Lv) -> list | str:
   count_int = int(luna_to_number(count))
   if count_int == 0:
     return luna_void(seq)
@@ -35,7 +35,7 @@ def luna_repeat_sequence(seq: list | str, count: Lv) -> list | str:
 # If dividing by a list or string, returns the count that list or string is repeated.
 # Division by zero is not allowed.
 # Division must be clean = remainders or float counts are not allowed.
-def luna_divide_sequence(seq: list | str, divisor: Lv) -> Lv:
+def luna_divide_sequence(seq:list|str, divisor: Lv) -> Lv:
   if luna_equals(divisor, luna_void(divisor)):
     luna_throw(f'can\'t divide by a void value: {divisor}')
   if isinstance(divisor, list | str):
@@ -71,7 +71,7 @@ def luna_divide_sequence(seq: list | str, divisor: Lv) -> Lv:
 # numbers: addition
 # strings and lists: concatenation
 # booleans: convert up hierarchy to numbers
-def luna_plus(a: Lv, b: Lv) -> Lv:
+def luna_plus(a:Lv, b:Lv) -> Lv:
   match a:
     case str():
       match b:
@@ -119,7 +119,7 @@ def luna_plus(a: Lv, b: Lv) -> Lv:
 # numbers: subtraction
 # strings and lists: inverse concatenation
 # booleans: convert up hierarchy to numbers
-def luna_minus(a: Lv, b: Lv) -> Lv:
+def luna_minus(a:Lv, b:Lv) -> Lv:
   match a:
     case str() | list():
       return luna_inverse_concatenate(a, b)
@@ -147,7 +147,7 @@ def luna_minus(a: Lv, b: Lv) -> Lv:
 # numbers: multiplication
 # strings and lists: sequence repetition (but, list and str can't be multiplied together.)
 # booleans: convert up hierarchy to numbers
-def luna_times(a: Lv, b: Lv) -> Lv:
+def luna_times(a:Lv, b:Lv) -> Lv:
   match a:
     case str() | list():
       match b:
@@ -181,7 +181,7 @@ def luna_times(a: Lv, b: Lv) -> Lv:
 # numbers: division
 # strings and lists: sequence repetition count, or sequence that is repeated
 # booleans: error, as Times cannot produce a boolean.
-def luna_divide(a: Lv, b: Lv) -> Lv:
+def luna_divide(a:Lv, b:Lv) -> Lv:
   if luna_equals(b, luna_void(b)):
     luna_throw(f'void divisor is not allowed: {b}')
   match a:
@@ -204,7 +204,7 @@ def luna_divide(a: Lv, b: Lv) -> Lv:
 # numbers: remainder
 # strings and lists: either empty sequence or the whole sequence
 # booleans: error, as Times cannot produce a boolean.
-def luna_remainder(a: Lv, b: Lv) -> Lv:
+def luna_remainder(a:Lv, b:Lv) -> Lv:
   if luna_equals(b, luna_void(b)):
     luna_throw(f'void divisor is not allowed: {b}')
   match a:
@@ -228,7 +228,7 @@ def luna_remainder(a: Lv, b: Lv) -> Lv:
 # numbers: exponentiation
 # strings and lists: error, as sequences can only be multiplied by numbers
 # booleans: convert up hierarchy to numbers
-def luna_power(a: Lv, b: Lv) -> Lv:
+def luna_power(a:Lv, b:Lv) -> Lv:
   match a:
     case bool() | int() | float():
       match b:

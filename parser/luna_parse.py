@@ -4,16 +4,16 @@ from interpreter.expressions import *
 from tokenizer.Token import TokenType, Token
 from .utils import luna_throw
 from common.mappings import tt_to_equality_op, tt_to_addition_op, tt_to_multiplication_op
-from common.constants import ReservedKeywords, RESERVED_KEYWORDS_SET
+from common.constants import ReservedKeywords, RESERVED_KEYWORDS_SET, BUILTIN_KEYWORDS_SET
 
 # A recursive descent parser which takes a 1-D list of tokens and returns an AST of Expressions.
 # invariants:
 # 1. a parse_ method should only be called if the token at idx could be the expected token. 
-def luna_parse(tokens: list[Token]) -> Expression:
+def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expression:
   idx = 0
 
   # check if the current token is a given token(s)
-  def check(token_type: str | list) -> bool:
+  def check(token_type:str|list) -> bool:
     if idx >= len(tokens): # detect EOF
       return False
     if isinstance(token_type, str):
@@ -185,18 +185,6 @@ def luna_parse(tokens: list[Token]) -> Expression:
         if current().type != TokenType.PAREN_OPEN:
           return Return(False)
         return Return(parse_arguments(t.value, [1])[0])
-      case ReservedKeywords.BOOLEAN:
-        consume()
-        return ToBoolean(parse_arguments(t.value, [1])[0])
-      case ReservedKeywords.STRING:
-        consume()
-        return ToString(parse_arguments(t.value, [1])[0])
-      case ReservedKeywords.NUMBER:
-        consume()
-        return ToNumber(parse_arguments(t.value, [1])[0])
-      case ReservedKeywords.PRINT:
-        consume()
-        return Print(parse_arguments(t.value, [1])[0])
       case ReservedKeywords.MAP:
         consume()
         return Map(parse_arguments(t.value))
@@ -231,44 +219,6 @@ def luna_parse(tokens: list[Token]) -> Expression:
         condition = parse_arguments(t.value, [1])[0]
         cases, branches = parse_switch_body()
         return Switch(condition, cases, branches)
-      # START LIST UTILS
-      case ReservedKeywords.LMAP:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return Lmap(args[0], args[1])
-      case ReservedKeywords.FILTER:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return Filter(args[0], args[1])
-      case ReservedKeywords.INSERT:
-        consume()
-        args = parse_arguments(t.value, [2, 3])
-        return Insert(args[0], args[1], args[2] if len(args) == 3 else None)
-      case ReservedKeywords.POP:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return Pop(args[0], args[1])
-      case ReservedKeywords.GET:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return Get(args[0], args[1])
-      case ReservedKeywords.GETINDEX:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return GetIndex(args[0], args[1])
-      case ReservedKeywords.FIND:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return Find(args[0], args[1])
-      case ReservedKeywords.FINDINDEX:
-        consume()
-        args = parse_arguments(t.value, [2])
-        return FindIndex(args[0], args[1])
-      case ReservedKeywords.SLICE:
-        consume()
-        args = parse_arguments(t.value, [2, 3])
-        return Slice(args[0], args[1], args[2] if len(args) == 3 else None)
-      # END LIST UTILS
       case _:
         # there is no consume() here because VarGet has no token or syntax
         return VarGet(parse_identifier())
@@ -278,6 +228,8 @@ def luna_parse(tokens: list[Token]) -> Expression:
       luna_throw(f'Expected identifer. Got: {current()}')
     if current().value in RESERVED_KEYWORDS_SET:
       luna_throw(f'Identifier name cannot be a reserved keyword: {current().value}')
+    if current().value in BUILTIN_KEYWORDS_SET and not should_suppress_warnings:
+      print(f'[WARNING]: {current().value} was used as an identifier name, shadowing a built-in function.')
     ret = current().value
     consume()
     return ret

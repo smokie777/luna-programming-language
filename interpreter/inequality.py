@@ -10,7 +10,7 @@ from .utils import luna_throw
 # boolean inequality is: True > False.
 
 # Returns whether a is less than b
-def luna_lt(a: Lv, b: Lv) -> bool:
+def luna_lt(a:Lv, b:Lv) -> bool:
   match a:
     case str():
       match b:
@@ -43,13 +43,13 @@ def luna_lt(a: Lv, b: Lv) -> bool:
 
 
 # Returns whether a is greater than b
-def luna_gt(a: Lv, b: Lv) -> bool:
+def luna_gt(a:Lv, b:Lv) -> bool:
   return luna_lt(b, a)
 
 # Returns whether a is less than or equal to b
-def luna_lte(a: Lv, b: Lv) -> bool:
+def luna_lte(a:Lv, b:Lv) -> bool:
   return luna_lt(a, b) or luna_equals(a, b)
 
 # Returns whether a is greater than or equal to b
-def luna_gte(a: Lv, b: Lv) -> bool:
+def luna_gte(a:Lv, b:Lv) -> bool:
   return luna_lt(b, a) or luna_equals(a, b)

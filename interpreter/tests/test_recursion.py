@@ -1,7 +1,7 @@
 # test_recursion.py
 
-from .expressions import *
-from .luna_eval import luna_eval
+from ..expressions import *
+from ..luna_eval import luna_eval
 import pytest
 
 def test_recursion_factorial_switch():

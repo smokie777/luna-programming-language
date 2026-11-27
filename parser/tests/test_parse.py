@@ -1,7 +1,7 @@
 # test_parse.py
 
 import pytest
-from .luna_parse import luna_parse
+from ..luna_parse import luna_parse
 from interpreter.expressions import *
 from interpreter.operators import *
 from tokenizer.luna_tokenize import luna_tokenize
@@ -112,18 +112,8 @@ def test_parse_keyword_with_args():
   assert_parse_expr_tokens("return", Return(False))
   assert_parse_expr_tokens("return(3)", Return(3))
   assert_parse_expr_tokens("return(3+4)", Return(Sum([3, 4])))
-  assert_parse_expr_tokens("boolean(3)", ToBoolean(3))
-  assert_parse_expr_tokens("boolean(3+4)", ToBoolean(Sum([3, 4])))
-  assert_parse_expr_tokens("string(3)", ToString(3))
-  assert_parse_expr_tokens("string(3+4)", ToString(Sum([3, 4])))
-  assert_parse_expr_tokens("number(3)", ToNumber(3))
-  assert_parse_expr_tokens("number(3+4)", ToNumber(Sum([3, 4])))
-  assert_parse_expr_tokens("print(3)", Print(3))
-  assert_parse_expr_tokens("print(3+4)", Print(Sum([3, 4])))
   with pytest.raises(Exception):
-    luna_parse(luna_tokenize("print()"))
-  with pytest.raises(Exception):
-    luna_parse(luna_tokenize("print(1, 2)"))
+    luna_parse(luna_tokenize("return(1, 2)"))
 
 def test_parse_args():
   # enable once we can make fn with no args
@@ -141,7 +131,7 @@ def test_parse_varset():
   assert_parse_expr_tokens("=> x 4", VarSetGlobal("x", 4))
 
 def test_parse_freeze():
-  assert_parse_expr_tokens("<>print(3)", Frozen(Print(3)))
+  assert_parse_expr_tokens("<>loop(3){4}", Frozen(Loop(3, None, None, Program([4]))))
 
 def test_parse_program():
   assert_parse_expr_tokens("{3}", Program([3]))

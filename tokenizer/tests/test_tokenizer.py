@@ -1,8 +1,8 @@
 # test_tokenizer.py
 
 import pytest
-from .luna_tokenize import luna_tokenize
-from .Token import *
+from ..luna_tokenize import luna_tokenize
+from ..Token import *
 
 # helper for the newline at the end of every tokenize()
 def nl(line_number):

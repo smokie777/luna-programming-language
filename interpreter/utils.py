@@ -1,12 +1,12 @@
 # utils.py
 
-from .luna_types import Lv
+from .luna_types import Lv, LvNum
 
 def luna_throw(message: str):
   raise Exception(f'[LUNA INTERPRETER ERROR] {message}')
 
 # Returns the inverse of a value.
-def luna_inverse(v: Lv) -> Lv:
+def luna_inverse(v:Lv) -> Lv:
   match v:
     case str():
       return v[::-1]
@@ -20,7 +20,7 @@ def luna_inverse(v: Lv) -> Lv:
       luna_throw(f'can\'t call inverse on: {v}')
 
 # Returns the falsey value associated with the given value's type
-def luna_void(v: Lv) -> Lv:
+def luna_void(v:Lv) -> Lv:
   match v:
     case str():
       return ""
@@ -34,5 +34,14 @@ def luna_void(v: Lv) -> Lv:
       luna_throw(f'can\'t call void on: {v}')
 
 # Clamp a number between a min_val and a max_val
-def clamp(n, min_val, max_val):
+def clamp(n:LvNum, min_val:LvNum, max_val:LvNum) -> LvNum:
   return max(min_val, min(n, max_val))
+
+# modify a list of args to have an exact number of args,
+# filling in missing args with None.
+def mutate_exact_num_args(args:list, exact_num_args:int, description: str) -> list:
+  if len(args) > exact_num_args:
+    luna_throw(f'{description} takes {exact_num_args} args, got: {len(args)}')
+  while len(args) < exact_num_args:
+    args.append(None)
+  return args
