@@ -1,3 +1,4 @@
 __pycache__
 .pytest_cache
-luna_programming_language.egg-info
+luna_programming_language.egg-info/
+.DS_Store
