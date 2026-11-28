@@ -9,3 +9,4 @@ TODO:
 - string builtins
 - function highlights
 - help method?
+- better parser error reporting (raise and catch in main())
