@@ -244,6 +244,7 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
     while check(TokenType.COMMA):
       consume_current_and_newlines()
       params.append(parse_identifier())
+      consume_newlines()
     if check(TokenType.PAREN_CLOSE):
       consume()
       return params
@@ -265,6 +266,7 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
     while check(TokenType.COMMA):
       consume_current_and_newlines()
       args.append(parse_expr())
+      consume_newlines()
     if check(TokenType.PAREN_CLOSE):
       consume()
       if exact_num_args is None or len(args) in exact_num_args:
@@ -376,6 +378,7 @@ def luna_parse(tokens:list[Token], should_suppress_warnings:bool=False) -> Expre
     while check(TokenType.COMMA):
       consume_current_and_newlines()
       nodes.append(parse_expr())
+      consume_newlines()
     if check(TokenType.BRACKET_CLOSE):
       consume()
       return nodes

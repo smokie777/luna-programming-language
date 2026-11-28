@@ -197,5 +197,6 @@ def test_parse_map():
 def test_parse_invocation():
   assert_parse_expr_tokens("x()", Invoke(VarGet("x"), []))
   assert_parse_expr_tokens("x(1, 2, 3)", Invoke(VarGet("x"), [1, 2, 3]))
+  assert_parse_expr_tokens("x(\n1,\n2,\n3\n)", Invoke(VarGet("x"), [1, 2, 3]))
   assert_parse_expr_tokens("function(arg){4}()", Invoke(Function(["arg"], Program([4]))))
   assert_parse_expr_tokens("x()()()", Invoke(Invoke(Invoke(VarGet("x"), []), []), []))

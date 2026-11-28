@@ -1,0 +1,72 @@
+# You are climbing a staircase. It takes n steps to reach the top.
+
+# Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+# Example 1:
+
+# Input: n = 2
+# Output: 2
+# Explanation: There are two ways to climb to the top.
+# 1. 1 step + 1 step
+# 2. 2 steps
+# Example 2:
+
+# Input: n = 3
+# Output: 3
+# Explanation: There are three ways to climb to the top.
+# 1. 1 step + 1 step + 1 step
+# 2. 1 step + 2 steps
+# 3. 2 steps + 1 step
+ 
+# Constraints:
+# 1 <= n <= 45
+
+-> solve_dp f(n){
+  n = 1 & return(1)
+  ->a 1
+  ->b 2
+  ->i 0
+  loop(n - 2){
+    ->c a + b
+    ->a b
+    ->b c
+  }
+  b
+}
+
+-> solve_recursion f(n){
+  n = 1 & return(1)
+  n = 2 & return(2)
+  solve_recursion(n-1)+solve_recursion(n-2)
+}
+
+-> solve_list f(n){
+  -> l []
+  loop(n, idx){
+    insert(
+      l,
+      idx = 0 >> 1 !> (
+        idx = 1 >> 2 !> get(l, size(l) - 1) + get(l, size(l) - 2)
+      )
+    )
+  }
+  pop(l)
+}
+
+test(solve_dp(1), 1, true)
+test(solve_dp(2), 2, true)
+test(solve_dp(3), 3, true)
+test(solve_dp(4), 5, true)
+test(solve_dp(5), 8, true)
+
+test(solve_recursion(1), 1, true)
+test(solve_recursion(2), 2, true)
+test(solve_recursion(3), 3, true)
+test(solve_recursion(4), 5, true)
+test(solve_recursion(5), 8, true)
+
+test(solve_list(1), 1, true)
+test(solve_list(2), 2, true)
+test(solve_list(3), 3, true)
+test(solve_list(4), 5, true)
+test(solve_list(5), 8, true)

@@ -9,7 +9,7 @@ def eval_to_list_or_throw(e:Expression, eval_fn:Callable, env, description:str) 
   ret = eval_fn(e, env)
   if isinstance(ret, list):
     return ret
-  luna_throw(f'{description} must be a list, got: {ret}')
+  luna_throw(f'{description} must be a List, got: {ret}')
 
 def eval_to_function_or_throw(e:Expression, eval_fn:Callable, env, description:str) -> Function:
   ret = eval_fn(e, env)
@@ -28,3 +28,9 @@ def eval_to_map_or_throw(e:Expression, eval_fn:Callable, env, description:str) -
   if isinstance(ret, LvMap):
     return ret
   luna_throw(f'{description} must be a Map, got: {ret}')
+
+def eval_to_string_or_throw(e:Expression, eval_fn:Callable, env, description:str) -> str:
+  ret = eval_fn(e, env)
+  if isinstance(ret, str):
+    return ret
+  luna_throw(f'{description} must be a String, got: {ret}')

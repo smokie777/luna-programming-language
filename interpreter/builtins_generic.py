@@ -12,6 +12,18 @@ def builtin_print(eval_fn, env, args):
   print(eval_fn(args[0], env))
   return True
 
+def builtin_test(eval_fn, env, args):
+  mutate_exact_num_args(args, 3, "test")
+  expected = eval_fn(args[0], env)
+  actual = eval_fn(args[1], env)
+  should_print_success_result = luna_to_boolean(eval_fn(args[2], env))
+  if not luna_equals(expected, actual):
+    print(f'[LUNA TEST FAILED] {expected} != {actual}')
+    return False
+  elif should_print_success_result:
+    print(actual)
+  return True  
+
 def builtin_to_boolean(eval_fn, env, args):
   mutate_exact_num_args(args, 1, "boolean")
   return luna_to_boolean(eval_fn(args[0], env))
@@ -58,5 +70,6 @@ builtins_generic = {
   "tonumber": BuiltinFunction(builtin_to_number),
   "tolist": BuiltinFunction(builtin_to_list),
   "get": BuiltinFunction(builtin_get),
-  "size": BuiltinFunction(builtin_size)
+  "size": BuiltinFunction(builtin_size),
+  "test": BuiltinFunction(builtin_test),
 }

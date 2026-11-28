@@ -346,10 +346,11 @@ A list of all built-in functions:
 ```
   # Generic built-ins:
   print(expr) -> False              print to console
-  boolean(expr) -> boolean          convert to boolean
-  string(expr) -> string            convert to string
-  number(expr) -> number            convert to number
-  list(expr) -> list                convert to list
+  test(expr1, expr2, flag) -> bool  test if expr1 = expr2. prints result if flag=true
+  toboolean(expr) -> boolean        convert to boolean
+  tostring(expr) -> string          convert to string
+  tonumber(expr) -> number          convert to number
+  tolist(expr) -> list              convert to list
 
   # List built-ins
   size(list) -> number              get number of items in list
@@ -389,6 +390,9 @@ A list of all built-in functions:
   containsvalue(map, v) -> boolean  whether value exists in the map
   set(map, k, v) -> v               set a key-value pair
   delete(map, key) -> boolean       delete a key, returning whether a deletion occurred
+
+  # String built-ins:
+  trim(string) -> string            trim leading/trailing whitespace
 ```
 
 # INTERPRETER
