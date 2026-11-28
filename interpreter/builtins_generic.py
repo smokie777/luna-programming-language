@@ -5,6 +5,7 @@ from .typeutils import luna_to_boolean, luna_to_string, luna_to_number, luna_to_
 from .utils import mutate_exact_num_args, luna_throw, clamp
 from .expressions import BuiltinFunction
 from .eval_helpers import eval_to_int_or_throw
+from .equals import luna_equals
 
 def builtin_print(eval_fn, env, args):
   mutate_exact_num_args(args, 1, "print")

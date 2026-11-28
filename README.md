@@ -345,38 +345,50 @@ A list of all built-in functions:
 
 ```
   # Generic built-ins:
-  print(expr) -> False:              print to console
-  boolean(expr) -> boolean:          convert to boolean
-  string(expr) -> string:            convert to string
-  number(expr) -> number:            convert to number
-  list(expr) -> list:                convert to list
+  print(expr) -> False              print to console
+  boolean(expr) -> boolean          convert to boolean
+  string(expr) -> string            convert to string
+  number(expr) -> number            convert to number
+  list(expr) -> list                convert to list
 
-  # List built-ins:
-  lmap(list, function) -> list:      list map
-  filter(list, function) -> list:    list filter
-  insert(list, item, idx) -> item:   inserts item into list at idx.
-                                     inserts at end of list if
-                                     idx not provided
-  pop(list, idx) -> item:            removes and returns item at idx
-                                     returns last item if idx not provided
-  get(list, idx) -> number:          get item from list by index
-  getindex(list, item) -> number:    get item index from list by value
-  contains(list, item) -> boolean:   whether item exists in list by value
-  find(list, fn) -> ite:             get item from list by callback
-  findindex(list) -> number:         get item index from list by callback
-  slice(list, idx1, idx2) -> list:   slice list by range [idx1, idx2)
-  sum(list) -> value:                sum of all items in a list
-  difference(list) -> value:         difference of all items in a list
-  product(list) -> value:            product of all items in a list
-  quotient(list) -> value:           quotient of all items in a list
-  remainder(list) -> value:          remainder of all items in a list
-  lt(list) -> boolean:               < inequality chain
-  lte(list) -> boolean:              <= inequality chain
-  gt(list) -> boolean:               > inequality chain
-  gte(list) -> boolean:              >= inequality chain
-  equals(list) -> boolean:           equality chain
-  all(list) -> boolean:              whether all items in a list are truthy
-  some(list) -> boolean:             whether at least one item in a list is truthy
+  # List built-ins
+  size(list) -> number              get number of items in list
+  lmap(list, function) -> list      list map
+  filter(list, function) -> list    list filter
+  insert(list, item, idx) -> item   inserts item into list at idx.
+                                    inserts at end of list if
+                                    idx not provided
+  get(list, idx) -> item            get item at idx
+  pop(list, idx) -> item            removes and returns item at idx
+                                    returns last item if idx not provided
+  get(list, idx) -> number          get item from list by index
+  getindex(list, item) -> number    get item index from list by value
+  contains(list, item) -> boolean   whether item exists in list by value
+  find(list, fn) -> ite             get item from list by callback
+  findindex(list) -> number         get item index from list by callback
+  slice(list, idx1, idx2) -> list   slice list by range [idx1, idx2)
+  sum(list) -> value                sum of all items in a list
+  difference(list) -> value         difference of all items in a list
+  product(list) -> value            product of all items in a list
+  quotient(list) -> value           quotient of all items in a list
+  remainder(list) -> value          remainder of all items in a list
+  lt(list) -> boolean               < inequality chain
+  lte(list) -> boolean              <= inequality chain
+  gt(list) -> boolean               > inequality chain
+  gte(list) -> boolean              >= inequality chain
+  equals(list) -> boolean           equality chain
+  all(list) -> boolean              whether all items in a list are truthy
+  some(list) -> boolean             whether at least one item in a list is truthy
+
+  # Map built-ins:
+  size(map) -> number               get number of key-value pairs in map
+  keys(map) -> list                 a list of all the keys
+  values(map) -> list               a list of all the values
+  pairs(map) -> list[list]          a list of all key-value pairs [k, v]
+  containskey(map, k) -> boolean    whether key exists in the map
+  containsvalue(map, v) -> boolean  whether value exists in the map
+  set(map, k, v) -> v               set a key-value pair
+  delete(map, key) -> boolean       delete a key, returning whether a deletion occurred
 ```
 
 # INTERPRETER

@@ -87,7 +87,7 @@ def test_eval_set():
 
 def test_eval_delete():
   assert_builtin_fn_call("delete", [make_test_map(), "b"], True)
-  assert_builtin_fn_call("delete", [make_test_map(), "z"], True)
+  assert_builtin_fn_call("delete", [make_test_map(), "z"], False)
   exp1 = make_test_map()
   exp1.aa.pop(1)
   assert_builtin_mutates("delete", [VarGet("a"), "b"], exp1)

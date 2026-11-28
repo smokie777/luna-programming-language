@@ -57,8 +57,8 @@ def builtin_delete(eval_fn, env, args):
   for i in range(len(m)):
     if luna_equals(m[i][0], key):
       m.pop(i)
-      break
-  return True
+      return True
+  return False
 
 builtins_map = {
   "keys": BuiltinFunction(builtin_keys),
